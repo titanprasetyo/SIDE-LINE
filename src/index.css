@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Montserrat", sans-serif;
+  --font-body: "Poppins", sans-serif;
+  --font-sans: "Poppins", sans-serif;
+
+  --color-cream: #FFF5CF;
+  --color-cream-light: #FFFAE5;
+  --color-cream-muted: #F5E8BA;
+  --color-cream-border: #E8DDAE;
+  --color-cream-border-strong: #D6C78F;
+
+  --color-brand-red: #FF0000;
+  --color-brand-red-dark: #D60000;
+  --color-brand-red-light: #FFE5E5;
+
+  --color-ink: #141414;
+  --color-ink-muted: #5C584E;
+  --color-ink-soft: #858074;
+}
+
+@layer base {
+  html {
+    background-color: #FFF5CF;
+    color: #141414;
+    font-family: var(--font-body);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FFF5CF;
+    color: #141414;
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom architectural hairline utility */
+.border-hairline {
+  border-width: 1px;
+  border-color: #E8DDAE;
+}
+
+.border-hairline-dark {
+  border-width: 1px;
+  border-color: #141414;
+}
+
+.border-hairline-red {
+  border-width: 1px;
+  border-color: #FF0000;
+}
