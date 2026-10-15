@@ -1,6 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
-import { menuService } from "../../services/menuService";
+import { menuService, calculatePromo, getPromoTimeInfo } from "../../services/menuService";
 import { categoryService } from "../../services/categoryService";
+import {
+  Plus,
+  Search,
+  Filter,
+  Flame,
+  Tag,
+  Pencil,
+  Trash2,
+  Coffee,
+  AlertTriangle,
+  CheckCircle2,
+  SlidersHorizontal,
+  X,
+  Clock,
+  Sparkles,
+} from "lucide-react";
 
 export default function MenuManagement() {
   const [menus, setMenus] = useState([]);
@@ -10,6 +26,10 @@ export default function MenuManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Pagination Admin
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Modal Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +45,14 @@ export default function MenuManagement() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+
+  // Promo Potongan Harga Fields
+  const [isPromo, setIsPromo] = useState(false);
+  const [discountPercent, setDiscountPercent] = useState("");
+  const [discountAmount, setDiscountAmount] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
+  const [promoStartDate, setPromoStartDate] = useState("");
+  const [promoEndDate, setPromoEndDate] = useState("");
 
   // Refetch helper
   const reloadData = useCallback(async () => {
@@ -69,6 +97,16 @@ export default function MenuManagement() {
     };
   }, [filterCategory]);
 
+  const handleSearchChange = (val) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
+
+  const handleFilterCategoryChange = (val) => {
+    setFilterCategory(val);
+    setCurrentPage(1);
+  };
+
   // Handle Pilih File Gambar
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -82,6 +120,87 @@ export default function MenuManagement() {
     }
   };
 
+  // Logic Perhitungan Potongan Harga Otomatis
+  const handlePriceChange = (newVal) => {
+    setPrice(newVal);
+    if (isPromo) {
+      const p = discountPercent || 12;
+      const res = calculatePromo({
+        price: newVal,
+        discount_percent: p,
+        changedField: "percent",
+      });
+      setDiscountAmount(res.discount_amount);
+      setDiscountedPrice(res.discounted_price);
+    }
+  };
+
+  const handlePercentChange = (val) => {
+    setDiscountPercent(val);
+    if (val === "" || isNaN(Number(val))) {
+      setDiscountAmount("");
+      setDiscountedPrice(price || "");
+      return;
+    }
+    const res = calculatePromo({
+      price,
+      discount_percent: val,
+      changedField: "percent",
+    });
+    setDiscountAmount(res.discount_amount);
+    setDiscountedPrice(res.discounted_price);
+  };
+
+  const handleAmountChange = (val) => {
+    setDiscountAmount(val);
+    if (val === "" || isNaN(Number(val))) {
+      setDiscountPercent("");
+      setDiscountedPrice(price || "");
+      return;
+    }
+    const res = calculatePromo({
+      price,
+      discount_amount: val,
+      changedField: "amount",
+    });
+    setDiscountPercent(res.discount_percent);
+    setDiscountedPrice(res.discounted_price);
+  };
+
+  const handleDiscountedPriceChange = (val) => {
+    setDiscountedPrice(val);
+    if (val === "" || isNaN(Number(val))) {
+      setDiscountPercent("");
+      setDiscountAmount("");
+      return;
+    }
+    const res = calculatePromo({
+      price,
+      discounted_price: val,
+      changedField: "finalPrice",
+    });
+    setDiscountPercent(res.discount_percent);
+    setDiscountAmount(res.discount_amount);
+  };
+
+  const handleTogglePromoCheck = (checked) => {
+    setIsPromo(checked);
+    if (checked) {
+      const initialPercent = discountPercent || 10;
+      setDiscountPercent(initialPercent);
+      const res = calculatePromo({
+        price,
+        discount_percent: initialPercent,
+        changedField: "percent",
+      });
+      setDiscountAmount(res.discount_amount);
+      setDiscountedPrice(res.discounted_price);
+    } else {
+      setDiscountAmount("");
+      setDiscountedPrice(price);
+    }
+  };
+
   // Buka Modal Tambah
   const handleOpenAdd = () => {
     setEditingMenu(null);
@@ -91,6 +210,12 @@ export default function MenuManagement() {
     setDescription("");
     setIsAvailable(true);
     setIsFeatured(false);
+    setIsPromo(false);
+    setDiscountPercent("");
+    setDiscountAmount("");
+    setDiscountedPrice("");
+    setPromoStartDate("");
+    setPromoEndDate("");
     setImageFile(null);
     setImagePreview("");
     setErrorMsg("");
@@ -107,6 +232,41 @@ export default function MenuManagement() {
     setDescription(menu.description || "");
     setIsAvailable(menu.is_available);
     setIsFeatured(menu.is_featured);
+
+    const hasPromo = Boolean(menu.is_promo || Number(menu.discount_percent) > 0);
+    setIsPromo(hasPromo);
+    setDiscountPercent(menu.discount_percent ?? (hasPromo ? 10 : ""));
+    setDiscountAmount(menu.discount_amount || "");
+    setDiscountedPrice(menu.discounted_price || menu.price || "");
+
+    if (menu.promo_start_date) {
+      const d = new Date(menu.promo_start_date);
+      if (!isNaN(d.getTime())) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const date = String(d.getDate()).padStart(2, "0");
+        setPromoStartDate(`${year}-${month}-${date}`);
+      } else {
+        setPromoStartDate("");
+      }
+    } else {
+      setPromoStartDate("");
+    }
+
+    if (menu.promo_end_date) {
+      const d = new Date(menu.promo_end_date);
+      if (!isNaN(d.getTime())) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const date = String(d.getDate()).padStart(2, "0");
+        setPromoEndDate(`${year}-${month}-${date}`);
+      } else {
+        setPromoEndDate("");
+      }
+    } else {
+      setPromoEndDate("");
+    }
+
     setImageFile(null);
     setImagePreview(menu.image_url || "");
     setErrorMsg("");
@@ -131,13 +291,48 @@ export default function MenuManagement() {
       setIsSubmitting(true);
       setErrorMsg("");
 
+      const finalPrice = Number(price) || 0;
+      const isPromoActive = Boolean(isPromo);
+      const discPercent = isPromoActive
+        ? discountPercent === ""
+          ? 0
+          : Number(discountPercent) || 0
+        : 0;
+      const discAmount = isPromoActive ? Number(discountAmount) || 0 : 0;
+      const discPrice = isPromoActive
+        ? Number(discountedPrice) || Math.max(0, finalPrice - discAmount)
+        : finalPrice;
+
+      let finalPromoStartDate = null;
+      if (isPromoActive && promoStartDate) {
+        const d = new Date(promoStartDate);
+        if (!isNaN(d.getTime())) {
+          finalPromoStartDate = d.toISOString();
+        }
+      }
+
+      let finalPromoEndDate = null;
+      if (isPromoActive && promoEndDate) {
+        const d = new Date(promoEndDate);
+        if (!isNaN(d.getTime())) {
+          d.setHours(23, 59, 59, 999);
+          finalPromoEndDate = d.toISOString();
+        }
+      }
+
       const payload = {
         name,
         category_id: categoryId || null,
-        price,
+        price: finalPrice,
         description,
         is_available: isAvailable,
-        is_featured: isFeatured,
+        is_featured: isPromoActive || isFeatured,
+        is_promo: isPromoActive,
+        discount_percent: discPercent,
+        discount_amount: discAmount,
+        discounted_price: discPrice,
+        promo_start_date: finalPromoStartDate,
+        promo_end_date: finalPromoEndDate,
         image_url: editingMenu?.image_url,
       };
 
@@ -178,17 +373,19 @@ export default function MenuManagement() {
     }
   };
 
-  // Toggle Featured
-  const handleToggleFeatured = async (menu) => {
+  // Toggle Promo Langsung di Tabel
+  const handleTogglePromoRow = async (menu) => {
     try {
-      await menuService.toggleFeatured(menu.id, menu.is_featured);
+      const updated = await menuService.togglePromo(menu);
       setMenus((prev) =>
-        prev.map((m) =>
-          m.id === menu.id ? { ...m, is_featured: !m.is_featured } : m
-        )
+        prev.map((m) => (m.id === menu.id ? updated : m))
       );
+      setSuccessMsg(
+        `Status promo menu "${menu.name}" berhasil diubah!`
+      );
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
-      setErrorMsg("Gagal mengubah status rekomendasi: " + err.message);
+      setErrorMsg("Gagal mengubah promo menu: " + err.message);
     }
   };
 
@@ -212,45 +409,53 @@ export default function MenuManagement() {
     m.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination Slice
+  const totalPages = Math.ceil(filteredMenus.length / itemsPerPage) || 1;
+  const paginatedMenus = filteredMenus.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header Halaman */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
             Menu Management
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Kelola daftar makanan, minuman, harga, ketersediaan, dan foto menu
+          <p className="mt-1 text-xs sm:text-sm text-zinc-500">
+            Kelola katalog sajian kopi, makanan, promo harga real-time, dan foto menu
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 active:scale-[0.98] transition"
+          className="w-full sm:w-auto justify-center inline-flex items-center gap-2 rounded-xl bg-[#FF0000] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#D60000] active:scale-[0.98] transition cursor-pointer"
         >
-          <span>➕</span>
+          <Plus className="h-4 w-4" />
           <span>Tambah Menu Baru</span>
         </button>
       </div>
 
       {/* Filter & Pencarian */}
-      <div className="mt-6 flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Cari nama menu..."
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-amber-500 transition"
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="Cari nama menu atau deskripsi..."
+            className="w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-4 py-2.5 text-xs text-zinc-800 placeholder-zinc-400 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 transition shadow-2xs"
           />
         </div>
 
         <div className="w-full sm:w-56">
           <select
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 transition"
+            onChange={(e) => handleFilterCategoryChange(e.target.value)}
+            className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-xs font-medium text-zinc-700 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 transition shadow-2xs cursor-pointer"
           >
             <option value="all">Semua Kategori</option>
             {categories.map((c) => (
@@ -264,145 +469,238 @@ export default function MenuManagement() {
 
       {/* Feedback Messages */}
       {successMsg && (
-        <div className="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3.5 text-sm text-emerald-800 flex items-center gap-2">
-          <span>✅</span>
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200/80 p-3.5 text-xs text-emerald-800 flex items-center gap-2 animate-fade-in">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="mt-4 rounded-lg bg-red-50 border border-red-200 p-3.5 text-sm text-red-800 flex items-center gap-2">
-          <span>⚠️</span>
+        <div className="rounded-xl bg-red-50 border border-red-200/80 p-3.5 text-xs text-red-800 flex items-center gap-2 animate-fade-in">
+          <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {/* Tabel Menu */}
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-2xs">
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-12 text-slate-400">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-amber-500" />
-            <p className="mt-3 text-sm">Memuat daftar menu...</p>
+          <div className="flex flex-col items-center justify-center p-16 text-zinc-400">
+            <div className="h-8 w-8 animate-spin rounded-full border-3 border-zinc-200 border-t-zinc-800" />
+            <p className="mt-3 text-xs font-medium text-zinc-500">Memuat katalog menu...</p>
           </div>
         ) : filteredMenus.length === 0 ? (
-          <div className="p-12 text-center">
-            <span className="text-4xl">☕</span>
-            <p className="mt-3 text-base font-semibold text-slate-700">
-              Tidak ada menu yang ditemukan
+          <div className="p-16 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-500 mb-3">
+              <Coffee className="h-6 w-6" />
+            </div>
+            <p className="text-sm font-bold text-zinc-800">
+              Tidak ada sajian yang ditemukan
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-zinc-500 max-w-sm mx-auto">
               {searchQuery
-                ? "Coba kata kunci pencarian yang lain."
-                : "Mulai tambahkan menu pertama untuk café Anda."}
+                ? "Coba sesuaikan kata kunci pencarian atau kategori filter Anda."
+                : "Mulai tambahkan menu pertama untuk cafe Anda."}
             </p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 rounded-lg bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 transition"
+              className="mt-4 rounded-xl bg-[#0B0F17] px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition cursor-pointer"
             >
               Tambah Menu Baru
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-700">
+            <table className="w-full text-left text-xs text-zinc-600">
+              <thead className="border-b border-zinc-200 bg-zinc-50/80 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className="px-5 py-3.5">Foto</th>
                   <th className="px-5 py-3.5">Nama & Deskripsi</th>
                   <th className="px-5 py-3.5">Kategori</th>
-                  <th className="px-5 py-3.5">Harga</th>
+                  <th className="px-5 py-3.5">Harga & Diskon</th>
                   <th className="px-5 py-3.5">Status</th>
                   <th className="px-5 py-3.5 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredMenus.map((menu) => (
-                  <tr key={menu.id} className="hover:bg-slate-50/70 transition">
-                    <td className="px-5 py-3.5">
-                      {menu.image_url ? (
-                        <img
-                          src={menu.image_url}
-                          alt={menu.name}
-                          className="h-12 w-12 rounded-lg object-cover border border-slate-200 shadow-2xs"
-                        />
-                      ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-lg text-slate-400">
-                          ☕
+              <tbody className="divide-y divide-zinc-100">
+                {paginatedMenus.map((menu) => {
+                  const hasPromo = Boolean(
+                    menu.is_promo || Number(menu.discount_percent) > 0
+                  );
+                  const promoPrice =
+                    menu.discounted_price ||
+                    Math.max(
+                      0,
+                      menu.price - (Number(menu.discount_amount) || 0)
+                    );
+
+                  return (
+                    <tr key={menu.id} className="hover:bg-zinc-50/60 transition-colors">
+                      <td className="px-5 py-3.5">
+                        {menu.image_url ? (
+                          <img
+                            src={menu.image_url}
+                            alt={menu.name}
+                            className="h-12 w-12 rounded-lg object-cover border border-zinc-200/80 shadow-2xs"
+                          />
+                        ) : (
+                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 text-zinc-400 border border-zinc-200">
+                            <Coffee className="h-5 w-5" />
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="font-semibold text-zinc-900 flex items-center flex-wrap gap-2">
+                          <span className="text-xs">{menu.name}</span>
+                          {hasPromo && (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200/60 px-1.5 py-0.5 text-[10px] font-bold">
+                              <Flame className="h-3 w-3" />
+                              <span>{menu.discount_percent ? `-${menu.discount_percent}%` : "Promo"}</span>
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="font-semibold text-slate-900 flex items-center gap-2">
-                        <span>{menu.name}</span>
-                        {menu.is_featured && (
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
-                            ⭐ Unggulan
+                        <p className="mt-0.5 text-[11px] text-zinc-400 line-clamp-1 max-w-xs">
+                          {menu.description || "Tanpa deskripsi"}
+                        </p>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 border border-zinc-200/60">
+                          <Tag className="h-3 w-3 text-zinc-400" />
+                          <span>{menu.categories?.name || "Uncategorized"}</span>
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {hasPromo ? (
+                          <div>
+                            <span className="line-through text-[11px] text-zinc-400 block font-mono">
+                              Rp {Number(menu.price).toLocaleString("id-ID")}
+                            </span>
+                            <span className="font-bold text-xs text-rose-600 block font-mono">
+                              Rp {Number(promoPrice).toLocaleString("id-ID")}
+                            </span>
+                            <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">
+                              Hemat Rp{" "}
+                              {Number(
+                                menu.discount_amount || menu.price - promoPrice
+                              ).toLocaleString("id-ID")}
+                            </span>
+                            {menu.promo_end_date ? (
+                              menu.is_expired ? (
+                                <span className="text-[10px] text-rose-600 font-bold block mt-0.5">
+                                  Kadaluarsa ({menu.formatted_end_date})
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-zinc-600 font-medium block mt-0.5">
+                                  ⏱️ {menu.remaining_time_text}
+                                </span>
+                              )
+                            ) : (
+                              <span className="text-[10px] text-zinc-400 block mt-0.5">
+                                Tanpa Batas Waktu
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-zinc-900 font-mono text-xs">
+                            Rp {Number(menu.price).toLocaleString("id-ID")}
                           </span>
                         )}
-                      </div>
-                      <p className="mt-0.5 text-xs text-slate-400 line-clamp-1 max-w-xs">
-                        {menu.description || "Tanpa deskripsi"}
-                      </p>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                        {menu.categories?.name || "Uncategorized"}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 font-semibold text-slate-800">
-                      Rp {Number(menu.price).toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex flex-col gap-1.5">
-                        <button
-                          onClick={() => handleToggleAvailable(menu)}
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition cursor-pointer ${
-                            menu.is_available
-                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                              : "bg-red-100 text-red-800 hover:bg-red-200"
-                          }`}
-                          title="Klik untuk ubah ketersediaan"
-                        >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              menu.is_available ? "bg-emerald-600" : "bg-red-600"
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex flex-col gap-1.5 items-start">
+                          <button
+                            onClick={() => handleToggleAvailable(menu)}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium transition cursor-pointer ${
+                              menu.is_available
+                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 hover:bg-emerald-100"
+                                : "bg-zinc-100 text-zinc-600 ring-1 ring-zinc-300 hover:bg-zinc-200"
                             }`}
-                          />
-                          {menu.is_available ? "Tersedia" : "Habis"}
-                        </button>
+                            title="Klik untuk ubah ketersediaan"
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                menu.is_available ? "bg-emerald-500" : "bg-zinc-400"
+                              }`}
+                            />
+                            {menu.is_available ? "Tersedia" : "Habis"}
+                          </button>
 
-                        <button
-                          onClick={() => handleToggleFeatured(menu)}
-                          className={`text-[11px] font-medium text-left hover:underline ${
-                            menu.is_featured
-                              ? "text-amber-600"
-                              : "text-slate-400 hover:text-slate-600"
-                          }`}
-                        >
-                          {menu.is_featured ? "★ Hapus Rekomendasi" : "☆ Set Rekomendasi"}
-                        </button>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(menu)}
-                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(menu)}
-                          className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition"
-                        >
-                          🗑️ Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            onClick={() => handleTogglePromoRow(menu)}
+                            className={`inline-flex items-center gap-1 text-[11px] font-medium transition hover:underline cursor-pointer ${
+                              hasPromo
+                                ? "text-rose-600 font-semibold"
+                                : "text-zinc-400 hover:text-zinc-700"
+                            }`}
+                          >
+                            <Flame className="h-3 w-3" />
+                            <span>{hasPromo ? "Nonaktifkan Promo" : "Jadikan Promo"}</span>
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(menu)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition cursor-pointer shadow-2xs"
+                          >
+                            <Pencil className="h-3 w-3 text-zinc-500" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(menu)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-50 hover:border-red-300 transition cursor-pointer shadow-2xs"
+                          >
+                            <Trash2 className="h-3 w-3 text-red-500" />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Admin Pagination Controls */}
+        {filteredMenus.length > itemsPerPage && (
+          <div className="border-t border-slate-200 px-4 sm:px-5 py-3.5 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            <div className="text-center sm:text-left">
+              Menampilkan {(currentPage - 1) * itemsPerPage + 1} -{" "}
+              {Math.min(currentPage * itemsPerPage, filteredMenus.length)} dari{" "}
+              {filteredMenus.length} menu
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="px-2.5 py-1 rounded border border-slate-200 bg-white font-medium hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                ← Sebelumnya
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  className={`w-7 h-7 rounded font-bold cursor-pointer ${
+                    currentPage === num
+                      ? "bg-amber-600 text-white"
+                      : "bg-white border border-slate-200 hover:bg-slate-100"
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="px-2.5 py-1 rounded border border-slate-200 bg-white font-medium hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Berikutnya →
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -410,12 +708,12 @@ export default function MenuManagement() {
       {/* Modal Dialog Form (Tambah / Edit) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl my-8">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-slate-900">
-              {editingMenu ? "Edit Menu" : "Tambah Menu Baru"}
+              {editingMenu ? "Edit Menu & Promo" : "Tambah Menu & Promo Baru"}
             </h2>
             <p className="mt-1 text-xs text-slate-500">
-              Isi data detail menu, kategori, harga, dan upload foto
+              Isi data detail menu, kategori, harga normal, promo potongan harga, dan foto
             </p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
@@ -428,7 +726,7 @@ export default function MenuManagement() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Misal: Caramel Macchiato"
+                  placeholder="Misal: Americano / Caramel Macchiato"
                   className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
                 />
               </div>
@@ -455,19 +753,196 @@ export default function MenuManagement() {
 
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                    Harga (Rp) *
+                    Harga Normal (Rp) *
                   </label>
                   <input
                     type="number"
                     required
                     min="0"
-                    step="1000"
+                    step="any"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="25000"
+                    onChange={(e) => handlePriceChange(e.target.value)}
+                    placeholder="40000"
                     className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
                   />
                 </div>
+              </div>
+
+              {/* ==============================================================
+                  BAGIAN PROMO POTONGAN HARGA (DENGAN LOGIC HITUNG OTOMATIS)
+              ============================================================== */}
+              <div className="rounded-xl border border-red-200 bg-red-50/60 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-red-950">
+                    <input
+                      type="checkbox"
+                      checked={isPromo}
+                      onChange={(e) => handleTogglePromoCheck(e.target.checked)}
+                      className="h-4 w-4 rounded text-red-600 focus:ring-red-500 cursor-pointer"
+                    />
+                    <span>🔥 Aktifkan Promo Potongan Harga</span>
+                  </label>
+                  {isPromo && (
+                    <span className="bg-red-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded tracking-wide">
+                      PROMO HARGA
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-red-800">
+                  Gantikan status &quot;Signature&quot; dengan Promo Potongan Harga. Sistem akan otomatis menghitung harga promo.
+                </p>
+
+                {isPromo && (
+                  <div className="space-y-3 pt-2 border-t border-red-200 animate-in fade-in duration-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                          Promo Diskon (%)
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="any"
+                            value={discountPercent}
+                            onChange={(e) => handlePercentChange(e.target.value)}
+                            placeholder="Misal: 10, 20, 22, 23"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-red-500 bg-white"
+                          />
+                          <span className="absolute right-3 top-1.5 text-xs text-slate-400 font-bold">
+                            %
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                          Potongan Harga (Rp)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={discountAmount}
+                          onChange={(e) => handleAmountChange(e.target.value)}
+                          placeholder="Misal: 9000"
+                          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-red-500 bg-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                          Harga Promo Akhir (Rp)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={discountedPrice}
+                          onChange={(e) =>
+                            handleDiscountedPriceChange(e.target.value)
+                          }
+                          placeholder="Misal: 36000"
+                          className="w-full rounded-lg border border-red-300 bg-white px-3 py-1.5 text-sm font-bold text-red-600 outline-none focus:border-red-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Live Preview Perhitungan */}
+                    <div className="rounded-lg bg-white border border-red-200 p-3 text-xs flex flex-col gap-1 shadow-2xs">
+                      <div className="flex items-center justify-between text-slate-600">
+                        <span>Harga Asli:</span>
+                        <span className="line-through font-semibold">
+                          Rp {Number(price || 0).toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-emerald-600 font-medium">
+                        <span>Potongan ({discountPercent || 0}%):</span>
+                        <span>
+                          - Rp {Number(discountAmount || 0).toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-1 text-red-600 font-bold text-sm">
+                        <span>Harga Customer:</span>
+                        <span>
+                          Rp {Number(discountedPrice || 0).toLocaleString("id-ID")}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Periode Tanggal Promo (Mulai s/d Akhir) - Tanpa Preset */}
+                    <div className="rounded-lg bg-white border border-red-200 p-3 text-xs space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                          🗓️ Periode Promo (Tanggal Mulai & Tanggal Akhir)
+                        </label>
+                        {(promoStartDate || promoEndDate) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPromoStartDate("");
+                              setPromoEndDate("");
+                            }}
+                            className="text-[10px] text-red-600 font-bold hover:underline cursor-pointer"
+                          >
+                            ✕ Hapus Tanggal
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        Cukup tentukan tanggal mulai dan tanggal akhir promo. Sistem otomatis menonaktifkan harga promo setelah tanggal akhir berlalu.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-semibold uppercase text-slate-600 mb-1">
+                            Tanggal Mulai Promo
+                          </label>
+                          <input
+                            type="date"
+                            value={promoStartDate}
+                            onChange={(e) => setPromoStartDate(e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-red-500 bg-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold uppercase text-slate-600 mb-1">
+                            Tanggal Akhir Promo
+                          </label>
+                          <input
+                            type="date"
+                            value={promoEndDate}
+                            onChange={(e) => setPromoEndDate(e.target.value)}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs outline-none focus:border-red-500 bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      {(promoStartDate || promoEndDate) && (() => {
+                        const timeInfo = getPromoTimeInfo(promoEndDate, promoStartDate);
+                        return (
+                          <div className="mt-1 pt-2 border-t border-slate-100 text-[11px]">
+                            {timeInfo.is_expired ? (
+                              <span className="text-red-600 font-bold flex items-center gap-1">
+                                ⚠️ Waktu telah lewat! Promo akan berstatus kadaluarsa dan kembali ke harga normal.
+                              </span>
+                            ) : (
+                              <span className="text-amber-800 font-semibold flex items-center gap-1">
+                                <span>⏱️</span>
+                                <span>
+                                  Periode: <strong>{timeInfo.formatted_range || "Aktif"}</strong>{" "}
+                                  {timeInfo.remaining_time_text ? `(${timeInfo.remaining_time_text})` : ""}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -519,16 +994,6 @@ export default function MenuManagement() {
                   />
                   <span>Tersedia untuk Dipesan</span>
                 </label>
-
-                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={isFeatured}
-                    onChange={(e) => setIsFeatured(e.target.checked)}
-                    className="h-4 w-4 rounded text-amber-600 focus:ring-amber-500"
-                  />
-                  <span>Menu Unggulan (Featured)</span>
-                </label>
               </div>
 
               {/* Action Buttons */}
@@ -537,14 +1002,14 @@ export default function MenuManagement() {
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition"
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-lg bg-amber-600 px-5 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition flex items-center gap-2"
+                  className="rounded-lg bg-amber-600 px-5 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>

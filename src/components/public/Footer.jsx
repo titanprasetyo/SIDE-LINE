@@ -1,11 +1,30 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { cafeService } from "../../services/cafeService";
-import logoImg from "../../assets/logo.png";
+import { cleanText, toWhatsAppLink, toInstagramLink } from "../../utils/text";
+import logoWhiteImg from "../../assets/logo-white.png";
 
 const currentYear = new Date().getFullYear();
 
-export default function Footer({ onOpenProfile }) {
+const NAV_LINKS = [
+  { label: "Beranda", to: "/" },
+  { label: "Menu", to: "/menu" },
+  { label: "Event & sewa ruang", to: "/event" },
+  { label: "Fasilitas", to: "/facilities" },
+  { label: "Galeri", to: "/gallery" },
+  { label: "Tim kami", to: "/team" },
+  { label: "Kontak", to: "/contact" },
+];
+
+function FooterHeading({ children }) {
+  return (
+    <h2 className="font-heading text-xs font-bold uppercase tracking-wider text-[#FFF5CF]/40">
+      {children}
+    </h2>
+  );
+}
+
+export default function Footer() {
   const [cafeInfo, setCafeInfo] = useState(null);
 
   useEffect(() => {
@@ -13,9 +32,7 @@ export default function Footer({ onOpenProfile }) {
     const fetchInfo = async () => {
       try {
         const data = await cafeService.get();
-        if (!ignore && data) {
-          setCafeInfo(data);
-        }
+        if (!ignore && data) setCafeInfo(data);
       } catch (err) {
         console.warn("Gagal memuat info footer:", err);
       }
@@ -26,151 +43,113 @@ export default function Footer({ onOpenProfile }) {
     };
   }, []);
 
+  const waLink = toWhatsAppLink(
+    cafeInfo?.phone,
+    "Halo Side Line, saya mau tanya-tanya dulu."
+  );
+  const igLink = toInstagramLink(cafeInfo?.instagram);
+
   return (
-    <footer className="border-t border-[#141414] bg-[#FFF5CF] text-[#141414] pt-14 pb-10">
-      <div className="mx-auto max-w-7xl px-6 lg:px-12">
-        {/* Top Section: Brand Statement & Asymmetric Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-[#141414]/15">
-          {/* Col 1: Brand & Logo */}
-          <div className="md:col-span-5 space-y-4">
-            <Link to="/" className="inline-block">
-              <img
-                src={logoImg}
-                alt="SIDE LINE"
-                className="h-10 w-auto object-contain"
-              />
+    <footer className="bg-[#141414] text-[#FFF5CF]">
+      <div className="mx-auto max-w-7xl 2xl:max-w-[1600px] px-4 sm:px-6 lg:px-12 2xl:px-16 pt-12 sm:pt-16 md:pt-20 pb-8">
+        <div className="grid gap-10 sm:gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12">
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-5">
+            <Link to="/" className="inline-block" aria-label="Side Line, ke beranda">
+              <img src={logoWhiteImg} alt="SIDE LINE" className="h-9 sm:h-10 w-auto object-contain" />
             </Link>
-            <p className="font-heading text-xs uppercase tracking-[0.2em] text-[#FF0000] font-bold">
-              {cafeInfo?.tagline || "Coffee • Eatery • Space"}
+            <p className="mt-6 sm:mt-8 max-w-sm font-heading text-2xl sm:text-3xl font-black uppercase leading-[1.05] tracking-tight">
+              Kopi enak,
+              <br />
+              obrolan <span className="text-[#E5251F]">panjang.</span>
             </p>
-            <p className="font-body text-xs sm:text-sm text-[#5C584E] max-w-md leading-relaxed">
-              {cafeInfo?.about_text ||
-                "Ruang kontemplatif dan titik temu untuk menikmati racikan kopi terkurasi, sajian hangat, serta suasana yang tenang di tengah hiruk-pikuk aktivitas."}
+            <p className="mt-4 sm:mt-5 max-w-sm text-sm leading-relaxed text-[#FFF5CF]/60 line-clamp-3">
+              {cleanText(cafeInfo?.about_text) ||
+                "Tempat ngopi, makan, dan ngobrol santai. Datang sendiri buat kerja, atau ajak teman buat lama-lama."}
             </p>
-
-            {onOpenProfile && (
-              <div className="pt-2">
-                <button
-                  onClick={onOpenProfile}
-                  type="button"
-                  className="font-heading text-xs font-bold uppercase tracking-wider text-[#FF0000] hover:text-[#141414] transition cursor-pointer flex items-center gap-1.5"
-                >
-                  <span>→ READ FOUNDER STORY & PHILOSOPHY</span>
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Col 2: Navigation Links */}
-          <div className="md:col-span-3 space-y-3">
-            <span className="font-heading text-[11px] uppercase tracking-[0.25em] text-[#141414] font-bold block border-b border-[#141414] pb-1.5">
-              INDEX
-            </span>
-            <ul className="space-y-2 text-xs font-heading font-medium tracking-wider">
-              <li>
-                <Link to="/" className="hover:text-[#FF0000] transition">
-                  01 // BERANDA
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-[#FF0000] transition">
-                  02 // TENTANG KAMI
-                </Link>
-              </li>
-              <li>
-                <Link to="/menu" className="hover:text-[#FF0000] transition">
-                  03 // DAFTAR MENU
-                </Link>
-              </li>
-              <li>
-                <Link to="/gallery" className="hover:text-[#FF0000] transition">
-                  04 // GALERI SUASANA
-                </Link>
-              </li>
-              <li>
-                <Link to="/promo" className="hover:text-[#FF0000] transition">
-                  05 // PROMO & SEWA RUANG
-                </Link>
-              </li>
-              <li>
-                <Link to="/team" className="hover:text-[#FF0000] transition">
-                  06 // TIM & FOUNDER
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-[#FF0000] transition">
-                  07 // KONTAK & LOKASI
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 3: Hours & Location */}
-          <div className="md:col-span-4 space-y-4">
-            <div>
-              <span className="font-heading text-[11px] uppercase tracking-[0.25em] text-[#141414] font-bold block border-b border-[#141414] pb-1.5">
-                OPERATIONAL & LOCATION
-              </span>
-              <div className="mt-3 space-y-2 text-xs font-body text-[#5C584E]">
-                <p className="font-medium text-[#141414]">
-                  {cafeInfo?.opening_hours || "Setiap Hari: 09:00 — 22:00 WIB"}
-                </p>
-                <p className="leading-relaxed">
-                  {cafeInfo?.address || "Jl. Contoh Alamat Café SIDE LINE"}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1.5 pt-1 text-xs">
-              {cafeInfo?.phone && (
-                <p className="font-body text-[#5C584E]">
-                  Telepon / WA:{" "}
-                  <span className="text-[#141414] font-medium font-heading">
-                    {cafeInfo.phone}
-                  </span>
-                </p>
-              )}
-              {cafeInfo?.instagram && (
-                <p className="font-body text-[#5C584E]">
-                  Instagram:{" "}
-                  <a
-                    href={`https://instagram.com/${cafeInfo.instagram.replace("@", "")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#FF0000] hover:underline font-heading font-medium"
+          {/* Navigasi */}
+          <nav className="sm:col-span-1 lg:col-span-3" aria-label="Navigasi footer">
+            <FooterHeading>Jelajahi</FooterHeading>
+            <ul className="mt-4 sm:mt-5 space-y-2.5 text-sm">
+              {NAV_LINKS.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="text-[#FFF5CF]/80 hover:text-[#FFF5CF] transition-colors"
                   >
-                    {cafeInfo.instagram}
-                  </a>
-                </p>
-              )}
-            </div>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            {cafeInfo?.google_maps_url && (
+          {/* Kunjungi & Hubungi */}
+          <div className="sm:col-span-1 lg:col-span-4 space-y-8 sm:space-y-10">
+            <div>
+              <FooterHeading>Kunjungi</FooterHeading>
+              <p className="mt-5 text-sm leading-relaxed text-[#FFF5CF]/80">
+                {cleanText(cafeInfo?.address) || "Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan"}
+              </p>
+              <p className="mt-3 text-sm font-semibold">
+                {cleanText(cafeInfo?.opening_hours) || "Setiap hari, 09.00 – 22.00 WIB"}
+              </p>
               <a
-                href={cafeInfo.google_maps_url}
+                href={cafeInfo?.google_maps_url || "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan"}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 border border-[#141414] px-4 py-2 text-[10px] font-heading font-bold uppercase tracking-wider text-[#141414] hover:bg-[#141414] hover:text-[#FFF5CF] transition"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#E5251F] hover:text-[#FFF5CF] transition-colors"
               >
-                <span>Google Maps Direction</span>
-                <span>↗</span>
+                Buka di Google Maps <span aria-hidden="true">↗</span>
               </a>
+            </div>
+
+            {(waLink || igLink) && (
+              <div>
+                <FooterHeading>Hubungi</FooterHeading>
+                <ul className="mt-5 space-y-2.5 text-sm">
+                  {waLink && (
+                    <li>
+                      <a
+                        href={waLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[#FFF5CF]/80 hover:text-[#FFF5CF] transition-colors"
+                      >
+                        WhatsApp · {cafeInfo.phone}
+                      </a>
+                    </li>
+                  )}
+                  {igLink && (
+                    <li>
+                      <a
+                        href={igLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[#FFF5CF]/80 hover:text-[#FFF5CF] transition-colors"
+                      >
+                        Instagram · {cafeInfo.instagram}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-heading tracking-wider uppercase text-[#5C584E] gap-4">
-          <p>© {currentYear} SIDE LINE. ALL RIGHTS RESERVED.</p>
-          <div className="flex items-center gap-6">
-            <span>DESIGNED WITH CHARACTER</span>
-            <Link
-              to="/admin/login"
-              className="hover:text-[#FF0000] transition"
-            >
-              [ ADMIN PORTAL ]
-            </Link>
-          </div>
+        {/* Bottom bar */}
+        <div className="mt-16 flex flex-col-reverse gap-4 border-t border-[#FFF5CF]/10 pt-6 text-xs text-[#FFF5CF]/45 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {currentYear} Side Line Coffee &amp; Eatery</p>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="self-start sm:self-auto hover:text-[#FFF5CF] transition-colors cursor-pointer"
+          >
+            Kembali ke atas ↑
+          </button>
         </div>
       </div>
     </footer>

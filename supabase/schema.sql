@@ -104,9 +104,9 @@ create table if not exists public.cafe_information (
   id int primary key default 1 check (id = 1),
   name text not null default 'SIDE LINE',
   tagline text default 'Coffee • Eatery • Space',
-  about_text text default 'SIDE LINE adalah café yang menghadirkan pengalaman menikmati kopi pilihan, hidangan lezat, dan suasana ruang yang hangat untuk berkumpul, bekerja, maupun bersantai.',
-  address text default 'Jl. Contoh Alamat Café SIDE LINE No. 123',
-  google_maps_url text default 'https://maps.google.com',
+  about_text text default 'SIDE LINE adalah cafe yang menghadirkan pengalaman menikmati kopi pilihan, hidangan lezat, dan suasana ruang yang hangat untuk berkumpul, bekerja, maupun bersantai.',
+  address text default 'Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan, Banten 15418',
+  google_maps_url text default 'https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan,+Banten+15418',
   phone text default '+62 812-3456-7890',
   instagram text default '@sideline.coffee',
   opening_hours text default 'Setiap Hari: 09:00 - 22:00 WIB',
@@ -121,9 +121,9 @@ values (
   1,
   'SIDE LINE',
   'Coffee • Eatery • Space',
-  'SIDE LINE adalah café yang menghadirkan pengalaman menikmati kopi pilihan, hidangan lezat, dan suasana ruang yang hangat untuk berkumpul, bekerja, maupun bersantai.',
-  'Jl. Contoh Alamat Café SIDE LINE No. 123',
-  'https://maps.google.com',
+  'SIDE LINE adalah cafe yang menghadirkan pengalaman menikmati kopi pilihan, hidangan lezat, dan suasana ruang yang hangat untuk berkumpul, bekerja, maupun bersantai.',
+  'Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan, Banten 15418',
+  'https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan,+Banten+15418',
   '+62 812-3456-7890',
   '@sideline.coffee',
   'Setiap Hari: 09:00 - 22:00 WIB'
@@ -226,6 +226,38 @@ drop policy if exists "Admin all promo-images" on storage.objects;
 create policy "Admin all promo-images" on storage.objects 
   for all to authenticated using (bucket_id = 'promo-images') with check (bucket_id = 'promo-images');
 
+
+-- ==============================================================================
+-- 9B. TABEL HOME_BANNERS (Banner & Foto Khusus Halaman Beranda / Hero)
+-- ==============================================================================
+create table if not exists public.home_banners (
+  id uuid default gen_random_uuid() primary key,
+  title text not null default 'SIDE LINE Space',
+  subtitle text default 'Ruang seduhan kopi & atmosfer hangat terkurasi',
+  badge text default 'AMBIENCE ARCHIVE',
+  image_url text not null,
+  placement text default 'hero_primary' check (placement in ('hero_primary', 'hero_secondary')),
+  is_active boolean default true not null,
+  order_index int default 1,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.home_banners enable row level security;
+drop policy if exists "Allow public read home_banners" on public.home_banners;
+create policy "Allow public read home_banners" on public.home_banners for select using (true);
+
+drop policy if exists "Allow admin all home_banners" on public.home_banners;
+create policy "Allow admin all home_banners" on public.home_banners for all to authenticated using (true) with check (true);
+
+insert into storage.buckets (id, name, public)
+values ('hero-images', 'hero-images', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public Access hero-images" on storage.objects;
+create policy "Public Access hero-images" on storage.objects for select using (bucket_id = 'hero-images');
+
+drop policy if exists "Admin all hero-images" on storage.objects;
+create policy "Admin all hero-images" on storage.objects for all to authenticated using (bucket_id = 'hero-images') with check (bucket_id = 'hero-images');
 
 -- ==============================================================================
 -- 10. GRANT PERMISSIONS (MEMBERIKAN HAK AKSES TABEL KE ROLE SUPABASE)

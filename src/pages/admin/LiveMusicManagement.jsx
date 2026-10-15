@@ -1,5 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { liveMusicService } from "../../services/liveMusicService";
+import {
+  Music2,
+  Mic2,
+  Clock,
+  Plus,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Image as ImageIcon,
+  Sparkles,
+} from "lucide-react";
 
 export default function LiveMusicManagement() {
   const [schedules, setSchedules] = useState([]);
@@ -25,7 +38,7 @@ export default function LiveMusicManagement() {
     try {
       setErrorMsg("");
       const data = await liveMusicService.getAll();
-      setSchedules(data);
+      setSchedules(data || []);
     } catch (err) {
       setErrorMsg("Gagal memuat jadwal live music: " + (err.message || ""));
     } finally {
@@ -39,7 +52,7 @@ export default function LiveMusicManagement() {
       try {
         const data = await liveMusicService.getAll();
         if (!ignore) {
-          setSchedules(data);
+          setSchedules(data || []);
           setLoading(false);
         }
       } catch (err) {
@@ -170,136 +183,181 @@ export default function LiveMusicManagement() {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-zinc-200/80">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Live Music Management
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Kelola jadwal pertunjukan musik langsung, nama musisi/band, dan poster acara
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs">
+              <Music2 className="h-4 w-4" />
+            </span>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+              Jadwal Live Music
+            </h1>
+            <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-mono font-medium text-zinc-600 border border-zinc-200/80">
+              {schedules.length} Sesi
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
+            Kelola jadwal pertunjukan musik akustik, band pengisi, dan waktu tayang di cafe
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 transition"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-zinc-800 active:scale-[0.98] transition cursor-pointer"
         >
-          <span>🎵</span>
-          <span>Tambah Jadwal Live Music</span>
+          <Plus className="h-4 w-4 stroke-[2.5]" />
+          <span>Tambah Jadwal Musik</span>
         </button>
       </div>
 
       {/* Messages */}
       {successMsg && (
-        <div className="mt-6 rounded-lg bg-emerald-50 border border-emerald-200 p-3.5 text-sm text-emerald-800 flex items-center gap-2">
-          <span>✅</span>
-          <span>{successMsg}</span>
+        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span className="font-medium truncate">{successMsg}</span>
+          </div>
+          <button
+            onClick={() => setSuccessMsg("")}
+            className="text-emerald-600 hover:text-emerald-800 p-0.5 rounded cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 
       {errorMsg && (
-        <div className="mt-6 rounded-lg bg-red-50 border border-red-200 p-3.5 text-sm text-red-800 flex items-center gap-2">
-          <span>⚠️</span>
-          <span>{errorMsg}</span>
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-xs sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+            <span className="font-medium truncate">{errorMsg}</span>
+          </div>
+          <button
+            onClick={() => setErrorMsg("")}
+            className="text-rose-600 hover:text-rose-800 p-0.5 rounded cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 
-      {/* Content */}
-      <div className="mt-6">
+      {/* Grid Cards */}
+      <div>
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-slate-200 bg-white text-slate-400">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-amber-500" />
-            <p className="mt-3 text-sm">Memuat jadwal live music...</p>
+          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-zinc-200/80 bg-white text-zinc-400">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
+            <p className="mt-3 text-xs sm:text-sm font-medium text-zinc-500">Memuat jadwal musik...</p>
           </div>
         ) : schedules.length === 0 ? (
-          <div className="p-16 text-center rounded-xl border border-slate-200 bg-white">
-            <span className="text-5xl">🎸</span>
-            <p className="mt-4 text-base font-semibold text-slate-700">
+          <div className="p-16 text-center rounded-xl border border-zinc-200/80 bg-white shadow-xs">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400">
+              <Music2 className="h-6 w-6 stroke-[1.5]" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-zinc-800">
               Belum ada jadwal live music
             </p>
-            <p className="mt-1 text-sm text-slate-500">
-              Tambahkan jadwal akustik atau live music untuk ditampilkan di website.
+            <p className="mt-1 text-xs text-zinc-500 max-w-sm mx-auto">
+              Tambahkan pertunjukan akustik mingguan untuk memperkaya suasana santai pengunjung.
             </p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 rounded-lg bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 transition"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-zinc-950 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition cursor-pointer"
             >
-              Tambah Jadwal Sekarang
+              <Plus className="h-3.5 w-3.5" />
+              <span>Tambah Jadwal Sekarang</span>
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {schedules.map((item) => (
               <div
                 key={item.id}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                className="group overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs hover:border-zinc-300 hover:shadow-md transition flex flex-col justify-between"
               >
-                {item.image_url ? (
-                  <div className="h-44 w-full overflow-hidden bg-slate-100">
-                    <img
-                      src={item.image_url}
-                      alt={item.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-36 w-full items-center justify-center bg-amber-50 text-3xl text-amber-600">
-                    🎤
-                  </div>
-                )}
-
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-bold text-slate-900 text-base">
-                        {item.title}
-                      </h3>
+                <div>
+                  {/* Poster Banner */}
+                  <div className="relative h-44 w-full overflow-hidden bg-zinc-100 border-b border-zinc-100">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full flex-col items-center justify-center text-zinc-400 gap-1.5">
+                        <Music2 className="h-8 w-8 stroke-[1.5] text-zinc-300" />
+                        <span className="text-[11px] font-mono text-zinc-400">Tanpa poster</span>
+                      </div>
+                    )}
+                    {/* Status Badge */}
+                    <div className="absolute top-3 right-3">
                       <button
                         onClick={() => handleToggleActive(item)}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer transition ${
+                        title={item.is_active ? "Non-aktifkan sesi ini" : "Aktifkan sesi ini"}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur-md transition shadow-xs cursor-pointer ${
                           item.is_active
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-slate-100 text-slate-600"
+                            ? "bg-emerald-500/90 text-white hover:bg-emerald-600"
+                            : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-900"
                         }`}
                       >
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            item.is_active ? "bg-emerald-600" : "bg-slate-400"
+                            item.is_active ? "bg-white animate-pulse" : "bg-zinc-400"
                           }`}
                         />
-                        {item.is_active ? "Aktif" : "Non-Aktif"}
+                        <span>{item.is_active ? "Aktif" : "Nonaktif"}</span>
                       </button>
                     </div>
-
-                    {item.performer && (
-                      <p className="mt-1 text-xs font-semibold text-amber-600">
-                        Performer: {item.performer}
-                      </p>
-                    )}
-
-                    <p className="mt-2 text-xs font-mono font-medium text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                      ⏰ {item.day_time}
-                    </p>
-
-                    <p className="mt-2 text-xs text-slate-500 line-clamp-2">
-                      {item.description || "Tidak ada deskripsi tambahan."}
-                    </p>
                   </div>
 
-                  <div className="mt-5 flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+                  {/* Body Content */}
+                  <div className="p-4 sm:p-5">
+                    <h3 className="font-bold text-zinc-900 text-sm sm:text-base line-clamp-1 group-hover:text-zinc-950">
+                      {item.title}
+                    </h3>
+
+                    {item.performer && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-zinc-700">
+                        <Mic2 className="h-3.5 w-3.5 text-zinc-500" />
+                        <span>{item.performer}</span>
+                      </div>
+                    )}
+
+                    {/* Schedule Time Pill */}
+                    <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 border border-zinc-200/60 font-mono text-[11px] text-zinc-700 font-medium">
+                      <Clock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                      <span className="truncate">{item.day_time}</span>
+                    </div>
+
+                    <p className="mt-2.5 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                      {item.description || "Tidak ada deskripsi tambahan untuk sesi ini."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer Action Bar */}
+                <div className="flex items-center justify-between gap-2 border-t border-zinc-100 bg-zinc-50/50 px-4 py-3">
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    ID #{String(item.id).slice(-4)}
+                  </span>
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEdit(item)}
-                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+                      title="Edit Jadwal"
+                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition cursor-pointer"
                     >
-                      ✏️ Edit
+                      <Pencil className="h-3.5 w-3.5 text-zinc-500" />
+                      <span>Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(item)}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition"
+                      title="Hapus Jadwal"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer"
                     >
-                      🗑️ Hapus
+                      <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                      <span>Hapus</span>
                     </button>
                   </div>
                 </div>
@@ -311,120 +369,139 @@ export default function LiveMusicManagement() {
 
       {/* Modal Dialog */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl my-8">
-            <h2 className="text-lg font-bold text-slate-900">
-              {editingItem ? "Edit Jadwal Live Music" : "Tambah Jadwal Live Music"}
-            </h2>
-            <p className="mt-1 text-xs text-slate-500">
-              Lengkapi tema acara, pengisi acara, dan waktu pertunjukan
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-zinc-200 my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white">
+                  <Music2 className="h-3.5 w-3.5" />
+                </span>
+                <h2 className="text-base font-bold text-zinc-900">
+                  {editingItem ? "Edit Jadwal Musik" : "Tambah Jadwal Musik Baru"}
+                </h2>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-md transition cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <p className="mt-2 text-xs text-zinc-500">
+              Lengkapi tema musik, nama musisi/band, jadwal tampil, dan poster acara.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Nama Sesi / Acara *
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  Tema Acara / Judul <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Misal: Acoustic Sunset Friday"
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                  placeholder="Misal: Acoustic Friday Vibes / Weekend Jazz Session"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                    Musisi / Bintang Tamu
-                  </label>
-                  <input
-                    type="text"
-                    value={performer}
-                    onChange={(e) => setPerformer(e.target.value)}
-                    placeholder="Misal: Daffa & Friends"
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                    Hari & Waktu *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={dayTime}
-                    onChange={(e) => setDayTime(e.target.value)}
-                    placeholder="Setiap Jumat | 19:30 WIB"
-                    className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 transition"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  Musisi / Penampil
+                </label>
+                <input
+                  type="text"
+                  value={performer}
+                  onChange={(e) => setPerformer(e.target.value)}
+                  placeholder="Misal: Luna Trio & Friends / The Coffee Vibes"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Deskripsi Singkat
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  Jadwal Waktu & Hari <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={dayTime}
+                  onChange={(e) => setDayTime(e.target.value)}
+                  placeholder="Misal: Setiap Jumat & Sabtu, 19:30 - 22:30 WIB"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  Deskripsi / Info Khusus
                 </label>
                 <textarea
-                  rows="2"
+                  rows="3"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Genre musik atau keseruan acara..."
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-amber-500 transition"
+                  placeholder="Genre musik, kolaborasi musisi lokal, atau dress code santai..."
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                  Poster / Foto Event (JPG/PNG, Max 2MB)
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  Poster Visual (JPG / PNG, Maks 2MB)
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer"
+                  className="w-full text-xs text-zinc-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200 cursor-pointer"
                 />
                 {imagePreview && (
-                  <div className="mt-3">
+                  <div className="mt-3 relative rounded-lg overflow-hidden border border-zinc-200">
                     <img
                       src={imagePreview}
-                      alt="Preview"
-                      className="h-32 w-full rounded-lg object-cover border border-slate-200"
+                      alt="Poster Preview"
+                      className="h-32 w-full object-cover"
                     />
                   </div>
                 )}
               </div>
 
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+              <div className="pt-2">
+                <label className="flex items-center gap-2.5 cursor-pointer text-xs sm:text-sm font-medium text-zinc-700">
                   <input
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="h-4 w-4 rounded text-amber-600 focus:ring-amber-500"
+                    className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
                   />
-                  <span>Tampilkan Sebagai Jadwal Aktif</span>
+                  <span>Tayangkan jadwal di website utama</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-100">
                 <button
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 transition"
+                  className="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !title.trim() || !dayTime.trim()}
-                  className="rounded-lg bg-amber-600 px-5 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition"
+                  className="rounded-lg bg-zinc-950 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan Jadwal"}
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <span>{editingItem ? "Simpan Perubahan" : "Terbitkan Jadwal"}</span>
+                  )}
                 </button>
               </div>
             </form>

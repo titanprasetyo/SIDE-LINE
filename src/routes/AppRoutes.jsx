@@ -5,10 +5,10 @@ import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
 import Home from "../pages/public/Home";
-import About from "../pages/public/About";
+import Facilities from "../pages/public/Facilities";
 import Menu from "../pages/public/Menu";
 import Gallery from "../pages/public/Gallery";
-import Promo from "../pages/public/Promo";
+import Event from "../pages/public/Event";
 import Team from "../pages/public/Team";
 import Contact from "../pages/public/Contact";
 
@@ -17,18 +17,20 @@ import Dashboard from "../pages/admin/Dashboard";
 import MenuManagement from "../pages/admin/MenuManagement";
 import CategoryManagement from "../pages/admin/CategoryManagement";
 import GalleryManagement from "../pages/admin/GalleryManagement";
-import PromoManagement from "../pages/admin/PromoManagement";
+import EventManagement from "../pages/admin/EventManagement";
 import LiveMusicManagement from "../pages/admin/LiveMusicManagement";
 import SpaceBookingManagement from "../pages/admin/SpaceBookingManagement";
 import TeamManagement from "../pages/admin/TeamManagement";
 import FacilityManagement from "../pages/admin/FacilityManagement";
 import CafeInformation from "../pages/admin/CafeInformation";
+import HomeHeroManagement from "../pages/admin/HomeHeroManagement";
+import ReviewManagement from "../pages/admin/ReviewManagement";
 
 function NotFoundPage() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center py-20 bg-[#FFF5CF]">
       <span className="text-xs font-heading font-bold uppercase tracking-[0.3em] text-[#FF0000]">
-        [ 404 // ERROR ]
+        404 ERROR
       </span>
       <h1 className="mt-2 text-6xl sm:text-8xl font-black text-[#141414] font-heading uppercase tracking-tight">
         404
@@ -55,10 +57,14 @@ export default function AppRoutes() {
       {/* PUBLIC ROUTES */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/about" element={<Navigate to="/" replace />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/facilities" element={<Facilities />} />
+        <Route path="/fasilitas" element={<Navigate to="/facilities" replace />} />
         <Route path="/gallery" element={<Gallery />} />
-        <Route path="/promo" element={<Promo />} />
+        <Route path="/event" element={<Event />} />
+        <Route path="/events" element={<Navigate to="/event" replace />} />
+        <Route path="/promo" element={<Navigate to="/event" replace />} />
         <Route path="/team" element={<Team />} />
         <Route path="/contact" element={<Contact />} />
       </Route>
@@ -73,11 +79,14 @@ export default function AppRoutes() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="menu" element={<MenuManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
+          <Route path="home-hero" element={<HomeHeroManagement />} />
           <Route path="gallery" element={<GalleryManagement />} />
-          <Route path="promo" element={<PromoManagement />} />
+          <Route path="events" element={<EventManagement />} />
+          <Route path="promo" element={<Navigate to="/admin/events" replace />} />
           <Route path="live-music" element={<LiveMusicManagement />} />
           <Route path="space-booking" element={<SpaceBookingManagement />} />
           <Route path="team" element={<TeamManagement />} />
+          <Route path="reviews" element={<ReviewManagement />} />
           <Route path="facilities" element={<FacilityManagement />} />
           <Route path="settings" element={<CafeInformation />} />
         </Route>
