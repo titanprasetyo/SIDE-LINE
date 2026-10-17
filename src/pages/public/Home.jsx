@@ -6,7 +6,7 @@ import { homeBannerService } from "../../services/homeBannerService";
 import defaultHeroPrimary from "../../assets/hero-default-primary.jpg";
 import defaultHeroSecondary from "../../assets/hero-default-secondary.jpg";
 import HeroFoliage3D from "../../components/public/HeroFoliage3D";
-import { cleanText, toWhatsAppLink } from "../../utils/text";
+import { cleanText, toWhatsAppLink, safeUrl } from "../../utils/text";
 import { reviewService } from "../../services/reviewService";
 
 export default function Home() {
@@ -938,7 +938,7 @@ export default function Home() {
 
             <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto">
               <a
-                href={cafeInfo?.google_maps_url || "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan"}
+                href={safeUrl(cafeInfo?.google_maps_url, "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan")}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full text-center rounded-full bg-[#E5251F] px-6 py-3.5 text-xs font-heading font-bold uppercase tracking-widest text-white hover:bg-[#C91E19] transition-colors shadow-sm"

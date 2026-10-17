@@ -25,6 +25,7 @@ const PAGE_TITLES = {
   "/admin/reviews": "Ulasan & Testimoni Pelanggan",
   "/admin/facilities": "Fasilitas Cafe",
   "/admin/settings": "Pengaturan Informasi Cafe",
+  "/admin/security": "Keamanan & Ubah Password",
 };
 
 export default function AdminLayout() {

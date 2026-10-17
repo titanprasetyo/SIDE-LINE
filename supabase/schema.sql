@@ -78,6 +78,7 @@ create table if not exists public.galleries (
   id uuid default gen_random_uuid() primary key,
   title text,
   image_url text not null,
+  media_type text default 'image' check (media_type in ('image', 'video')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

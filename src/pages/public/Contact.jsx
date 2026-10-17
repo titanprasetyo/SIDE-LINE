@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { cafeService } from "../../services/cafeService";
 import PageHeader from "../../components/public/PageHeader";
-import { cleanText, toWhatsAppLink, toInstagramLink } from "../../utils/text";
+import { cleanText, toWhatsAppLink, toInstagramLink, safeUrl } from "../../utils/text";
 
 const FAQS = [
   {
@@ -87,7 +87,7 @@ export default function Contact() {
                   {cleanText(cafeInfo?.address) || "Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan"}
                 </span>
                 <a
-                  href={cafeInfo?.google_maps_url || "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan"}
+                  href={safeUrl(cafeInfo?.google_maps_url, "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan")}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FF0000] hover:text-[#141414] transition-colors"

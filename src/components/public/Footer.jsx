@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { cafeService } from "../../services/cafeService";
-import { cleanText, toWhatsAppLink, toInstagramLink } from "../../utils/text";
+import { cleanText, toWhatsAppLink, toInstagramLink, safeUrl } from "../../utils/text";
 import logoWhiteImg from "../../assets/logo-white.png";
 
 const currentYear = new Date().getFullYear();
@@ -97,7 +97,7 @@ export default function Footer() {
                 {cleanText(cafeInfo?.opening_hours) || "Setiap hari, 09.00 – 22.00 WIB"}
               </p>
               <a
-                href={cafeInfo?.google_maps_url || "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan"}
+                href={safeUrl(cafeInfo?.google_maps_url, "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan")}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#E5251F] hover:text-[#FFF5CF] transition-colors"

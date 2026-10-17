@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { validateReviewInput } from "../utils/text";
 
 const LOCAL_STORAGE_KEY = "side_line_customer_reviews";
 
@@ -67,6 +68,8 @@ function saveLocalReviews(reviews) {
     console.warn("Gagal menyimpan ulasan ke localStorage:", err);
   }
 }
+const RATE_LIMIT_KEY = "side_line_last_review_ts";
+const SUBMIT_COOLDOWN_MS = 20 * 1000; // 20 detik cooldown antar submit per tab
 
 export const reviewService = {
   // Ambil semua ulasan (Publik & Admin)
@@ -96,11 +99,27 @@ export const reviewService = {
 
   // Tambah ulasan baru (dari form pelanggan beranda atau panel admin)
   async create({ name, rating, comment, tag = "Pengunjung" }) {
+    // 1. Validasi input ketat
+    const validation = validateReviewInput({ name, rating, comment, tag });
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join(" "));
+    }
+
+    // 2. Client-side submit cooldown throttling
+    if (typeof window !== "undefined") {
+      const lastSubmit = Number(sessionStorage.getItem(RATE_LIMIT_KEY)) || 0;
+      const now = Date.now();
+      if (now - lastSubmit < SUBMIT_COOLDOWN_MS) {
+        const remainingSec = Math.ceil((SUBMIT_COOLDOWN_MS - (now - lastSubmit)) / 1000);
+        throw new Error(`Mohon tunggu ${remainingSec} detik sebelum mengirimkan ulasan baru.`);
+      }
+    }
+
     const newReview = {
-      name: name?.trim() || "Pelanggan Side Line",
-      rating: Number(rating) || 5,
-      comment: comment?.trim() || "",
-      tag: tag?.trim() || "Pengunjung",
+      name: validation.data.name,
+      rating: validation.data.rating,
+      comment: validation.data.comment,
+      tag: validation.data.tag,
       is_published: true,
       created_at: new Date().toISOString(),
     };
@@ -114,14 +133,21 @@ export const reviewService = {
         .select()
         .single();
 
-      if (!error && data) {
+      if (error) {
+        console.warn("Gagal insert ulasan ke Supabase:", error.message);
+      } else if (data) {
         savedItem = data;
       }
     } catch (err) {
       console.warn("Gagal insert ulasan ke Supabase, simpan lokal:", err);
     }
 
-    // Selalu simpan juga ke local storage sebagai backup
+    // Catat timestamp submission sukses
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(RATE_LIMIT_KEY, String(Date.now()));
+    }
+
+    // Simpan juga ke local storage sebagai backup offline
     const local = getLocalReviews();
     const itemToSave = savedItem || { ...newReview, id: Date.now() };
     const updated = [itemToSave, ...local];

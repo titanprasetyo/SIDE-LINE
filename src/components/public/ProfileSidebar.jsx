@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../services/supabase";
+import { toInstagramLink } from "../../utils/text";
 
 /**
  * Editorial Profile & Founder Sidebar
@@ -204,9 +205,9 @@ export default function ProfileSidebar({ isOpen, onClose }) {
             </span>
 
             <div className="flex flex-col gap-2">
-              {founderData?.instagram && (
+              {toInstagramLink(founderData?.instagram) && (
                 <a
-                  href={`https://instagram.com/${founderData.instagram.replace("@", "")}`}
+                  href={toInstagramLink(founderData.instagram)}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center justify-between border border-[#141414] px-4 py-3 text-xs font-heading font-bold uppercase tracking-wider text-[#141414] hover:bg-[#141414] hover:text-[#FFF5CF] transition"

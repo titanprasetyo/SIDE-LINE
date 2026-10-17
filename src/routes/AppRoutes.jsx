@@ -25,6 +25,7 @@ import FacilityManagement from "../pages/admin/FacilityManagement";
 import CafeInformation from "../pages/admin/CafeInformation";
 import HomeHeroManagement from "../pages/admin/HomeHeroManagement";
 import ReviewManagement from "../pages/admin/ReviewManagement";
+import ChangePassword from "../pages/admin/ChangePassword";
 
 function NotFoundPage() {
   return (
@@ -89,6 +90,8 @@ export default function AppRoutes() {
           <Route path="reviews" element={<ReviewManagement />} />
           <Route path="facilities" element={<FacilityManagement />} />
           <Route path="settings" element={<CafeInformation />} />
+          <Route path="security" element={<ChangePassword />} />
+          <Route path="change-password" element={<Navigate to="/admin/security" replace />} />
         </Route>
       </Route>
 

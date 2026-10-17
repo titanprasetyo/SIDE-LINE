@@ -16,6 +16,7 @@ import {
   ExternalLink,
   X,
   ShieldAlert,
+  KeyRound,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -55,6 +56,7 @@ const NAV_SECTIONS = [
     title: "Konfigurasi",
     items: [
       { name: "Info Cafe & Lokasi", path: "/admin/settings", icon: Settings },
+      { name: "Ubah Password", path: "/admin/security", icon: KeyRound },
     ],
   },
 ];
@@ -142,12 +144,17 @@ export default function Sidebar({ isOpen = false, onClose }) {
       {/* ── Bottom User Card & Actions ── */}
       <div className="p-3 border-t border-white/[0.07] bg-[#080B10]/60 space-y-2">
         {user && (
-          <div className="flex items-center gap-2.5 rounded-lg bg-white/[0.03] p-2 border border-white/[0.05]">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-700 text-white font-bold text-xs border border-white/10">
+          <Link
+            to="/admin/security"
+            onClick={() => onClose?.()}
+            className="flex items-center gap-2.5 rounded-lg bg-white/[0.03] p-2 border border-white/[0.05] hover:bg-white/[0.07] hover:border-white/[0.1] transition group"
+            title="Kelola Keamanan & Ubah Password"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-700 text-white font-bold text-xs border border-white/10 group-hover:border-white/30 transition">
               {user.email ? user.email[0].toUpperCase() : "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-zinc-200 truncate" title={user.email}>
+              <p className="text-[11px] font-medium text-zinc-200 truncate group-hover:text-white transition" title={user.email}>
                 {user.email}
               </p>
               <div className="flex items-center gap-1 text-[9px] text-zinc-400">
@@ -155,7 +162,8 @@ export default function Sidebar({ isOpen = false, onClose }) {
                 <span>Admin Verified</span>
               </div>
             </div>
-          </div>
+            <KeyRound className="h-3 w-3 text-zinc-500 group-hover:text-zinc-300 transition shrink-0" />
+          </Link>
         )}
 
         <div className="grid grid-cols-2 gap-1.5 pt-1">

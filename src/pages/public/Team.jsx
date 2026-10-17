@@ -260,7 +260,7 @@ export default function Team() {
 
                 {/* Social / Actions */}
                 <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3 items-stretch sm:items-center justify-center sm:justify-start">
-                  {activeModalMember.instagram && (
+                  {toInstagramLink(activeModalMember.instagram) && (
                     <a
                       href={toInstagramLink(activeModalMember.instagram)}
                       target="_blank"
