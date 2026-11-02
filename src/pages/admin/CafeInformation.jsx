@@ -3,21 +3,21 @@ import { Link } from "react-router-dom";
 import { cafeService } from "../../services/cafeService";
 import logoDefaultImg from "../../assets/logo.png";
 import {
-  Settings,
-  Store,
-  CheckCircle2,
-  AlertCircle,
+  SlidersHorizontal as Settings,
+  Storefront as Store,
+  CheckCircle as CheckCircle2,
+  WarningCircle as AlertCircle,
   X,
-  Save,
-  RotateCcw,
-  UploadCloud,
+  FloppyDisk as Save,
+  ArrowCounterClockwise as RotateCcw,
+  CloudArrowUp as UploadCloud,
   MapPin,
   Phone,
   Clock,
-  Sparkles,
-  Image as ImageIcon,
-  Lock,
-} from "lucide-react";
+  Sparkle as Sparkles,
+  Images as ImageIcon,
+  LockKey as Lock,
+} from "@phosphor-icons/react";
 
 function InstagramIcon({ className = "h-3.5 w-3.5" }) {
   return (
@@ -130,9 +130,9 @@ export default function CafeInformation() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-16 text-zinc-400">
-        <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
-        <p className="mt-3 text-xs sm:text-sm font-medium text-zinc-500">Memuat profil cafe...</p>
+      <div className="flex flex-col items-center justify-center p-16 text-[#6B635B]">
+        <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#E6DFD5] border-t-zinc-900" />
+        <p className="mt-3 text-[13.5px] sm:text-sm font-medium text-[#575049]">Memuat profil cafe...</p>
       </div>
     );
   }
@@ -140,25 +140,25 @@ export default function CafeInformation() {
   return (
     <div className="max-w-4xl space-y-6 pb-12">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-zinc-200/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs">
-              <Store className="h-4 w-4" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Profil & Identitas Cafe
-            </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#6E4730] border border-[#E8DFD2]">
+            <Store className="h-5 w-5" weight="duotone" />
           </div>
-          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
-            Konfigurasi profil brand, logo navbar, kontak reservasi, alamat maps, dan jam operasional cafe
-          </p>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#1C1917]">
+              Profil &amp; Identitas Cafe
+            </h1>
+            <p className="mt-1 text-[13.5px] sm:text-sm text-[#575049]">
+              Konfigurasi profil brand, logo navbar, kontak reservasi, alamat maps, dan jam operasional cafe
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Messages */}
       {successMsg && (
-        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-[13.5px] sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-medium truncate">{successMsg}</span>
@@ -173,7 +173,7 @@ export default function CafeInformation() {
       )}
 
       {errorMsg && (
-        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-xs sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-[13.5px] sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
             <span className="font-medium truncate">{errorMsg}</span>
@@ -190,19 +190,19 @@ export default function CafeInformation() {
       {/* Form Card */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Bagian 1: Identitas Cafe */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-mono font-bold">
+        <div className="rounded-xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2 border-b border-[#EFE9E0] pb-3">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1C1917] text-white text-[13.5px] font-bold">
               01
             </span>
-            <h2 className="text-sm sm:text-base font-bold text-zinc-900">
+            <h2 className="text-sm sm:text-base font-bold text-[#1C1917]">
               Identitas & Brand Utama
             </h2>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+              <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                 Nama Cafe <span className="text-rose-500">*</span>
               </label>
               <input
@@ -212,12 +212,12 @@ export default function CafeInformation() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="SIDE LINE"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+              <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                 Tagline / Slogan
               </label>
               <input
@@ -226,17 +226,17 @@ export default function CafeInformation() {
                 value={formData.tagline}
                 onChange={handleChange}
                 placeholder="Coffee • Eatery • Space"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
           </div>
 
           {/* Input Logo Header / Cafe */}
-          <div className="mt-5 pt-4 border-t border-zinc-100">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+          <div className="mt-5 pt-4 border-t border-[#EFE9E0]">
+            <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
               Logo Header Navbar
             </label>
-            <p className="text-xs text-zinc-500 mb-3">
+            <p className="text-[13.5px] text-[#575049] mb-3">
               Upload logo brand cafe (PNG/SVG latar transparan sangat direkomendasikan, maksimal 2MB).
             </p>
 
@@ -246,11 +246,11 @@ export default function CafeInformation() {
                   type="file"
                   accept="image/*"
                   onChange={handleLogoFileChange}
-                  className="w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-800 cursor-pointer"
+                  className="w-full text-[13.5px] text-[#575049] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1C1917] file:px-3 file:py-1.5 file:text-[13.5px] file:font-semibold file:text-white hover:file:bg-zinc-800 cursor-pointer"
                 />
 
                 <div className="mt-3">
-                  <label className="block text-[11px] font-semibold text-zinc-500 mb-1 font-mono">
+                  <label className="block text-[12.5px] font-semibold text-[#575049] mb-1 ">
                     Atau Masukkan URL Logo:
                   </label>
                   <input
@@ -262,7 +262,7 @@ export default function CafeInformation() {
                       setLogoPreview(e.target.value);
                     }}
                     placeholder="https://.../logo.png"
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 font-mono outline-none focus:border-zinc-900 transition"
+                    className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-1.5 text-[13.5px] text-[#1C1917] outline-none focus:border-zinc-900 transition"
                   />
                 </div>
 
@@ -270,7 +270,7 @@ export default function CafeInformation() {
                   <button
                     type="button"
                     onClick={handleResetLogo}
-                    className="mt-2.5 inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-800 transition cursor-pointer"
+                    className="mt-2.5 inline-flex items-center gap-1 text-[13.5px] font-medium text-rose-600 hover:text-rose-800 transition cursor-pointer"
                   >
                     <RotateCcw className="h-3 w-3" />
                     <span>Reset ke Logo Standar</span>
@@ -279,18 +279,18 @@ export default function CafeInformation() {
               </div>
 
               {/* Box Preview Logo */}
-              <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/80 p-4 flex flex-col items-center justify-center text-center shadow-xs">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 font-mono mb-2">
+              <div className="rounded-xl border border-[#E6DFD5] bg-[#FAF7F2]/80 p-4 flex flex-col items-center justify-center text-center shadow-xs">
+                <span className="text-[13.5px] font-semibold text-[#575049] mb-2">
                   Preview Tampilan di Navbar:
                 </span>
-                <div className="h-14 flex items-center justify-center p-2 rounded-lg bg-white border border-zinc-200/60 w-full max-w-[200px]">
+                <div className="h-14 flex items-center justify-center p-2 rounded-lg bg-white border border-[#E6DFD5] w-full max-w-[200px]">
                   <img
                     src={logoPreview || formData.logo_url || logoDefaultImg}
                     alt="Logo Preview"
                     className="max-h-10 w-auto object-contain"
                   />
                 </div>
-                <span className="text-[10px] font-mono text-zinc-400 mt-2">
+                <span className="text-[13.5px] text-[#6B635B] mt-2">
                   {logoFile
                     ? "Foto baru siap disimpan"
                     : logoPreview || formData.logo_url
@@ -302,7 +302,7 @@ export default function CafeInformation() {
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+            <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
               Deskripsi Singkat Profil Cafe
             </label>
             <textarea
@@ -311,26 +311,26 @@ export default function CafeInformation() {
               value={formData.about_text}
               onChange={handleChange}
               placeholder="Ceritakan kisah, filosofi seduhan, dan suasana cafe Anda..."
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+              className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
             />
           </div>
         </div>
 
         {/* Bagian 2: Kontak & Media Sosial */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-mono font-bold">
+        <div className="rounded-xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2 border-b border-[#EFE9E0] pb-3">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1C1917] text-white text-[13.5px] font-bold">
               02
             </span>
-            <h2 className="text-sm sm:text-base font-bold text-zinc-900">
+            <h2 className="text-sm sm:text-base font-bold text-[#1C1917]">
               Kontak & Saluran Media Sosial
             </h2>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5 flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 text-zinc-400" />
+              <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5 flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 text-[#6B635B]" />
                 <span>Nomor WhatsApp Reservasi</span>
               </label>
               <input
@@ -339,13 +339,13 @@ export default function CafeInformation() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="+62 812-3456-7890"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 font-mono outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5 flex items-center gap-1.5">
-                <InstagramIcon className="h-3.5 w-3.5 text-zinc-400" />
+              <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5 flex items-center gap-1.5">
+                <InstagramIcon className="h-3.5 w-3.5 text-[#6B635B]" />
                 <span>Akun Instagram Resmi</span>
               </label>
               <input
@@ -354,27 +354,27 @@ export default function CafeInformation() {
                 value={formData.instagram}
                 onChange={handleChange}
                 placeholder="@sideline.coffee"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 font-mono outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
           </div>
         </div>
 
         {/* Bagian 3: Lokasi & Jam Buka */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-mono font-bold">
+        <div className="rounded-xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2 border-b border-[#EFE9E0] pb-3">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1C1917] text-white text-[13.5px] font-bold">
               03
             </span>
-            <h2 className="text-sm sm:text-base font-bold text-zinc-900">
+            <h2 className="text-sm sm:text-base font-bold text-[#1C1917]">
               Lokasi & Jam Operasional
             </h2>
           </div>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5 flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-zinc-400" />
+              <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5 flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-[#6B635B]" />
                 <span>Alamat Lengkap Cafe</span>
               </label>
               <textarea
@@ -383,13 +383,13 @@ export default function CafeInformation() {
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                   Link Google Maps
                 </label>
                 <input
@@ -398,13 +398,13 @@ export default function CafeInformation() {
                   value={formData.google_maps_url}
                   onChange={handleChange}
                   placeholder="https://maps.app.goo.gl/..."
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 font-mono outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                  className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5 flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 text-zinc-400" />
+                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5 flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-[#6B635B]" />
                   <span>Jam Buka Operasional</span>
                 </label>
                 <input
@@ -413,7 +413,7 @@ export default function CafeInformation() {
                   value={formData.opening_hours}
                   onChange={handleChange}
                   placeholder="Setiap Hari: 09:00 - 22:00 WIB"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                  className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
             </div>
@@ -425,7 +425,7 @@ export default function CafeInformation() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full sm:w-auto justify-center rounded-lg bg-zinc-950 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-zinc-800 active:scale-[0.99] disabled:opacity-50 transition flex items-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto justify-center rounded-lg bg-[#1C1917] px-6 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white shadow-xs hover:bg-[#292524] active:scale-[0.99] disabled:opacity-50 transition flex items-center gap-2 cursor-pointer"
           >
             {isSubmitting ? (
               <>
@@ -443,23 +443,23 @@ export default function CafeInformation() {
       </form>
 
       {/* Akses Cepat Keamanan Akun & Ubah Password */}
-      <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/70 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div className="rounded-xl border border-[#E6DFD5] bg-[#FAF7F2] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white border border-zinc-200 text-zinc-700 shadow-2xs">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white border border-[#E6DFD5] text-[#44403C] shadow-2xs">
             <Lock className="h-4 w-4" />
           </div>
           <div>
-            <span className="font-semibold text-xs sm:text-sm text-zinc-900 block">
+            <span className="font-semibold text-[13.5px] sm:text-sm text-[#1C1917] block">
               Keamanan Akun & Kata Sandi Administrator
             </span>
-            <span className="text-[11px] text-zinc-500">
+            <span className="text-[12.5px] text-[#575049]">
               Perbarui kata sandi login admin Anda untuk memastikan keamanan akses sistem cafe.
             </span>
           </div>
         </div>
         <Link
           to="/admin/security"
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-800 hover:bg-zinc-50 hover:border-zinc-300 transition shadow-2xs self-start sm:self-auto shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] font-semibold text-[#292524] hover:bg-[#FAF7F2] hover:border-[#D6CEC2] transition shadow-2xs self-start sm:self-auto shrink-0"
         >
           <span>Ubah Kata Sandi →</span>
         </Link>

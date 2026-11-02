@@ -1,0 +1,18 @@
+-- ==============================================================================
+-- MIGRATION: STATUS PUBLIKASI & DRAFT UNTUK SEWA TEMPAT (SPACE BOOKINGS)
+-- ==============================================================================
+-- Fitur: Menambahkan dukungan status 'Publik' vs 'Draft' pada pemesanan sewa ruang/event.
+--
+-- Secara default dalam aplikasi:
+-- is_available = true  -> Status PUBLIK (Tayang di website dan dapat dilihat pengunjung)
+-- is_available = false -> Status DRAFT (Draft internal / reservasi khusus yang belum dipublikasikan)
+--
+-- Opsional: Jika Anda ingin menambahkan kolom teks 'status' eksplisit ke tabel public.space_bookings:
+--
+-- ALTER TABLE public.space_bookings 
+-- ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'public';
+--
+-- UPDATE public.space_bookings 
+-- SET status = CASE WHEN is_available THEN 'public' ELSE 'draft' END;
+--
+-- ==============================================================================

@@ -8,6 +8,7 @@ import defaultHeroSecondary from "../../assets/hero-default-secondary.jpg";
 import HeroFoliage3D from "../../components/public/HeroFoliage3D";
 import { cleanText, toWhatsAppLink, safeUrl } from "../../utils/text";
 import { reviewService } from "../../services/reviewService";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Home() {
   const [cafeInfo, setCafeInfo] = useState(null);
@@ -17,6 +18,7 @@ export default function Home() {
   const [liveMusics, setLiveMusics] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [_loading, setLoading] = useState(true);
+  const { isAdmin } = useAuth();
 
   // Review Input Form State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -74,6 +76,7 @@ export default function Home() {
           setHeroBanner(heroData);
           setAboutStories(storiesData || []);
           setActivePromos(promosData || []);
+          setSlideIndex(0);
           setLiveMusics(liveMusicData || []);
           setReviews(reviewsData || []);
           setLoading(false);
@@ -85,8 +88,22 @@ export default function Home() {
     };
 
     loadHomeData();
+
+    // Real-time sinkronisasi ulasan antara halaman Customer & Admin
+    const unsubscribeReviews = reviewService.subscribe(async () => {
+      try {
+        const freshReviews = await reviewService.getAll();
+        if (!ignore && Array.isArray(freshReviews)) {
+          setReviews(freshReviews);
+        }
+      } catch {
+        // ignore
+      }
+    });
+
     return () => {
       ignore = true;
+      unsubscribeReviews();
     };
   }, []);
 
@@ -101,8 +118,9 @@ export default function Home() {
     try {
       setIsSubmittingReview(true);
       setReviewNotice("");
-      const created = await reviewService.create(reviewForm);
-      setReviews((prev) => [created, ...prev]);
+      await reviewService.create(reviewForm);
+      const freshReviews = await reviewService.getAll();
+      setReviews(freshReviews || []);
       setReviewNotice("Terima kasih! Ulasan Anda berhasil ditambahkan.");
       setReviewForm({
         name: "",
@@ -121,22 +139,31 @@ export default function Home() {
     }
   };
 
+  // Handle Admin Quick Delete Review (Moderasi Ujaran Kebencian & Pelanggaran)
+  const handleDeleteReviewAdmin = async (rev) => {
+    if (
+      !window.confirm(
+        `Hapus ulasan dari "${rev.name}"?\n(Moderasi Admin untuk antisipasi ujaran kebencian / konten tidak pantas)`
+      )
+    ) {
+      return;
+    }
+    try {
+      await reviewService.delete(rev.id, rev);
+      const freshReviews = await reviewService.getAll();
+      setReviews(freshReviews || []);
+      setReviewNotice(`Ulasan dari "${rev.name}" berhasil dihapus secara permanen.`);
+      setTimeout(() => setReviewNotice(""), 3500);
+    } catch (err) {
+      alert("Gagal menghapus ulasan: " + (err.message || ""));
+    }
+  };
+
   // ─── Slider: build slides array ─────────────────────────────────────────
   const heroImageUrl = heroBanner?.image_url || defaultHeroPrimary;
 
   const slides = [
-    // Slide 0: Konten Beranda (dari admin)
-    {
-      id: "beranda",
-      type: "beranda",
-      image: heroImageUrl,
-      badge: "BERANDA",
-      title: cleanText(cafeInfo?.name) || "SIDE LINE",
-      subtitle: "COFFEE & EATERY",
-      caption: "Seduhan istimewa, ruang tenang & cita rasa otentik.",
-      link: null,
-    },
-    // Slide 1+: Event aktif dari admin
+    // Slide 0+: Event aktif dari admin ditampilkan paling awal agar user langsung tertuju ke event
     ...activePromos.map((evt) => ({
       id: evt.id,
       type: "event",
@@ -149,6 +176,17 @@ export default function Home() {
       dateEnd: evt.end_date,
       link: "/event",
     })),
+    // Slide berikutnya: Konten Beranda (dari admin)
+    {
+      id: "beranda",
+      type: "beranda",
+      image: heroImageUrl,
+      badge: "BERANDA",
+      title: cleanText(cafeInfo?.name) || "SIDE LINE",
+      subtitle: "COFFEE & EATERY",
+      caption: "Seduhan istimewa, ruang tenang & cita rasa otentik.",
+      link: null,
+    },
   ];
 
   const total = slides.length;
@@ -247,9 +285,9 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-14 items-center">
             
             {/* -------------------------------------------------------------
-                LEFT COLUMN: TYPOGRAPHY, BRAND NARRATIVE & PILLARS
+                LEFT COLUMN (BAWAH DI MOBILE): TYPOGRAPHY, BRAND NARRATIVE & PILLARS
             ------------------------------------------------------------- */}
-            <div className="lg:col-span-6 xl:col-span-7 space-y-5 sm:space-y-6 lg:space-y-7">
+            <div className="order-2 lg:order-1 lg:col-span-6 xl:col-span-5 space-y-5 sm:space-y-6 lg:space-y-7">
               {/* Overline / Kicker with red dash */}
               <div className="flex items-center gap-2.5">
                 <span className="w-5 h-[2px] bg-[#E5251F]" />
@@ -259,7 +297,7 @@ export default function Home() {
               </div>
 
               {/* Main Headline */}
-              <h1 className="font-heading text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[4rem] xl:text-[4.75rem] 2xl:text-[5.25rem] font-black uppercase tracking-tight text-[#141414] leading-[0.96] sm:leading-[0.93]">
+              <h1 className="font-heading text-3xl xs:text-4xl sm:text-5xl md:text-5xl lg:text-[3.25rem] xl:text-[3.75rem] 2xl:text-[4.25rem] font-black uppercase tracking-tight text-[#141414] leading-[0.96] sm:leading-[0.93]">
                 SEDUHAN <br />
                 ISTIMEWA, <br />
                 <span className="text-[#E5251F] italic font-black">
@@ -356,9 +394,9 @@ export default function Home() {
             </div>
 
             {/* -------------------------------------------------------------
-                RIGHT COLUMN: HERO CARD SLIDER (AUTO-SLIDE + PAUSE ON HOVER)
+                RIGHT COLUMN (ATAS DI MOBILE): HERO / EVENT CARD SLIDER (AUTO-SLIDE + PAUSE ON HOVER)
             ------------------------------------------------------------- */}
-            <div className="lg:col-span-6 xl:col-span-5 relative mt-8 lg:mt-0">
+            <div className="order-1 lg:order-2 lg:col-span-6 xl:col-span-7 relative">
               <div
                 className="relative w-full select-none"
                 onMouseEnter={() => setIsPaused(true)}
@@ -366,15 +404,15 @@ export default function Home() {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
-                {/* ── FOTO + OVERLAY INFO ── */}
-                <div className="relative w-full group overflow-hidden">
+                {/* ── FOTO + OVERLAY INFO (HERO UTAMA LEBIH BESAR & PROPOSIONAL) ── */}
+                <div className="relative w-full aspect-[4/3] xs:aspect-[16/11] sm:aspect-[16/10] md:aspect-[16/10] lg:aspect-[4/3] xl:aspect-[16/11] 2xl:aspect-[16/10] min-h-[380px] xs:min-h-[420px] sm:min-h-[480px] md:min-h-[520px] lg:min-h-[540px] xl:min-h-[600px] 2xl:min-h-[660px] rounded-2xl sm:rounded-3xl border border-[#141414]/15 bg-[#F5E8BA] shadow-2xl group overflow-hidden">
 
-                  {/* Foto */}
+                  {/* Foto Hero */}
                   <img
                     key={currentSlide.id}
                     src={currentSlide.image}
                     alt={currentSlide.title}
-                    className={`block w-full h-auto transition-all duration-[420ms] ease-in-out
+                    className={`w-full h-full object-cover transition-all duration-[420ms] ease-in-out group-hover:scale-[1.02]
                       ${isAnimating
                         ? slideDir === "right"
                           ? "-translate-x-6 opacity-0"
@@ -727,9 +765,22 @@ export default function Home() {
                           {"★".repeat(Math.max(0, 5 - stars))}
                         </span>
                       </div>
-                      <span className="rounded-full bg-[#FFF5CF] border border-[#141414]/10 px-2.5 py-0.5 text-[10px] font-heading font-bold uppercase tracking-wider text-[#141414]">
-                        {tag}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="rounded-full bg-[#FFF5CF] border border-[#141414]/10 px-2.5 py-0.5 text-[10px] font-heading font-bold uppercase tracking-wider text-[#141414]">
+                          {tag}
+                        </span>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteReviewAdmin(rev)}
+                            title="Hapus ulasan ini (Moderasi Admin)"
+                            className="inline-flex items-center gap-1 rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                          >
+                            <span>🗑️</span>
+                            <span>Hapus</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Comment */}

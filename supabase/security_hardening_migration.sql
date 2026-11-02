@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS public.home_banners (
   subtitle TEXT DEFAULT 'Ruang seduhan kopi & atmosfer hangat terkurasi',
   badge TEXT DEFAULT 'AMBIENCE ARCHIVE',
   image_url TEXT NOT NULL,
-  placement TEXT DEFAULT 'hero_primary' CHECK (placement IN ('hero_primary', 'hero_secondary')),
+  placement TEXT DEFAULT 'hero_primary' CHECK (placement IN ('hero_primary', 'hero_secondary', 'chef_recommendation', 'menu_hero')),
   is_active BOOLEAN DEFAULT TRUE NOT NULL,
   order_index INT DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -183,6 +183,13 @@ ADD COLUMN IF NOT EXISTS promo_end_date TIMESTAMP WITH TIME ZONE;
 
 ALTER TABLE public.cafe_information
 ADD COLUMN IF NOT EXISTS logo_url TEXT;
+
+ALTER TABLE public.home_banners
+DROP CONSTRAINT IF EXISTS home_banners_placement_check;
+
+ALTER TABLE public.home_banners
+ADD CONSTRAINT home_banners_placement_check
+CHECK (placement IN ('hero_primary', 'hero_secondary', 'chef_recommendation', 'menu_hero'));
 
 -- ==============================================================================
 -- 3. PERBAIKI TRIGGER USER BARU (DEFAULT KE 'customer', BUKAN 'admin')
@@ -614,10 +621,19 @@ CREATE POLICY "Admin manage cafe-assets" ON storage.objects
   WITH CHECK (bucket_id = 'cafe-assets' AND public.is_admin());
 
 -- ==============================================================================
--- 8. GRANT PERMISSIONS SCHEMA PUBLIC
+-- 8. GRANT PERMISSIONS SCHEMA PUBLIC & REALTIME PUBLICATION
 -- ==============================================================================
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+GRANT SELECT, INSERT ON TABLE public.reviews TO anon;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
+
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.reviews;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN OTHERS THEN NULL;
+END $$;

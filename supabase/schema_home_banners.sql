@@ -11,7 +11,7 @@ create table if not exists public.home_banners (
   subtitle text default 'Ruang seduhan kopi & atmosfer hangat terkurasi',
   badge text default 'AMBIENCE ARCHIVE',
   image_url text not null,
-  placement text default 'hero_primary' check (placement in ('hero_primary', 'hero_secondary')),
+  placement text default 'hero_primary' check (placement in ('hero_primary', 'hero_secondary', 'chef_recommendation', 'menu_hero')),
   is_active boolean default true not null,
   order_index int default 1,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null

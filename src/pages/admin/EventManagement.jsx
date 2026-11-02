@@ -1,21 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { eventService } from "../../services/eventService";
 import {
-  Calendar,
-  CalendarDays,
-  Clock,
+  CalendarStar as Calendar,
+  CalendarBlank as CalendarDays,
   Plus,
-  Pencil,
-  Trash2,
-  CheckCircle2,
-  AlertCircle,
+  PencilSimple as Pencil,
+  Trash as Trash2,
+  CheckCircle as CheckCircle2,
+  WarningCircle as AlertCircle,
   X,
-  UploadCloud,
+  CloudArrowUp as UploadCloud,
   Eye,
-  EyeOff,
-  Image as ImageIcon,
-  Sparkles,
-} from "lucide-react";
+  EyeSlash as EyeOff,
+  Images as ImageIcon,
+  Sparkle as Sparkles,
+} from "@phosphor-icons/react";
 
 export default function EventManagement() {
   const [events, setEvents] = useState([]);
@@ -195,36 +194,38 @@ export default function EventManagement() {
   return (
     <div className="space-y-6">
       {/* Header Halaman */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-zinc-200/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs">
-              <Calendar className="h-4 w-4" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Agenda & Event
-            </h1>
-            <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-mono font-medium text-zinc-600 border border-zinc-200/80">
-              {events.length} Terdaftar
-            </span>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FCECEB] text-[#C8100A] border border-[#F6D5D2]">
+            <Calendar className="h-5 w-5" weight="duotone" />
           </div>
-          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
-            Publikasikan workshop barista, temu komunitas, cupping session, dan perayaan spesial
-          </p>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#1C1917]">
+                Agenda &amp; Event Cafe
+              </h1>
+              <span className="rounded-full bg-[#FAF7F2] px-2.5 py-0.5 text-[13.5px] font-medium text-[#6B635B] border border-[#E6DFD5]">
+                {events.length} agenda
+              </span>
+            </div>
+            <p className="mt-1 text-[13.5px] sm:text-sm text-[#575049]">
+              Publikasikan workshop barista, temu komunitas, cupping session, dan perayaan spesial
+            </p>
+          </div>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-zinc-800 active:scale-[0.98] transition cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#A80D08] transition cursor-pointer"
         >
-          <Plus className="h-4 w-4 stroke-[2.5]" />
+          <Plus className="h-4 w-4" weight="bold" />
           <span>Tambah Event Baru</span>
         </button>
       </div>
 
       {/* Feedback Messages */}
       {successMsg && (
-        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-[13.5px] sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-medium truncate">{successMsg}</span>
@@ -239,7 +240,7 @@ export default function EventManagement() {
       )}
 
       {errorMsg && (
-        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-xs sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-[13.5px] sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
             <span className="font-medium truncate">{errorMsg}</span>
@@ -256,24 +257,24 @@ export default function EventManagement() {
       {/* Grid Cards Event */}
       <div>
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-zinc-200/80 bg-white text-zinc-400">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
-            <p className="mt-3 text-xs sm:text-sm font-medium text-zinc-500">Memuat agenda event...</p>
+          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-[#E6DFD5] bg-white text-[#6B635B]">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#E6DFD5] border-t-zinc-900" />
+            <p className="mt-3 text-[13.5px] sm:text-sm font-medium text-[#575049]">Memuat agenda event...</p>
           </div>
         ) : events.length === 0 ? (
-          <div className="p-16 text-center rounded-xl border border-zinc-200/80 bg-white shadow-xs">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400">
+          <div className="p-16 text-center rounded-xl border border-[#E6DFD5] bg-white shadow-xs">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#6B635B]">
               <Calendar className="h-6 w-6 stroke-[1.5]" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-zinc-800">
+            <p className="mt-4 text-sm font-semibold text-[#292524]">
               Belum ada event terjadwal
             </p>
-            <p className="mt-1 text-xs text-zinc-500 max-w-sm mx-auto">
+            <p className="mt-1 text-[13.5px] text-[#575049] max-w-sm mx-auto">
               Buat agenda kegiatan atau acara menarik agar pengunjung mengetahui agenda terkini di SIDE LINE.
             </p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-zinc-950 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition cursor-pointer"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#1C1917] px-3.5 py-2 text-[13.5px] font-semibold text-white hover:bg-[#292524] transition cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Buat Event Pertama</span>
@@ -284,11 +285,11 @@ export default function EventManagement() {
             {events.map((evt) => (
               <div
                 key={evt.id}
-                className="group overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs hover:border-zinc-300 hover:shadow-md transition flex flex-col justify-between"
+                className="group overflow-hidden rounded-xl border border-[#E6DFD5] bg-white shadow-xs hover:border-[#D6CEC2] hover:shadow-md transition flex flex-col justify-between"
               >
                 <div>
                   {/* Banner Image */}
-                  <div className="relative h-44 w-full overflow-hidden bg-zinc-100 border-b border-zinc-100">
+                  <div className="relative h-44 w-full overflow-hidden bg-[#F5EFE6] border-b border-[#EFE9E0]">
                     {evt.image_url ? (
                       <img
                         src={evt.image_url}
@@ -296,9 +297,9 @@ export default function EventManagement() {
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center text-zinc-400 gap-1.5">
-                        <ImageIcon className="h-8 w-8 stroke-[1.5] text-zinc-300" />
-                        <span className="text-[11px] font-mono text-zinc-400">Tidak ada poster</span>
+                      <div className="flex h-full w-full flex-col items-center justify-center text-[#6B635B] gap-1.5">
+                        <ImageIcon className="h-8 w-8 stroke-[1.5] text-[#BFB6AA]" />
+                        <span className="text-[12.5px] text-[#6B635B]">Tidak ada poster</span>
                       </div>
                     )}
                     {/* Active Status Badge on Image */}
@@ -306,10 +307,10 @@ export default function EventManagement() {
                       <button
                         onClick={() => handleToggleActive(evt)}
                         title={evt.is_active ? "Klik untuk non-aktifkan" : "Klik untuk aktifkan"}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur-md transition shadow-xs cursor-pointer ${
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] font-medium backdrop-blur-md transition shadow-xs cursor-pointer ${
                           evt.is_active
                             ? "bg-emerald-500/90 text-white hover:bg-emerald-600"
-                            : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-900"
+                            : "bg-zinc-800/80 text-[#BFB6AA] hover:bg-[#1C1917]"
                         }`}
                       >
                         <span
@@ -324,17 +325,17 @@ export default function EventManagement() {
 
                   {/* Body Content */}
                   <div className="p-4 sm:p-5">
-                    <h3 className="font-bold text-zinc-900 text-sm sm:text-base line-clamp-1 group-hover:text-zinc-950">
+                    <h3 className="font-bold text-[#1C1917] text-sm sm:text-base line-clamp-1 group-hover:text-zinc-950">
                       {evt.title}
                     </h3>
 
-                    <p className="mt-2 text-xs text-zinc-600 line-clamp-2 leading-relaxed">
+                    <p className="mt-2 text-[13.5px] text-[#575049] line-clamp-2 leading-relaxed">
                       {evt.description || "Tidak ada rincian deskripsi tambahan."}
                     </p>
 
                     {/* Date info pill */}
-                    <div className="mt-3.5 flex items-center gap-1.5 rounded-lg bg-zinc-50 px-2.5 py-1.5 border border-zinc-200/60 font-mono text-[11px] text-zinc-600">
-                      <CalendarDays className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                    <div className="mt-3.5 flex items-center gap-1.5 rounded-lg bg-[#FAF7F2] px-2.5 py-1.5 border border-[#E6DFD5] text-[12.5px] text-[#575049]">
+                      <CalendarDays className="h-3.5 w-3.5 text-[#6B635B] shrink-0" />
                       <span className="truncate">
                         {evt.start_date
                           ? new Date(evt.start_date).toLocaleDateString("id-ID", {
@@ -357,23 +358,23 @@ export default function EventManagement() {
                 </div>
 
                 {/* Footer Action Bar */}
-                <div className="flex items-center justify-between gap-2 border-t border-zinc-100 bg-zinc-50/50 px-4 py-3">
-                  <span className="text-[11px] font-mono text-zinc-400">
+                <div className="flex items-center justify-between gap-2 border-t border-[#EFE9E0] bg-[#FAF7F2]/70 px-4 py-3">
+                  <span className="text-[12.5px] text-[#6B635B]">
                     ID #{String(evt.id).slice(-4)}
                   </span>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenEdit(evt)}
                       title="Edit Event"
-                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#E6DFD5] bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-[#44403C] hover:bg-[#F5EFE6] hover:text-[#1C1917] transition cursor-pointer"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-zinc-500" />
+                      <Pencil className="h-3.5 w-3.5 text-[#575049]" />
                       <span>Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(evt)}
                       title="Hapus Event"
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                       <span>Hapus</span>
@@ -388,35 +389,35 @@ export default function EventManagement() {
 
       {/* Modal Dialog Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
           <div
             key={editingEvent ? `edit-${editingEvent.id}` : "add-new"}
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-zinc-200 my-8 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-[#E6DFD5] my-8 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EFE9E0]">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1C1917] text-white">
                   <Calendar className="h-3.5 w-3.5" />
                 </span>
-                <h2 className="text-base font-bold text-zinc-900">
+                <h2 className="text-base font-bold text-[#1C1917]">
                   {editingEvent ? "Edit Agenda Event" : "Tambah Agenda Event Baru"}
                 </h2>
               </div>
               <button
                 onClick={handleCloseModal}
-                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-md transition cursor-pointer"
+                className="text-[#6B635B] hover:text-[#575049] p-1 rounded-md transition cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-[13.5px] text-[#575049]">
               Lengkapi judul event, tanggal pelaksanaan, banner visual, dan informasi detail acara.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                   Judul Event <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -425,12 +426,12 @@ export default function EventManagement() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Misal: Latte Art Workshop & Cupping Session"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                  className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                   Deskripsi Kegiatan
                 </label>
                 <textarea
@@ -438,48 +439,48 @@ export default function EventManagement() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Rincian acara, pemateri, kuota peserta, benefit atau instruksi registrasi..."
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                  className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                     Tanggal Mulai
                   </label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                    className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                  <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                     Tanggal Selesai
                   </label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                    className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
                   Poster / Banner Visual (JPG / PNG, Maks 2MB)
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full text-xs text-zinc-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200 cursor-pointer"
+                  className="w-full text-[13.5px] text-[#575049] file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-[13.5px] file:font-semibold file:bg-[#F5EFE6] file:text-[#292524] hover:file:bg-zinc-200 cursor-pointer"
                 />
                 {imagePreview && (
-                  <div className="mt-3 relative rounded-lg overflow-hidden border border-zinc-200">
+                  <div className="mt-3 relative rounded-lg overflow-hidden border border-[#E6DFD5]">
                     <img
                       src={imagePreview}
                       alt="Banner Preview"
@@ -490,30 +491,30 @@ export default function EventManagement() {
               </div>
 
               <div className="pt-2">
-                <label className="flex items-center gap-2.5 cursor-pointer text-xs sm:text-sm font-medium text-zinc-700">
+                <label className="flex items-center gap-2.5 cursor-pointer text-[13.5px] sm:text-sm font-semibold text-[#44403C]">
                   <input
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
+                    className="h-4 w-4 rounded border-[#D6CEC2] text-[#1C1917] focus:ring-zinc-900"
                   />
                   <span>Publikasikan langsung sebagai event aktif di website</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-100">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-[#EFE9E0]">
                 <button
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
+                  className="rounded-lg border border-[#E6DFD5] px-3.5 py-2 text-[13.5px] font-medium text-[#575049] hover:bg-[#F5EFE6] transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !title.trim()}
-                  className="rounded-lg bg-zinc-950 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="rounded-lg bg-[#1C1917] px-4 py-2 text-[13.5px] font-semibold text-white hover:bg-[#292524] disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   {isSubmitting ? (
                     <>

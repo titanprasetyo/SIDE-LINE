@@ -3,22 +3,21 @@ import { Link } from "react-router-dom";
 import {
   Coffee,
   Tag,
-  Layers,
-  Image,
-  Calendar,
-  Music2,
-  Building2,
-  Users2,
-  Sparkles,
+  Browsers,
+  Images,
+  CalendarStar,
+  MusicNotes,
+  Storefront,
+  UsersThree,
+  Sparkle,
   ArrowUpRight,
   Plus,
-  ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
+  ArrowSquareOut,
+  CheckCircle,
   Clock,
-  Settings,
-  Flame,
-} from "lucide-react";
+  SlidersHorizontal,
+  ChatCenteredDots,
+} from "@phosphor-icons/react";
 import { supabase } from "../../services/supabase";
 import { homeBannerService } from "../../services/homeBannerService";
 
@@ -88,155 +87,230 @@ export default function Dashboard() {
     };
   }, []);
 
+  const totalRecords =
+    stats.menuCount +
+    stats.categoryCount +
+    stats.heroCount +
+    stats.galleryCount +
+    stats.promoCount +
+    stats.liveMusicCount +
+    stats.spaceCount +
+    stats.teamCount;
+
+  const todayFormatted = new Date().toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   const cards = [
     {
       title: "Menu Cafe",
       count: stats.menuCount,
+      unit: "sajian terdaftar",
       icon: Coffee,
       path: "/admin/menu",
-      desc: "Katalog sajian & harga promo",
-      tag: "Catalog",
-      iconBg: "bg-amber-50 text-amber-700 border-amber-200/60",
+      desc: "Katalog kopi, minuman, makanan & harga promo",
+      badge: "Katalog Utama",
+      accent: true,
     },
     {
       title: "Kategori Menu",
       count: stats.categoryCount,
+      unit: "kelompok menu",
       icon: Tag,
       path: "/admin/categories",
-      desc: "Pengelompokan menu sajian",
-      tag: "Structure",
-      iconBg: "bg-blue-50 text-blue-700 border-blue-200/60",
+      desc: "Pengelompokan jenis minuman dan kudapan",
+      badge: "Struktur",
     },
     {
       title: "Konten Beranda",
       count: stats.heroCount,
-      icon: Layers,
+      unit: "konten aktif",
+      icon: Browsers,
       path: "/admin/home-hero",
-      desc: "Banner Hero & Cerita Visual",
-      tag: "Hero & About",
-      iconBg: "bg-purple-50 text-purple-700 border-purple-200/60",
+      desc: "Foto hero utama dan narasi cerita Side Line",
+      badge: "Halaman Depan",
     },
     {
-      title: "Foto Galeri",
+      title: "Galeri Visual",
       count: stats.galleryCount,
-      icon: Image,
+      unit: "foto & video",
+      icon: Images,
       path: "/admin/gallery",
-      desc: "Arsip visual suasana cafe",
-      tag: "Media",
-      iconBg: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
+      desc: "Dokumentasi suasana ruang dan sudut cafe",
+      badge: "Media",
     },
     {
-      title: "Agenda Event",
+      title: "Event & Promo",
       count: stats.promoCount,
-      icon: Calendar,
+      unit: "agenda acara",
+      icon: CalendarStar,
       path: "/admin/events",
-      desc: "Workshop, promo & festival",
-      tag: "Activities",
-      iconBg: "bg-rose-50 text-rose-700 border-rose-200/60",
+      desc: "Workshop kopi, kolaborasi, dan acara komunitas",
+      badge: "Agenda",
     },
     {
-      title: "Live Music",
+      title: "Jadwal Live Music",
       count: stats.liveMusicCount,
-      icon: Music2,
+      unit: "jadwal tampil",
+      icon: MusicNotes,
       path: "/admin/live-music",
-      desc: "Jadwal band & panggung rutin",
-      tag: "Music",
-      iconBg: "bg-indigo-50 text-indigo-700 border-indigo-200/60",
+      desc: "Daftar musisi akustik dan penampilan mingguan",
+      badge: "Hiburan",
     },
     {
       title: "Sewa Tempat",
       count: stats.spaceCount,
-      icon: Building2,
+      unit: "paket ruang",
+      icon: Storefront,
       path: "/admin/space-booking",
-      desc: "Paket ruang meeting & pesta",
-      tag: "Spaces",
-      iconBg: "bg-teal-50 text-teal-700 border-teal-200/60",
+      desc: "Paket reservasi ruang rapat, komunitas & acara",
+      badge: "Reservasi",
     },
     {
-      title: "Profil Tim",
+      title: "Tim & Barista",
       count: stats.teamCount,
-      icon: Users2,
+      unit: "anggota tim",
+      icon: UsersThree,
       path: "/admin/team",
-      desc: "Barista, owner & kurator",
-      tag: "Crew",
-      iconBg: "bg-zinc-100 text-zinc-800 border-zinc-200/80",
+      desc: "Profil peracik kopi, founder, dan kru operasional",
+      badge: "Internal",
     },
   ];
 
   const quickActions = [
-    { label: "Tambah Menu Baru", path: "/admin/menu", icon: Coffee },
-    { label: "Jadwal Live Music", path: "/admin/live-music", icon: Music2 },
-    { label: "Buat Agenda Event", path: "/admin/events", icon: Calendar },
-    { label: "Upload Foto Galeri", path: "/admin/gallery", icon: Image },
-    { label: "Tambah Sewa Ruang", path: "/admin/space-booking", icon: Building2 },
-    { label: "Profil Anggota Tim", path: "/admin/team", icon: Users2 },
-    { label: "Atur Fasilitas Cafe", path: "/admin/facilities", icon: Sparkles },
-    { label: "Info Jam & Kontak", path: "/admin/settings", icon: Settings },
+    { label: "Kelola Menu & Promo", path: "/admin/menu", icon: Coffee },
+    { label: "Atur Jadwal Live Music", path: "/admin/live-music", icon: MusicNotes },
+    { label: "Tambah Agenda Event", path: "/admin/events", icon: CalendarStar },
+    { label: "Unggah Foto Galeri", path: "/admin/gallery", icon: Images },
+    { label: "Paket Sewa Ruang", path: "/admin/space-booking", icon: Storefront },
+    { label: "Moderasi Ulasan Tamu", path: "/admin/reviews", icon: ChatCenteredDots },
+    { label: "Fasilitas Ruang Cafe", path: "/admin/facilities", icon: Sparkle },
+    { label: "Jam Buka & Kontak", path: "/admin/settings", icon: SlidersHorizontal },
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* ── Top SaaS Welcome Header Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-[#0B0F17] text-white p-6 sm:p-8 border border-white/[0.08] shadow-lg">
-        {/* Subtle Ambient Red Glow */}
-        <div
-          className="pointer-events-none absolute -top-24 -right-12 h-64 w-64 rounded-full bg-[#FF0000]/15 blur-3xl"
-          aria-hidden="true"
-        />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="rounded-md bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-bold tracking-wider uppercase text-zinc-300 border border-white/[0.08]">
-                Console Overview
+    <div className="space-y-7">
+      {/* ── Informative Operational Header ── */}
+      <section className="rounded-2xl border border-[#E6DFD5] bg-white p-6 sm:p-7 shadow-2xs">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2.5 text-[13.5px] text-[#575049]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F5EFE6] px-3 py-1 font-medium text-[#575049] border border-[#E6DFD5]">
+                <Coffee className="h-3.5 w-3.5 text-[#C8100A]" weight="duotone" />
+                <span>Ringkasan Operasional Cafe</span>
               </span>
-              <span className="text-zinc-500 text-xs">•</span>
-              <span className="text-xs text-zinc-400 flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                Live Database Active
-              </span>
+              <span>•</span>
+              <span>{todayFormatted}</span>
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
-              SIDE LINE Management Suite
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1C1917] tracking-tight">
+              Selamat datang di Panel Pengelola Side Line
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-              Pusat kendali data operasional cafe: kelola katalog menu, promo berkala, agenda live music, ruang meeting, dan arsip visual secara real-time.
+
+            <p className="text-sm text-[#6B635B] leading-relaxed">
+              Pantau dan perbarui katalog menu, harga promo, jadwal panggung akustik, serta informasi reservasi ruang dalam satu tempat. Saat ini terdapat{" "}
+              <strong className="font-semibold text-[#1C1917]">
+                {loading ? "..." : totalRecords} item konten
+              </strong>{" "}
+              yang tampil di halaman pelanggan.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link
               to="/admin/menu"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#FF0000] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#D60000] active:scale-[0.98] transition shadow-md cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white hover:bg-[#A80D08] transition shadow-2xs"
             >
-              <Plus className="h-4 w-4" />
-              <span>Sajian Menu Baru</span>
+              <Plus className="h-4 w-4" weight="bold" />
+              <span>Tambah Sajian Menu</span>
+            </Link>
+
+            <Link
+              to="/admin/events"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#F5EFE6] hover:bg-[#EBE2D5] border border-[#E2D9CC] px-4 py-2.5 text-[13.5px] sm:text-sm font-medium text-[#292524] transition"
+            >
+              <CalendarStar className="h-4 w-4 text-[#7C4D34]" weight="duotone" />
+              <span>Kelola Event</span>
             </Link>
 
             <Link
               to="/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] px-4 py-2.5 text-xs font-semibold text-zinc-200 hover:text-white transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white hover:bg-[#FAF7F2] border border-[#E2D9CC] px-3.5 py-2.5 text-[13.5px] sm:text-sm font-medium text-[#575049] transition"
             >
-              <span>Website Publik</span>
-              <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
+              <span>Web Pelanggan</span>
+              <ArrowSquareOut className="h-4 w-4 text-[#6B635B]" weight="duotone" />
             </Link>
           </div>
         </div>
-      </div>
 
-      {/* ── Metric Cards Grid ── */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-800">
-              Statistik Konten Cafe
-            </h2>
-            <p className="text-xs text-zinc-500">Jumlah data yang tersinkronisasi di website</p>
+        {/* Summary Strip inside Hero */}
+        <div className="mt-6 pt-5 border-t border-[#EFE9E0] grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FCECEB] text-[#C8100A]">
+              <Coffee className="h-5 w-5" weight="duotone" />
+            </div>
+            <div>
+              <p className="text-[13.5px] text-[#575049]">Katalog Sajian</p>
+              <p className="text-sm font-semibold text-[#1C1917]">
+                {loading ? "—" : `${stats.menuCount} Menu & ${stats.categoryCount} Kategori`}
+              </p>
+            </div>
           </div>
-          <span className="text-xs font-medium text-zinc-500">
-            {cards.length} Modul Terintegrasi
+
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#7C4D34]">
+              <CalendarStar className="h-5 w-5" weight="duotone" />
+            </div>
+            <div>
+              <p className="text-[13.5px] text-[#575049]">Agenda &amp; Hiburan</p>
+              <p className="text-sm font-semibold text-[#1C1917]">
+                {loading ? "—" : `${stats.promoCount} Event • ${stats.liveMusicCount} Live Music`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#7C4D34]">
+              <Storefront className="h-5 w-5" weight="duotone" />
+            </div>
+            <div>
+              <p className="text-[13.5px] text-[#575049]">Ruang &amp; Fasilitas</p>
+              <p className="text-sm font-semibold text-[#1C1917]">
+                {loading ? "—" : `${stats.spaceCount} Paket • ${stats.facilityCount} Fasilitas`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EDF5EF] text-emerald-800">
+              <CheckCircle className="h-5 w-5" weight="duotone" />
+            </div>
+            <div>
+              <p className="text-[13.5px] text-[#575049]">Koneksi Database</p>
+              <p className="text-sm font-semibold text-emerald-900">Tersinkronisasi</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Prominent Module Statistics Grid ── */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-[#1C1917]">
+              Statistik Modul Konten
+            </h2>
+            <p className="text-[13.5px] sm:text-sm text-[#575049]">
+              Klik pada kartu modul untuk melihat detail dan memperbarui data
+            </p>
+          </div>
+          <span className="text-[13.5px] font-medium text-[#575049] bg-[#F3EDE2] px-3 py-1 rounded-full border border-[#E6DFD5] w-fit">
+            {cards.length} modul operasional
           </span>
         </div>
 
@@ -247,58 +321,68 @@ export default function Dashboard() {
               <Link
                 key={card.title}
                 to={card.path}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs hover:border-zinc-300 hover:shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+                className="group relative flex flex-col justify-between rounded-2xl border border-[#E6DFD5] bg-white p-5 shadow-2xs hover:border-[#C8100A]/40 hover:shadow-md transition-all duration-200"
               >
                 <div>
-                  <div className="flex items-center justify-between">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${card.iconBg}`}>
-                      <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  <div className="flex items-center justify-between gap-2">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
+                        card.accent
+                          ? "bg-[#FCECEB] text-[#C8100A] border-[#F6D5D2]"
+                          : "bg-[#F5EFE6] text-[#6E4730] border-[#E8DFD2] group-hover:bg-[#FCECEB] group-hover:text-[#C8100A] group-hover:border-[#F6D5D2]"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" weight="duotone" />
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 group-hover:text-zinc-900 transition">
-                      <span className="text-[10px] font-medium tracking-wide uppercase">{card.tag}</span>
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#FAF7F2] px-2.5 py-1 text-[12.5px] font-medium text-[#575049] border border-[#ECE5DA] group-hover:text-[#C8100A] group-hover:border-[#F6D5D2] transition">
+                      <span>{card.badge}</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
+                    </span>
                   </div>
 
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                    {card.title}
-                  </p>
-
-                  <div className="mt-1 flex items-baseline">
-                    <p className="text-3xl font-black text-zinc-900 font-mono tracking-tight">
+                  {/* Prominent Statistic Number */}
+                  <div className="mt-5 flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-semibold text-[#1C1917] tracking-tight">
                       {loading ? (
-                        <span className="inline-block h-6 w-8 animate-pulse rounded bg-zinc-200" />
+                        <span className="inline-block h-8 w-12 animate-pulse rounded-lg bg-[#EFE9E0]" />
                       ) : (
                         card.count
                       )}
-                    </p>
+                    </span>
+                    <span className="text-[13.5px] text-[#6B635B] font-normal">
+                      {card.unit}
+                    </span>
                   </div>
+
+                  <h3 className="mt-1.5 text-sm font-semibold text-[#292524] group-hover:text-[#C8100A] transition-colors">
+                    {card.title}
+                  </h3>
                 </div>
 
-                <p className="mt-3 pt-3 border-t border-zinc-100 text-[11px] text-zinc-400 truncate">
+                <p className="mt-3 pt-3 border-t border-[#F2ECE1] text-[13.5px] text-[#575049] line-clamp-1">
                   {card.desc}
                 </p>
               </Link>
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {/* ── Quick Actions Grid & Checklist ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Quick Actions Shortcuts */}
-        <div className="lg:col-span-8 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-2xs">
-          <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
+      {/* ── Quick Actions & System Status ── */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Quick Actions */}
+        <div className="lg:col-span-8 rounded-2xl border border-[#E6DFD5] bg-white p-6 shadow-2xs">
+          <div className="flex items-center justify-between pb-4 border-b border-[#F2ECE1]">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-900">
-                Aksi Cepat Kelola Konten
+              <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
+                Pintasan Pengelolaan Harian
               </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Pintasan instan untuk memperbarui data operasional harian
+              <p className="text-[13.5px] text-[#575049] mt-0.5">
+                Akses langsung ke halaman manajemen yang paling sering digunakan
               </p>
             </div>
-            <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-mono font-medium text-zinc-600">
-              Shortcuts
+            <span className="rounded-lg bg-[#F5EFE6] px-2.5 py-1 text-[13.5px] font-medium text-[#6E4730] border border-[#E8DFD2]">
+              Akses Cepat
             </span>
           </div>
 
@@ -309,61 +393,63 @@ export default function Dashboard() {
                 <Link
                   key={qa.label}
                   to={qa.path}
-                  className="flex items-center gap-2.5 rounded-xl border border-zinc-200/80 p-3 text-xs font-semibold text-zinc-700 bg-zinc-50/50 hover:bg-white hover:border-zinc-300 hover:shadow-2xs transition group"
+                  className="flex items-center gap-3 rounded-xl border border-[#EAE2D6] p-3 text-[13.5px] font-medium text-[#292524] bg-[#FAF7F2]/70 hover:bg-white hover:border-[#C8100A]/40 hover:shadow-2xs transition group"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white border border-zinc-200 text-zinc-700 group-hover:text-[#FF0000] group-hover:border-[#FF0000]/30 transition">
-                    <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F3EDE2] text-[#6E4730] group-hover:bg-[#FCECEB] group-hover:text-[#C8100A] transition">
+                    <Icon className="h-4 w-4" weight="duotone" />
                   </div>
-                  <span className="truncate">{qa.label}</span>
+                  <span className="leading-snug">{qa.label}</span>
                 </Link>
               );
             })}
           </div>
         </div>
 
-        {/* System & Operations Checklist */}
-        <div className="lg:col-span-4 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-2xs">
-          <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
+        {/* System Status */}
+        <div className="lg:col-span-4 rounded-2xl border border-[#E6DFD5] bg-white p-6 shadow-2xs">
+          <div className="flex items-center justify-between pb-4 border-b border-[#F2ECE1]">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-900">
-                Status Operasional
+              <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
+                Status Layanan
               </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">Integrasi fitur website</p>
+              <p className="text-[13.5px] text-[#575049] mt-0.5">
+                Kesiapan sistem dan integrasi publik
+              </p>
             </div>
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-600" />
           </div>
 
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
-              <span className="text-zinc-600 font-medium">Supabase Database</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
-                <CheckCircle2 className="h-3 w-3" /> Connected
+          <div className="mt-4 space-y-2.5">
+            <div className="flex items-center justify-between text-[13.5px] p-3 rounded-xl bg-[#FAF7F2] border border-[#ECE5DA]">
+              <span className="text-[#575049] font-medium">Database Supabase</span>
+              <span className="inline-flex items-center gap-1 font-medium text-emerald-800 bg-[#EBF5EE] px-2.5 py-0.5 rounded-full text-[12.5px]">
+                <CheckCircle className="h-3.5 w-3.5" weight="fill" /> Terhubung
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
-              <span className="text-zinc-600 font-medium">Reservasi WhatsApp</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
-                <CheckCircle2 className="h-3 w-3" /> Active Link
+            <div className="flex items-center justify-between text-[13.5px] p-3 rounded-xl bg-[#FAF7F2] border border-[#ECE5DA]">
+              <span className="text-[#575049] font-medium">Integrasi WhatsApp</span>
+              <span className="inline-flex items-center gap-1 font-medium text-emerald-800 bg-[#EBF5EE] px-2.5 py-0.5 rounded-full text-[12.5px]">
+                <CheckCircle className="h-3.5 w-3.5" weight="fill" /> Aktif
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
-              <span className="text-zinc-600 font-medium">Promo & Diskon</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[11px]">
-                <Clock className="h-3 w-3" /> Realtime Calc
+            <div className="flex items-center justify-between text-[13.5px] p-3 rounded-xl bg-[#FAF7F2] border border-[#ECE5DA]">
+              <span className="text-[#575049] font-medium">Kalkulasi Diskon Menu</span>
+              <span className="inline-flex items-center gap-1 font-medium text-[#7C4D34] bg-[#F5EFE6] px-2.5 py-0.5 rounded-full text-[12.5px]">
+                <Clock className="h-3.5 w-3.5" weight="duotone" /> Otomatis
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-50 border border-zinc-100">
-              <span className="text-zinc-600 font-medium">Mode Responsif</span>
-              <span className="inline-flex items-center gap-1 font-semibold text-zinc-800 bg-zinc-200/60 px-2 py-0.5 rounded text-[11px]">
-                sm - 2xl Ready
+            <div className="flex items-center justify-between text-[13.5px] p-3 rounded-xl bg-[#FAF7F2] border border-[#ECE5DA]">
+              <span className="text-[#575049] font-medium">Tampilan Pelanggan</span>
+              <span className="inline-flex items-center gap-1 font-medium text-[#292524] bg-[#EFE9E0] px-2.5 py-0.5 rounded-full text-[12.5px]">
+                Responsif (HP &amp; Desktop)
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

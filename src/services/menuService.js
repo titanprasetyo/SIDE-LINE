@@ -231,13 +231,48 @@ export function encodeDescriptionWithPromo(cleanDesc, promoData) {
   }
   const meta = JSON.stringify({
     is_promo: true,
+    discount_type: promoData.discount_type || (promoData.discount_percent ? "percent" : "nominal"),
     discount_percent: Number(promoData.discount_percent) || 0,
     discount_amount: Number(promoData.discount_amount) || 0,
     discounted_price: Number(promoData.discounted_price) || 0,
+    promo_label_type: promoData.promo_label_type || "hemat_lebih",
+    custom_promo_label: promoData.custom_promo_label || "",
     promo_start_date: promoData.promo_start_date || null,
     promo_end_date: promoData.promo_end_date || null,
   });
   return `${desc} <!--PROMO:${meta}-->`.trim();
+}
+
+/**
+ * Format label promo untuk card (contoh: "LEBIH HEMAT Rp 5.000", "PROMO -20%", dll)
+ */
+export function getPromoBadgeLabel(item) {
+  if (!item || !item.is_promo) return "";
+  const amount = Number(item.discount_amount) || 0;
+  const percent = Number(item.discount_percent) || 0;
+  const labelType =
+    item.promo_label_type ||
+    (item.discount_type === "nominal" || amount > 0 ? "hemat_lebih" : "percent");
+
+  if (labelType === "custom" && item.custom_promo_label?.trim()) {
+    return item.custom_promo_label.trim();
+  }
+  if (labelType === "hemat_lebih" && amount > 0) {
+    return `LEBIH HEMAT Rp ${amount.toLocaleString("id-ID")}`;
+  }
+  if (labelType === "hemat" && amount > 0) {
+    return `HEMAT Rp ${amount.toLocaleString("id-ID")}`;
+  }
+  if (labelType === "percent" && percent > 0) {
+    return `PROMO -${percent}%`;
+  }
+  if (amount > 0) {
+    return `LEBIH HEMAT Rp ${amount.toLocaleString("id-ID")}`;
+  }
+  if (percent > 0) {
+    return `PROMO -${percent}%`;
+  }
+  return "PROMO SPESIAL";
 }
 
 /**
@@ -247,6 +282,9 @@ export function parseMenuPromoData(item) {
   if (!item) return item;
 
   let is_promo = Boolean(item.is_promo);
+  let discount_type = item.discount_type || "nominal";
+  let promo_label_type = item.promo_label_type || "hemat_lebih";
+  let custom_promo_label = item.custom_promo_label || "";
   let discount_percent = Number(item.discount_percent) || 0;
   let discount_amount = Number(item.discount_amount) || 0;
   let discounted_price = Number(item.discounted_price) || 0;
@@ -262,6 +300,9 @@ export function parseMenuPromoData(item) {
       const parsed = JSON.parse(match[1]);
       if (parsed.is_promo) {
         is_promo = true;
+        if (parsed.discount_type) discount_type = parsed.discount_type;
+        if (parsed.promo_label_type) promo_label_type = parsed.promo_label_type;
+        if (parsed.custom_promo_label) custom_promo_label = parsed.custom_promo_label;
         if (!discount_percent) discount_percent = Number(parsed.discount_percent) || 0;
         if (!discount_amount) discount_amount = Number(parsed.discount_amount) || 0;
         if (!discounted_price) discounted_price = Number(parsed.discounted_price) || 0;
@@ -273,14 +314,17 @@ export function parseMenuPromoData(item) {
     }
   }
 
-  // 2. Cek cache localStorage jika belum aktif
-  if (!is_promo && typeof window !== "undefined") {
+  // 2. Cek cache localStorage jika belum aktif atau melengkapi label
+  if (typeof window !== "undefined") {
     try {
       const cached = localStorage.getItem(`side_line_menu_promo_${item.id}`);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.is_promo) {
           is_promo = true;
+          if (parsed.discount_type) discount_type = parsed.discount_type;
+          if (parsed.promo_label_type) promo_label_type = parsed.promo_label_type;
+          if (parsed.custom_promo_label) custom_promo_label = parsed.custom_promo_label;
           if (!discount_percent) discount_percent = Number(parsed.discount_percent) || 0;
           if (!discount_amount) discount_amount = Number(parsed.discount_amount) || 0;
           if (!discounted_price) discounted_price = Number(parsed.discounted_price) || 0;
@@ -313,6 +357,9 @@ export function parseMenuPromoData(item) {
     if (!discount_amount && discount_percent > 0) {
       discount_amount = Math.round((normalPrice * discount_percent) / 100);
     }
+    if (!discount_percent && discount_amount > 0 && normalPrice > 0) {
+      discount_percent = Number(((discount_amount / normalPrice) * 100).toFixed(1));
+    }
   } else if (!is_promo) {
     discount_percent = 0;
     discount_amount = 0;
@@ -323,6 +370,9 @@ export function parseMenuPromoData(item) {
     ...item,
     description: cleanDescription,
     is_promo,
+    discount_type,
+    promo_label_type,
+    custom_promo_label,
     is_expired: timeInfo.is_expired,
     is_upcoming: timeInfo.is_upcoming,
     promo_start_date,
@@ -384,6 +434,9 @@ export const menuService = {
     }
 
     const isPromo = Boolean(menuPayload.is_promo);
+    const discountType = menuPayload.discount_type || (menuPayload.discount_amount > 0 ? "nominal" : "percent");
+    const promoLabelType = menuPayload.promo_label_type || "hemat_lebih";
+    const customPromoLabel = menuPayload.custom_promo_label || "";
     const discPercent = Number(menuPayload.discount_percent) || 0;
     const discAmount = Number(menuPayload.discount_amount) || 0;
     const discPrice = Number(menuPayload.discounted_price) || 0;
@@ -395,6 +448,9 @@ export const menuService = {
       menuPayload.description,
       {
         is_promo: isPromo,
+        discount_type: discountType,
+        promo_label_type: promoLabelType,
+        custom_promo_label: customPromoLabel,
         discount_percent: discPercent,
         discount_amount: discAmount,
         discounted_price: discPrice,
@@ -480,6 +536,9 @@ export const menuService = {
           `side_line_menu_promo_${resultData.id}`,
           JSON.stringify({
             is_promo: isPromo,
+            discount_type: discountType,
+            promo_label_type: promoLabelType,
+            custom_promo_label: customPromoLabel,
             discount_percent: discPercent,
             discount_amount: discAmount,
             discounted_price: discPrice,
@@ -494,6 +553,9 @@ export const menuService = {
 
     return parseMenuPromoData({
       ...resultData,
+      discount_type: discountType,
+      promo_label_type: promoLabelType,
+      custom_promo_label: customPromoLabel,
       promo_start_date: promoStartDate,
       promo_end_date: promoEndDate,
     });
@@ -511,6 +573,9 @@ export const menuService = {
     }
 
     const isPromo = Boolean(menuPayload.is_promo);
+    const discountType = menuPayload.discount_type || (menuPayload.discount_amount > 0 ? "nominal" : "percent");
+    const promoLabelType = menuPayload.promo_label_type || "hemat_lebih";
+    const customPromoLabel = menuPayload.custom_promo_label || "";
     const discPercent = Number(menuPayload.discount_percent) || 0;
     const discAmount = Number(menuPayload.discount_amount) || 0;
     const discPrice = Number(menuPayload.discounted_price) || 0;
@@ -521,6 +586,9 @@ export const menuService = {
       menuPayload.description,
       {
         is_promo: isPromo,
+        discount_type: discountType,
+        promo_label_type: promoLabelType,
+        custom_promo_label: customPromoLabel,
         discount_percent: discPercent,
         discount_amount: discAmount,
         discounted_price: discPrice,
@@ -605,6 +673,9 @@ export const menuService = {
           `side_line_menu_promo_${id}`,
           JSON.stringify({
             is_promo: isPromo,
+            discount_type: discountType,
+            promo_label_type: promoLabelType,
+            custom_promo_label: customPromoLabel,
             discount_percent: discPercent,
             discount_amount: discAmount,
             discounted_price: discPrice,
@@ -619,6 +690,9 @@ export const menuService = {
 
     return parseMenuPromoData({
       ...resultData,
+      discount_type: discountType,
+      promo_label_type: promoLabelType,
+      custom_promo_label: customPromoLabel,
       promo_start_date: promoStartDate,
       promo_end_date: promoEndDate,
     });

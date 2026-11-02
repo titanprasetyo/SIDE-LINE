@@ -84,9 +84,27 @@ export const spaceBookingService = {
   },
 
   async toggleAvailability(id, currentStatus) {
+    return this.togglePublishStatus(id, currentStatus);
+  },
+
+  // Toggle status publikasi (Publik vs Draft)
+  async togglePublishStatus(id, currentStatus) {
     const { data, error } = await supabase
       .from("space_bookings")
       .update({ is_available: !currentStatus })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Set eksplisit status publikasi (true = Publik, false = Draft)
+  async setPublishStatus(id, isPublic) {
+    const { data, error } = await supabase
+      .from("space_bookings")
+      .update({ is_available: Boolean(isPublic) })
       .eq("id", id)
       .select()
       .single();

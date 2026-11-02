@@ -1,30 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import {
-  Menu,
-  ExternalLink,
-  ShieldCheck,
-  Search,
-  Bell,
-  Sparkles,
-  Command,
-} from "lucide-react";
+import { List, ArrowSquareOut, CheckCircle, Coffee } from "@phosphor-icons/react";
 import Sidebar from "../components/admin/Sidebar";
 import { useAuth } from "../hooks/useAuth";
+import { reviewService } from "../services/reviewService";
 
 const PAGE_TITLES = {
-  "/admin/dashboard": "Dashboard Overview",
-  "/admin/menu": "Menu & Katalog Sajian",
+  "/admin/dashboard": "Ikhtisar Operasional",
+  "/admin/menu": "Katalog & Sajian Menu",
   "/admin/categories": "Kategori Menu",
-  "/admin/home-hero": "Konten Beranda & Story",
+  "/admin/home-hero": "Konten Beranda & Cerita",
   "/admin/gallery": "Galeri Visual & Suasana",
-  "/admin/events": "Agenda & Acara Cafe",
+  "/admin/events": "Agenda & Event Cafe",
   "/admin/live-music": "Jadwal Live Music",
-  "/admin/space-booking": "Paket Sewa Ruang",
-  "/admin/team": "Profil Tim & Owner",
+  "/admin/space-booking": "Paket Sewa Tempat",
+  "/admin/team": "Profil Tim & Barista",
   "/admin/reviews": "Ulasan & Testimoni Pelanggan",
   "/admin/facilities": "Fasilitas Cafe",
-  "/admin/settings": "Pengaturan Informasi Cafe",
+  "/admin/settings": "Informasi & Lokasi Cafe",
   "/admin/security": "Keamanan & Ubah Password",
 };
 
@@ -33,31 +26,38 @@ export default function AdminLayout() {
   const location = useLocation();
   const { user } = useAuth();
 
-  const currentTitle = PAGE_TITLES[location.pathname] || "Admin Console";
+  const currentTitle = PAGE_TITLES[location.pathname] || "Panel Manajemen";
+
+  // Sinkronisasi latar belakang ulasan pelanggan ke Supabase DB selama sesi Admin aktif
+  useEffect(() => {
+    reviewService.getAll().catch(() => {});
+    const unsub = reviewService.subscribe(() => {
+      reviewService.getAll().catch(() => {});
+    });
+    return () => unsub();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-zinc-900 font-['Plus_Jakarta_Sans',sans-serif] flex flex-col antialiased selection:bg-[#FF0000] selection:text-white">
+    <div className="admin-shell min-h-screen bg-[#FAF7F2] text-[#1C1917] flex flex-col antialiased selection:bg-[#C8100A] selection:text-white">
       {/* ── Mobile Top Header (lg:hidden) ── */}
-      <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between bg-[#0B0F17] px-4 py-3 border-b border-white/[0.08] text-white shadow-lg">
+      <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between bg-[#191614] px-4 py-3 border-b border-[#2C2623] text-[#FAF7F2]">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.1] text-zinc-300 hover:text-white hover:bg-white/[0.1] active:scale-95 transition cursor-pointer"
-            aria-label="Buka menu admin"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#26211E] border border-[#362F2A] text-[#D6CEC2] hover:text-white active:scale-95 transition cursor-pointer"
+            aria-label="Buka menu navigasi"
           >
-            <Menu className="h-5 w-5" />
+            <List className="h-5 w-5" weight="bold" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#FF0000] ring-2 ring-[#FF0000]/30" />
-              <h1 className="text-sm font-bold tracking-tight text-white leading-tight">
-                SIDE LINE
-              </h1>
+              <Coffee className="h-4 w-4 text-[#F2645C]" weight="duotone" />
+              <span className="text-sm font-semibold text-[#FAF7F2] leading-tight">
+                Side Line
+              </span>
             </div>
-            <p className="text-[10px] text-zinc-400 font-medium tracking-wide">
-              {currentTitle}
-            </p>
+            <p className="text-[12.5px] text-[#9A9086]">{currentTitle}</p>
           </div>
         </div>
 
@@ -65,10 +65,10 @@ export default function AdminLayout() {
           to="/"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 bg-white/[0.06] hover:bg-white/[0.12] hover:text-white px-3 py-1.5 rounded-lg border border-white/[0.08] transition"
+          className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[#D6CEC2] bg-[#26211E] hover:bg-[#302A26] hover:text-white px-3 py-1.5 rounded-xl border border-[#362F2A] transition"
         >
-          <span>Live Site</span>
-          <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
+          <span>Lihat Web</span>
+          <ArrowSquareOut className="h-4 w-4 text-[#9A9086]" weight="duotone" />
         </Link>
       </header>
 
@@ -76,7 +76,7 @@ export default function AdminLayout() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs lg:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
           aria-hidden="true"
         />
       )}
@@ -86,55 +86,48 @@ export default function AdminLayout() {
 
       {/* ── Main Viewport Area (Offset lg:ml-64) ── */}
       <div className="lg:ml-64 flex-1 flex flex-col min-h-screen">
-        {/* Desktop SaaS Top Header Bar (Hidden on Mobile) */}
-        <header className="hidden lg:flex sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-md border-b border-zinc-200/80 px-8 items-center justify-between">
+        {/* Desktop Top Header Bar (Hidden on Mobile) */}
+        <header className="hidden lg:flex sticky top-0 z-30 h-16 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E6DFD5] px-8 items-center justify-between">
           {/* Left: Breadcrumbs & Page Identity */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-zinc-400">Portal</span>
-            <span className="text-zinc-300 text-xs">/</span>
-            <span className="text-xs font-semibold text-zinc-900 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200/60">
-              {currentTitle}
+          <div className="flex items-center gap-2.5 text-sm">
+            <span className="text-[#6B635B]">Side Line Admin</span>
+            <span className="text-[#C9BFB3]">/</span>
+            <span className="font-semibold text-[#1C1917]">{currentTitle}</span>
+            <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-[#EFECE6] border border-[#E2DBD0] px-2.5 py-0.5 text-[13.5px] font-medium text-[#4A5D4E]">
+              <CheckCircle className="h-3.5 w-3.5 text-emerald-700" weight="fill" />
+              <span>Sinkronisasi Aktif</span>
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded-full px-2.5 py-0.5 ml-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span>Online • Database Sync</span>
-            </div>
           </div>
 
           {/* Right: Quick Actions & Profile Status */}
-          <div className="flex items-center gap-3.5">
-            {/* Quick Visit Site Button */}
+          <div className="flex items-center gap-4">
             <Link
               to="/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-700 bg-white hover:bg-zinc-50 border border-zinc-200 rounded-lg px-3.5 py-1.5 shadow-2xs hover:border-zinc-300 transition"
-              title="Buka website publik SIDE LINE di tab baru"
+              className="inline-flex items-center gap-2 text-[13.5px] font-medium text-[#292524] bg-white hover:bg-[#F3EDE2] border border-[#E2DBD0] rounded-xl px-3.5 py-2 shadow-2xs transition"
+              title="Buka website publik Side Line di tab baru"
             >
-              <span>Preview Live Site</span>
-              <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
+              <span>Buka Website Publik</span>
+              <ArrowSquareOut className="h-4 w-4 text-[#575049]" weight="duotone" />
             </Link>
 
-            {/* Profile Avatar Pill */}
-            <div className="flex items-center gap-2.5 pl-3 border-l border-zinc-200">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-zinc-900 to-zinc-700 text-white flex items-center justify-center font-bold text-xs shadow-xs border border-zinc-800">
-                {user?.email ? user.email.slice(0, 2).toUpperCase() : "AD"}
+            <div className="flex items-center gap-2.5 pl-4 border-l border-[#E6DFD5]">
+              <div className="h-8 w-8 rounded-xl bg-[#292524] text-[#FAF7F2] flex items-center justify-center font-semibold text-[13.5px]">
+                {user?.email ? user.email.slice(0, 2).toUpperCase() : "SL"}
               </div>
               <div className="text-left hidden xl:block">
-                <p className="text-xs font-semibold text-zinc-900 leading-tight truncate max-w-[140px]">
-                  {user?.email || "Admin User"}
+                <p className="text-[13.5px] font-semibold text-[#1C1917] leading-tight truncate max-w-[160px]">
+                  {user?.email || "Admin Side Line"}
                 </p>
-                <p className="text-[10px] text-zinc-500 font-medium">Administrator</p>
+                <p className="text-[12.5px] text-[#575049]">Pengelola Cafe</p>
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content Canvas */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>

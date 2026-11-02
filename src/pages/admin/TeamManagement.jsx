@@ -4,22 +4,22 @@ import {
   DEFAULT_HEADER_SETTINGS,
 } from "../../services/teamService";
 import {
-  Users2,
+  UsersThree as Users2,
   UserPlus,
-  Sparkles,
-  Pencil,
-  Trash2,
-  Settings2,
-  Save,
+  Sparkle as Sparkles,
+  PencilSimple as Pencil,
+  Trash as Trash2,
+  SlidersHorizontal as Settings2,
+  FloppyDisk as Save,
   Camera,
-  CheckCircle2,
-  AlertCircle,
+  CheckCircle as CheckCircle2,
+  WarningCircle as AlertCircle,
   X,
   Hash,
-  UploadCloud,
+  CloudArrowUp as UploadCloud,
   Link as LinkIcon,
   User,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 function InstagramIcon({ className = "h-3 w-3" }) {
   return (
@@ -256,41 +256,43 @@ export default function TeamManagement() {
   return (
     <div className="space-y-6 pb-12">
       {/* ── Page Header ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-zinc-200/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs">
-              <Users2 className="h-4 w-4" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Tim & Barista
-            </h1>
-            <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-mono font-medium text-zinc-600 border border-zinc-200/80">
-              {teams.length} Anggota
-            </span>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#6E4730] border border-[#E8DFD2]">
+            <Users2 className="h-5 w-5" weight="duotone" />
           </div>
-          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
-            Kelola profil pendiri, head barista, dan tim kreatif cafe dengan tampilan slanted card modern
-          </p>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#1C1917]">
+                Tim &amp; Barista
+              </h1>
+              <span className="rounded-full bg-[#FAF7F2] px-2.5 py-0.5 text-[13.5px] font-medium text-[#6B635B] border border-[#E6DFD5]">
+                {teams.length} anggota
+              </span>
+            </div>
+            <p className="mt-1 text-[13.5px] sm:text-sm text-[#575049]">
+              Kelola profil pendiri, head barista, dan tim kreatif Side Line
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <button
             onClick={handleSeedDemo}
             disabled={isSeeding}
             type="button"
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-zinc-700 shadow-xs hover:bg-zinc-50 hover:border-zinc-300 transition disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#E2D9CC] bg-[#FAF7F2] px-3.5 py-2.5 text-[13.5px] font-medium text-[#292524] hover:bg-[#EFE9E0] transition disabled:opacity-50 cursor-pointer"
             title="Muat 4 profil tim template referensi"
           >
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+            <Sparkles className="h-4 w-4 text-[#7C4D34]" weight="duotone" />
             <span>{isSeeding ? "Memuat..." : "Muat Data Referensi"}</span>
           </button>
 
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-zinc-800 active:scale-[0.98] transition cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#A80D08] transition cursor-pointer"
           >
-            <UserPlus className="h-4 w-4 stroke-[2.5]" />
+            <UserPlus className="h-4 w-4" weight="duotone" />
             <span>Tambah Anggota</span>
           </button>
         </div>
@@ -298,7 +300,7 @@ export default function TeamManagement() {
 
       {/* ── Notification Messages ── */}
       {successMsg && (
-        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-[13.5px] sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-medium truncate">{successMsg}</span>
@@ -313,7 +315,7 @@ export default function TeamManagement() {
       )}
 
       {errorMsg && (
-        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-xs sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-[13.5px] sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
             <span className="font-medium truncate">{errorMsg}</span>
@@ -328,17 +330,17 @@ export default function TeamManagement() {
       )}
 
       {/* ── Pengaturan Header Tampilan Tim (OUR TEAM & Subtitle) ── */}
-      <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-xs">
-        <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+      <div className="rounded-xl border border-[#E6DFD5] bg-white p-5 shadow-xs">
+        <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3 mb-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-100 text-zinc-700">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#F5EFE6] text-[#44403C]">
               <Settings2 className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-zinc-900">
+              <h2 className="text-sm font-bold text-[#1C1917]">
                 Pengaturan Teks Header Halaman Tim
               </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
+              <p className="text-[13.5px] text-[#575049] mt-0.5">
                 Konfigurasi judul besar dan deskripsi pengantar pada halaman publik (/team).
               </p>
             </div>
@@ -348,7 +350,7 @@ export default function TeamManagement() {
         <form onSubmit={handleSaveHeader} className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-1">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+              <label className="block text-[12.5px] font-semibold text-[#575049] mb-1">
                 Judul Utama
               </label>
               <input
@@ -356,12 +358,12 @@ export default function TeamManagement() {
                 value={headerTitle}
                 onChange={(e) => setHeaderTitle(e.target.value)}
                 placeholder="Misal: OUR TEAM / TIM KAMI"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm font-semibold text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-600 mb-1">
+              <label className="block text-[12.5px] font-semibold text-[#575049] mb-1">
                 Deskripsi / Sub-judul
               </label>
               <input
@@ -369,7 +371,7 @@ export default function TeamManagement() {
                 value={headerSubtitle}
                 onChange={(e) => setHeaderSubtitle(e.target.value)}
                 placeholder="Deskripsi singkat pengantar tim..."
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
               />
             </div>
           </div>
@@ -378,7 +380,7 @@ export default function TeamManagement() {
             <button
               type="submit"
               disabled={isSavingHeader}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition disabled:opacity-50 cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1C1917] px-3.5 py-2 text-[13.5px] font-semibold text-white hover:bg-[#292524] transition disabled:opacity-50 cursor-pointer shadow-xs"
             >
               <Save className="h-3.5 w-3.5" />
               <span>{isSavingHeader ? "Menyimpan..." : "Simpan Pengaturan Header"}</span>
@@ -390,32 +392,32 @@ export default function TeamManagement() {
       {/* ── Content List ── */}
       <div>
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-zinc-200/80 bg-white text-zinc-400">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
-            <p className="mt-3 text-xs sm:text-sm font-medium text-zinc-500">Memuat profil tim...</p>
+          <div className="flex flex-col items-center justify-center p-16 rounded-xl border border-[#E6DFD5] bg-white text-[#6B635B]">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#E6DFD5] border-t-zinc-900" />
+            <p className="mt-3 text-[13.5px] sm:text-sm font-medium text-[#575049]">Memuat profil tim...</p>
           </div>
         ) : teams.length === 0 ? (
-          <div className="p-16 text-center rounded-xl border border-zinc-200/80 bg-white shadow-xs">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400">
+          <div className="p-16 text-center rounded-xl border border-[#E6DFD5] bg-white shadow-xs">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#6B635B]">
               <Users2 className="h-6 w-6 stroke-[1.5]" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-zinc-800">
+            <p className="mt-4 text-sm font-semibold text-[#292524]">
               Belum ada profil tim tersimpan di database
             </p>
-            <p className="mt-1 text-xs text-zinc-500 max-w-md mx-auto">
+            <p className="mt-1 text-[13.5px] text-[#575049] max-w-md mx-auto">
               Klik tombol di bawah untuk menambahkan anggota pertama, atau muat 4 data referensi langsung.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2.5">
               <button
                 onClick={handleSeedDemo}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-800 hover:bg-zinc-50 transition cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#E6DFD5] bg-white px-3.5 py-2 text-[13.5px] font-semibold text-[#292524] hover:bg-[#FAF7F2] transition cursor-pointer shadow-xs"
               >
                 <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                 <span>Muat 4 Data Referensi</span>
               </button>
               <button
                 onClick={handleOpenAdd}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-950 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#1C1917] px-3.5 py-2 text-[13.5px] font-semibold text-white hover:bg-[#292524] transition cursor-pointer shadow-xs"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Tambah Anggota Manual</span>
@@ -427,13 +429,13 @@ export default function TeamManagement() {
             {teams.map((item, idx) => (
               <div
                 key={item.id}
-                className="group overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs hover:border-zinc-300 hover:shadow-md transition flex flex-col justify-between"
+                className="group overflow-hidden rounded-xl border border-[#E6DFD5] bg-white shadow-xs hover:border-[#D6CEC2] hover:shadow-md transition flex flex-col justify-between"
               >
                 {/* Visual Preview Header */}
-                <div className="h-52 w-full overflow-hidden bg-zinc-950 relative p-4 flex items-center justify-center">
+                <div className="h-52 w-full overflow-hidden bg-[#1C1917] relative p-4 flex items-center justify-center">
                   {/* Miniature Slanted Card Preview */}
                   <div className="w-28 aspect-[4/5] relative" style={{ transform: "skewX(-10deg)" }}>
-                    <div className="w-full h-full overflow-hidden rounded-xs bg-zinc-900 shadow-lg border-l-2 border-l-[#FF0000] border-t border-t-[#FF0000]">
+                    <div className="w-full h-full overflow-hidden rounded-xs bg-[#1C1917] shadow-lg border-l-2 border-l-[#FF0000] border-t border-t-[#FF0000]">
                       <div className="w-full h-full" style={{ transform: "skewX(10deg) scale(1.2)" }}>
                         {item.photo_url ? (
                           <img
@@ -442,7 +444,7 @@ export default function TeamManagement() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-zinc-600">
+                          <div className="flex h-full w-full items-center justify-center text-[#575049]">
                             <User className="h-8 w-8 stroke-[1.5]" />
                           </div>
                         )}
@@ -454,7 +456,7 @@ export default function TeamManagement() {
                       <div className="w-2 bg-[#FF0000]" />
                       <div className="flex-1 bg-black px-2 py-0.5 border-t border-r border-b border-white/20 border-b-[#FF0000]">
                         <div style={{ transform: "skewX(10deg)" }}>
-                          <p className="text-[9px] font-black uppercase text-white truncate">
+                          <p className="text-[13.5px] font-bold uppercase text-white truncate">
                             {item.name}
                           </p>
                           <p className="text-[8px] italic text-[#FF0000] truncate">
@@ -465,43 +467,43 @@ export default function TeamManagement() {
                     </div>
                   </div>
 
-                  <span className="absolute top-2.5 right-2.5 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-mono text-zinc-300 border border-white/10">
+                  <span className="absolute top-2.5 right-2.5 rounded-full bg-black/75 px-2 py-0.5 text-[13.5px] text-[#BFB6AA] border border-white/10">
                     #{item.order_index ?? idx + 1}
                   </span>
                 </div>
 
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-zinc-900 text-sm truncate group-hover:text-zinc-950">
+                    <h3 className="font-bold text-[#1C1917] text-sm truncate group-hover:text-zinc-950">
                       {item.name}
                     </h3>
-                    <p className="text-xs font-semibold text-[#FF0000] mt-0.5">
+                    <p className="text-[13.5px] font-semibold text-[#FF0000] mt-0.5">
                       {item.role}
                     </p>
-                    <p className="mt-2 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                    <p className="mt-2 text-[13.5px] text-[#575049] line-clamp-2 leading-relaxed">
                       {item.bio || "Anggota tim berdedikasi SIDE LINE."}
                     </p>
                     {item.instagram && (
-                      <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-zinc-500 font-mono">
-                        <InstagramIcon className="h-3 w-3 text-zinc-400" />
+                      <div className="mt-2.5 flex items-center gap-1.5 text-[12.5px] text-[#575049] ">
+                        <InstagramIcon className="h-3 w-3 text-[#6B635B]" />
                         <span className="truncate">{item.instagram}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-zinc-100 pt-3">
+                  <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-[#EFE9E0] pt-3">
                     <button
                       onClick={() => handleOpenEdit(item)}
                       title="Edit Anggota"
-                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 transition cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#E6DFD5] bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-[#44403C] hover:bg-[#F5EFE6] hover:text-[#1C1917] transition cursor-pointer"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-zinc-500" />
+                      <Pencil className="h-3.5 w-3.5 text-[#575049]" />
                       <span>Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(item)}
                       title="Hapus Anggota"
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                       <span>Hapus</span>
@@ -516,27 +518,27 @@ export default function TeamManagement() {
 
       {/* ── Modal Input / Edit Anggota Tim ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-zinc-200 my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-[#E6DFD5] my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3 mb-4">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#1C1917] text-white">
                   <Users2 className="h-3.5 w-3.5" />
                 </span>
-                <h2 className="text-base font-bold text-zinc-900">
+                <h2 className="text-base font-bold text-[#1C1917]">
                   {editingItem ? "Edit Profil Anggota Tim" : "Tambah Anggota Tim Baru"}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-md transition cursor-pointer"
+                className="text-[#6B635B] hover:text-[#575049] p-1 rounded-md transition cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-500 mb-4">
+            <p className="text-[13.5px] text-[#575049] mb-4">
               Profil anggota otomatis ditampilkan dengan bingkai kartu miring (slanted card) di halaman Tim Kami.
             </p>
 
@@ -545,7 +547,7 @@ export default function TeamManagement() {
                 {/* ── Left Col: Form Inputs ── */}
                 <div className="sm:col-span-2 space-y-3.5">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                    <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                       Nama Lengkap <span className="text-rose-500">*</span>
                     </label>
                     <input
@@ -554,13 +556,13 @@ export default function TeamManagement() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Misal: AARON LOEB"
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                      className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                      <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                         Jabatan / Posisi <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -569,25 +571,25 @@ export default function TeamManagement() {
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         placeholder="Misal: Head Barista / Roaster"
-                        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                        className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                      <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                         Urutan Tampil
                       </label>
                       <input
                         type="number"
                         value={orderIndex}
                         onChange={(e) => setOrderIndex(e.target.value)}
-                        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 font-mono outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                        className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                    <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                       Akun Instagram
                     </label>
                     <input
@@ -595,12 +597,12 @@ export default function TeamManagement() {
                       value={instagram}
                       onChange={(e) => setInstagram(e.target.value)}
                       placeholder="@sideline.coffee"
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                      className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                    <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                       Bio Singkat
                     </label>
                     <textarea
@@ -608,24 +610,24 @@ export default function TeamManagement() {
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
                       placeholder="Dedikasi, moto, atau peran dalam meracik kopi..."
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                      className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] placeholder:text-[#6B635B] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                     />
                   </div>
 
                   {/* Foto Input */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-zinc-700">
+                      <label className="text-[13.5px] font-semibold text-[#44403C]">
                         Foto Profil
                       </label>
-                      <div className="flex items-center gap-1 rounded-md bg-zinc-100 p-0.5 text-[11px] font-medium">
+                      <div className="flex items-center gap-1 rounded-md bg-[#F5EFE6] p-0.5 text-[12.5px] font-medium">
                         <button
                           type="button"
                           onClick={() => setPhotoMode("file")}
                           className={`px-2 py-0.5 rounded transition ${
                             photoMode === "file"
-                              ? "bg-white text-zinc-900 shadow-xs font-semibold"
-                              : "text-zinc-500 hover:text-zinc-700"
+                              ? "bg-white text-[#1C1917] shadow-xs font-semibold"
+                              : "text-[#575049] hover:text-[#44403C]"
                           }`}
                         >
                           Upload File
@@ -635,8 +637,8 @@ export default function TeamManagement() {
                           onClick={() => setPhotoMode("url")}
                           className={`px-2 py-0.5 rounded transition ${
                             photoMode === "url"
-                              ? "bg-white text-zinc-900 shadow-xs font-semibold"
-                              : "text-zinc-500 hover:text-zinc-700"
+                              ? "bg-white text-[#1C1917] shadow-xs font-semibold"
+                              : "text-[#575049] hover:text-[#44403C]"
                           }`}
                         >
                           Link URL
@@ -649,7 +651,7 @@ export default function TeamManagement() {
                         type="file"
                         accept="image/*"
                         onChange={handleImageChange}
-                        className="w-full text-xs text-zinc-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200 cursor-pointer"
+                        className="w-full text-[13.5px] text-[#575049] file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-[13.5px] file:font-semibold file:bg-[#F5EFE6] file:text-[#292524] hover:file:bg-zinc-200 cursor-pointer"
                       />
                     ) : (
                       <input
@@ -657,15 +659,15 @@ export default function TeamManagement() {
                         value={imageUrl}
                         onChange={(e) => handleImageUrlChange(e.target.value)}
                         placeholder="https://... atau /team/aaron-loeb.png"
-                        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs sm:text-sm text-zinc-900 font-mono outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
+                        className="w-full rounded-lg border border-[#E6DFD5] bg-white px-3 py-2 text-[13.5px] sm:text-sm text-[#1C1917] outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition"
                       />
                     )}
                   </div>
                 </div>
 
                 {/* ── Right Col: Live Preview of the Slanted Card ── */}
-                <div className="sm:col-span-1 flex flex-col items-center justify-center p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#FF0000] mb-3">
+                <div className="sm:col-span-1 flex flex-col items-center justify-center p-4 rounded-xl bg-[#1C1917] border border-zinc-800 text-white">
+                  <p className="text-[13.5px] font-semibold text-[#FF0000] mb-3">
                     Live Preview Kartu
                   </p>
 
@@ -694,7 +696,7 @@ export default function TeamManagement() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                          <div className="w-full h-full flex items-center justify-center text-[#575049]">
                             <User className="h-8 w-8 stroke-[1.5]" />
                           </div>
                         )}
@@ -709,7 +711,7 @@ export default function TeamManagement() {
                       <div className="w-2 bg-[#FF0000] shrink-0" />
                       <div className="flex-1 bg-black px-2 py-1 border-t border-r border-b border-white/20 border-b-[#FF0000]">
                         <div style={{ transform: "skewX(12deg)" }}>
-                          <p className="font-heading font-black uppercase tracking-wider text-white text-[10px] leading-tight truncate">
+                          <p className="font-heading font-semibold text-white text-[13.5px] leading-tight truncate">
                             {name || "NAMA ANGGOTA"}
                           </p>
                           <p className="font-heading italic font-semibold text-[#FF0000] text-[8px] truncate">
@@ -723,19 +725,19 @@ export default function TeamManagement() {
               </div>
 
               {/* Form Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-100">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-[#EFE9E0]">
                 <button
                   type="button"
                   onClick={handleCloseModal}
                   disabled={isSubmitting}
-                  className="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
+                  className="rounded-lg border border-[#E6DFD5] px-3.5 py-2 text-[13.5px] font-medium text-[#575049] hover:bg-[#F5EFE6] transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !name.trim() || !role.trim()}
-                  className="rounded-lg bg-zinc-950 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="rounded-lg bg-[#1C1917] px-4 py-2 text-[13.5px] font-semibold text-white hover:bg-[#292524] disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
                 >
                   {isSubmitting ? (
                     <>

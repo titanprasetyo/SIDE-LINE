@@ -2,22 +2,22 @@ import { useState, useEffect, useCallback } from "react";
 import { homeBannerService } from "../../services/homeBannerService";
 import defaultHeroPrimary from "../../assets/hero-default-primary.jpg";
 import {
-  LayoutTemplate,
-  Flame,
-  UploadCloud,
-  Save,
+  Browsers as LayoutTemplate,
+  Fire as Flame,
+  CloudArrowUp as UploadCloud,
+  FloppyDisk as Save,
   Plus,
-  Pencil,
-  Trash2,
-  CheckCircle2,
-  AlertCircle,
+  PencilSimple as Pencil,
+  Trash as Trash2,
+  CheckCircle as CheckCircle2,
+  WarningCircle as AlertCircle,
   X,
-  ZoomIn,
-  Sparkles,
+  MagnifyingGlassPlus as ZoomIn,
+  Sparkle as Sparkles,
   BookOpen,
-  ArrowRightLeft,
+  ArrowsLeftRight as ArrowRightLeft,
   Check,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 export default function HomeHeroManagement() {
   // Hero State
@@ -249,25 +249,25 @@ export default function HomeHeroManagement() {
   return (
     <div className="space-y-8 max-w-6xl pb-12">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-zinc-200/80">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-xs">
-              <LayoutTemplate className="h-4 w-4" />
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Hero & Cerita Beranda
-            </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#6E4730] border border-[#E8DFD2]">
+            <LayoutTemplate className="h-5 w-5" weight="duotone" />
           </div>
-          <p className="mt-1.5 text-xs sm:text-sm text-zinc-500">
-            Kelola foto hero visual utama paling atas dan narasi visual About dengan tata letak zigzag interaktif
-          </p>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#1C1917]">
+              Konten Beranda &amp; Cerita
+            </h1>
+            <p className="mt-1 text-[13.5px] sm:text-sm text-[#575049]">
+              Kelola foto hero utama halaman depan dan narasi cerita tentang Side Line
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Messages */}
       {successMsg && (
-        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-emerald-50/90 border border-emerald-200/80 p-3.5 text-[13.5px] sm:text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="font-medium truncate">{successMsg}</span>
@@ -282,7 +282,7 @@ export default function HomeHeroManagement() {
       )}
 
       {errorMsg && (
-        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-xs sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+        <div className="rounded-xl bg-rose-50/90 border border-rose-200/80 p-3.5 text-[13.5px] sm:text-sm text-rose-800 flex items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
             <span className="font-medium truncate">{errorMsg}</span>
@@ -299,23 +299,23 @@ export default function HomeHeroManagement() {
       {/* =====================================================================
           BAGIAN 1: 1 FOTO HERO UTAMA (PALING ATAS)
       ===================================================================== */}
-      <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-100 pb-4 gap-2">
+      <div className="rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EFE9E0] pb-4 gap-2">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-mono font-bold">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#1C1917] text-[#FAF7F2] text-[13.5px] font-semibold">
                 01
               </span>
-              <h2 className="text-base font-bold text-zinc-900">
+              <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
                 Foto Hero Utama (Paling Atas)
               </h2>
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-[13.5px] text-[#575049] mt-1">
               Foto portrait ini tampil pada frame visual utama tepat di samping headline beranda.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-mono font-semibold text-zinc-700 border border-zinc-200/80">
-            <Flame className="h-3 w-3 text-[#FF0000]" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF7F2] px-3 py-1 text-[13.5px] font-medium text-[#575049] border border-[#E6DFD5]">
+            <Flame className="h-3.5 w-3.5 text-[#C8100A]" weight="duotone" />
             <span>Frame Tunggal</span>
           </span>
         </div>
@@ -324,18 +324,18 @@ export default function HomeHeroManagement() {
           {/* Preview Foto Hero Saat Ini */}
           <div className="md:col-span-5 flex justify-center py-2">
             <div className="relative w-full max-w-[240px]">
-              <div className="relative aspect-[4/4.9] w-full overflow-hidden shadow-md rounded-lg bg-zinc-100 border border-zinc-200/80">
+              <div className="relative aspect-[4/4.9] w-full overflow-hidden shadow-sm rounded-xl bg-[#FAF7F2] border border-[#E6DFD5]">
                 <img
                   src={heroPreview || heroBanner?.image_url || defaultHeroPrimary}
                   alt="Current Hero"
                   className="h-full w-full object-cover"
                 />
               </div>
-              <div className="pt-2 px-1 flex items-baseline justify-between text-[10px] font-mono uppercase text-zinc-500 font-bold">
-                <span className="truncate">HERO UTAMA (BERANDA)</span>
-                <span className="text-[#FF0000] flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF0000] animate-pulse" />
-                  AKTIF
+              <div className="pt-2.5 px-1 flex items-center justify-between text-[13.5px] text-[#6B635B] font-medium">
+                <span className="truncate">Hero Utama (Beranda)</span>
+                <span className="text-[#C8100A] flex items-center gap-1.5 font-semibold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#C8100A] animate-pulse" />
+                  Aktif
                 </span>
               </div>
             </div>
@@ -343,18 +343,18 @@ export default function HomeHeroManagement() {
 
           {/* Form Ganti Foto Hero */}
           <div className="md:col-span-7 space-y-4">
-            <div className="rounded-xl bg-zinc-50 p-4 border border-zinc-200/80 text-xs text-zinc-600 space-y-1.5">
-              <p className="font-semibold text-zinc-900 flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+            <div className="rounded-xl bg-[#FAF7F2] p-4 border border-[#E6DFD5] text-[13.5px] text-[#575049] space-y-1.5">
+              <p className="font-semibold text-[#1C1917] flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" weight="duotone" />
                 <span>Status Foto Hero Saat Ini:</span>
               </p>
-              <p className="text-zinc-600">
+              <p className="text-[#575049] leading-relaxed">
                 {heroBanner?.image_url ? (
                   <span className="text-emerald-700 font-medium">
                     Menggunakan foto kustom yang telah diunggah oleh admin.
                   </span>
                 ) : (
-                  <span className="text-zinc-500">
+                  <span className="text-[#575049]">
                     Saat ini menggunakan foto kurasi bawaan (default). Anda dapat menggantinya dengan foto suasana asli cafe Anda di bawah.
                   </span>
                 )}
@@ -362,16 +362,16 @@ export default function HomeHeroManagement() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+              <label className="block text-[13.5px] font-semibold text-[#292524] mb-1.5">
                 Pilih File Foto Hero Baru
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleHeroFileChange}
-                className="w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3.5 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-800 cursor-pointer"
+                className="w-full text-[13.5px] text-[#6B635B] file:mr-3 file:rounded-xl file:border-0 file:bg-[#1C1917] file:px-3.5 file:py-2 file:text-[13.5px] file:font-medium file:text-[#FAF7F2] hover:file:bg-[#292524] cursor-pointer"
               />
-              <p className="mt-1.5 text-[11px] font-mono text-zinc-400">
+              <p className="mt-1.5 text-[13.5px] text-[#6B635B]">
                 Rasio portrait disarankan 4:5 vertikal. Format JPG, PNG, WebP (maks 5MB).
               </p>
             </div>
@@ -381,7 +381,7 @@ export default function HomeHeroManagement() {
                 type="button"
                 onClick={handleSaveHero}
                 disabled={isUpdatingHero}
-                className="inline-flex items-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-zinc-800 disabled:opacity-50 transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] font-semibold text-white shadow-2xs hover:bg-[#A80D08] disabled:opacity-50 transition cursor-pointer"
               >
                 {isUpdatingHero ? (
                   <>
@@ -390,8 +390,8 @@ export default function HomeHeroManagement() {
                   </>
                 ) : (
                   <>
-                    <Save className="h-3.5 w-3.5" />
-                    <span>Simpan & Terapkan Foto Hero</span>
+                    <Save className="h-4 w-4" weight="duotone" />
+                    <span>Simpan &amp; Terapkan Foto Hero</span>
                   </>
                 )}
               </button>
@@ -403,18 +403,18 @@ export default function HomeHeroManagement() {
       {/* =====================================================================
           BAGIAN 2: DAFTAR CERITA ABOUT (DINAMIS ZIGZAG KANAN-KIRI)
       ===================================================================== */}
-      <div className="rounded-xl border border-zinc-200/80 bg-white p-5 sm:p-6 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-100 pb-4 gap-4">
+      <div className="rounded-2xl border border-[#E6DFD5] bg-white p-5 sm:p-6 shadow-2xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#EFE9E0] pb-4 gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 text-white text-xs font-mono font-bold">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#1C1917] text-[#FAF7F2] text-[13.5px] font-semibold">
                 02
               </span>
-              <h2 className="text-base font-bold text-zinc-900">
-                Daftar Foto & Cerita About (Zigzag Kanan-Kiri)
+              <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
+                Daftar Foto &amp; Cerita About (Zigzag Kanan-Kiri)
               </h2>
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-[13.5px] text-[#575049] mt-1">
               Setiap cerita yang diinput otomatis berselang-seling: Foto #1 di kiri (teks kanan), Foto #2 di kanan (teks kiri), dan seterusnya.
             </p>
           </div>
@@ -422,74 +422,74 @@ export default function HomeHeroManagement() {
           <button
             onClick={handleOpenAddStory}
             type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-zinc-800 active:scale-[0.98] transition shrink-0 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#A80D08] active:scale-[0.98] transition shrink-0 cursor-pointer"
           >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
+            <Plus className="h-4 w-4" weight="bold" />
             <span>Tambah Cerita About</span>
           </button>
         </div>
 
         {/* Tabel Data Cerita About */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-16 text-zinc-400">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
-            <p className="mt-3 text-xs sm:text-sm font-medium text-zinc-500">Memuat cerita About...</p>
+          <div className="flex flex-col items-center justify-center p-16 text-[#6B635B]">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#E6DFD5] border-t-[#C8100A]" />
+            <p className="mt-3 text-[13.5px] sm:text-sm font-medium text-[#6B635B]">Memuat cerita About...</p>
           </div>
         ) : stories.length === 0 ? (
-          <div className="p-12 text-center border border-dashed border-zinc-200 rounded-xl">
-            <BookOpen className="mx-auto h-8 w-8 text-zinc-300 mb-2 stroke-[1.5]" />
-            <p className="font-semibold text-zinc-800 text-sm">Belum ada cerita About kustom</p>
-            <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
+          <div className="p-12 text-center border border-dashed border-[#E2D9CC] rounded-2xl bg-[#FAF7F2]/60">
+            <BookOpen className="mx-auto h-8 w-8 text-[#9A9086] mb-2" weight="duotone" />
+            <p className="font-semibold text-[#1C1917] text-sm">Belum ada cerita About kustom</p>
+            <p className="text-[13.5px] text-[#575049] mt-1 max-w-md mx-auto">
               Halaman beranda saat ini menggunakan teks narasi default. Tambahkan cerita pertama untuk menonjolkan keunikan cafe Anda.
             </p>
             <button
               onClick={handleOpenAddStory}
               type="button"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-zinc-950 px-3.5 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition cursor-pointer"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#C8100A] px-3.5 py-2 text-[13.5px] font-semibold text-white hover:bg-[#A80D08] transition cursor-pointer"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" weight="bold" />
               <span>Tambah Cerita Pertama</span>
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm text-zinc-700">
-              <thead className="bg-zinc-50/75 border-b border-zinc-200/80 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 font-mono">
+            <table className="w-full text-left text-[13.5px] sm:text-sm text-[#44403C]">
+              <thead className="bg-[#FAF7F2] border-b border-[#E6DFD5] text-[13.5px] font-medium text-[#575049]">
                 <tr>
-                  <th className="px-4 py-3.5">Urutan & Posisi</th>
+                  <th className="px-4 py-3.5">Urutan &amp; Posisi</th>
                   <th className="px-4 py-3.5">Foto Preview</th>
-                  <th className="px-4 py-3.5">Judul & Kicker</th>
+                  <th className="px-4 py-3.5">Judul &amp; Kicker</th>
                   <th className="px-4 py-3.5">Cuplikan Cerita</th>
                   <th className="px-4 py-3.5">Status</th>
                   <th className="px-4 py-3.5 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100">
+              <tbody className="divide-y divide-[#F2ECE1]">
                 {stories.map((story, idx) => {
                   const isEven = idx % 2 === 0;
 
                   return (
-                    <tr key={story.id} className="hover:bg-zinc-50/70 transition">
+                    <tr key={story.id} className="hover:bg-[#FAF7F2]/70 transition">
                       <td className="px-4 py-3.5 space-y-1">
-                        <div className="font-bold font-mono text-zinc-900">
+                        <div className="font-semibold text-[#1C1917]">
                           #{story.order_index ?? idx + 1}
                         </div>
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium border ${
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[12.5px] font-medium border ${
                             isEven
-                              ? "bg-amber-50 text-amber-800 border-amber-200"
-                              : "bg-sky-50 text-sky-800 border-sky-200"
+                              ? "bg-[#F5EFE6] text-[#6E4730] border-[#E8DFD2]"
+                              : "bg-[#FAF7F2] text-[#575049] border-[#E6DFD5]"
                           }`}
                         >
-                          <ArrowRightLeft className="h-2.5 w-2.5" />
-                          <span>{isEven ? "KIRI (FOTO)" : "KANAN (FOTO)"}</span>
+                          <ArrowRightLeft className="h-3 w-3" />
+                          <span>{isEven ? "Kiri (Foto)" : "Kanan (Foto)"}</span>
                         </span>
                       </td>
 
                       <td className="px-4 py-3.5">
                         <div
                           onClick={() => setLightboxPhoto(story.image_url)}
-                          className="group relative h-14 w-20 rounded-md border border-zinc-200 overflow-hidden bg-zinc-100 cursor-pointer"
+                          className="group relative h-14 w-20 rounded-lg border border-[#E6DFD5] overflow-hidden bg-[#FAF7F2] cursor-pointer"
                           title="Klik untuk perbesar"
                         >
                           <img
@@ -497,34 +497,34 @@ export default function HomeHeroManagement() {
                             alt={story.heading}
                             className="h-full w-full object-cover group-hover:scale-105 transition"
                           />
-                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition">
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[13.5px] transition">
                             <ZoomIn className="h-4 w-4" />
                           </div>
                         </div>
-                        <div className="mt-1 text-[10px] font-mono text-zinc-400 truncate max-w-[80px]">
+                        <div className="mt-1 text-[12.5px] text-[#6B635B] truncate max-w-[80px]">
                           {story.photo_label}
                         </div>
                       </td>
 
                       <td className="px-4 py-3.5 space-y-1 max-w-[220px]">
-                        <span className="text-[10px] font-bold text-[#FF0000] uppercase tracking-wider block font-mono">
+                        <span className="text-[12.5px] font-semibold text-[#C8100A] block">
                           {story.kicker}
                         </span>
-                        <div className="font-bold text-zinc-900 text-xs line-clamp-2">
+                        <div className="font-semibold text-[#1C1917] text-[13.5px] line-clamp-2">
                           {story.heading}
                         </div>
-                        <span className="inline-block bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded text-[9px] font-mono uppercase text-zinc-600">
+                        <span className="inline-block bg-[#FAF7F2] border border-[#E6DFD5] px-2 py-0.5 rounded-md text-[13.5px] font-medium text-[#6B635B]">
                           {story.badge}
                         </span>
                       </td>
 
                       <td className="px-4 py-3.5 max-w-[260px]">
-                        <p className="text-zinc-600 line-clamp-2 text-xs leading-relaxed">
+                        <p className="text-[#575049] line-clamp-2 text-[13.5px] leading-relaxed">
                           {story.paragraph1}
                         </p>
                         {story.highlight1_title && (
-                          <div className="mt-1 text-[10px] text-zinc-500 font-mono flex items-center gap-1">
-                            <Sparkles className="h-3 w-3 text-amber-500" />
+                          <div className="mt-1 text-[12.5px] text-[#575049] font-medium flex items-center gap-1">
+                            <Sparkles className="h-3 w-3 text-amber-600" weight="duotone" />
                             <span>{story.highlight1_title}</span>
                           </div>
                         )}
@@ -534,15 +534,15 @@ export default function HomeHeroManagement() {
                         <button
                           onClick={() => handleToggleStoryActive(story)}
                           type="button"
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium transition cursor-pointer ${
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[12.5px] font-medium transition cursor-pointer ${
                             story.is_active
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-zinc-100 text-zinc-500 border border-zinc-200"
+                              : "bg-[#FAF7F2] text-[#575049] border border-[#E6DFD5]"
                           }`}
                         >
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
-                              story.is_active ? "bg-emerald-600 animate-pulse" : "bg-zinc-400"
+                              story.is_active ? "bg-emerald-600 animate-pulse" : "bg-[#9A9086]"
                             }`}
                           />
                           <span>{story.is_active ? "Tayang" : "Draft"}</span>
@@ -554,17 +554,17 @@ export default function HomeHeroManagement() {
                           <button
                             onClick={() => handleOpenEditStory(story)}
                             type="button"
-                            className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[#E6DFD5] bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-[#292524] hover:bg-[#FAF7F2] transition cursor-pointer"
                           >
-                            <Pencil className="h-3 w-3 text-zinc-500" />
+                            <Pencil className="h-3.5 w-3.5 text-[#575049]" weight="duotone" />
                             <span>Edit</span>
                           </button>
                           <button
                             onClick={() => handleDeleteStory(story)}
                             type="button"
-                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-[13.5px] font-medium text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                           >
-                            <Trash2 className="h-3 w-3 text-rose-500" />
+                            <Trash2 className="h-3.5 w-3.5 text-rose-500" weight="duotone" />
                             <span>Hapus</span>
                           </button>
                         </div>
@@ -582,21 +582,21 @@ export default function HomeHeroManagement() {
           MODAL TAMBAH / EDIT CERITA ABOUT
       ===================================================================== */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-zinc-200 max-h-[90vh] overflow-y-auto my-8">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-[#E6DFD5] max-h-[90vh] overflow-y-auto my-8">
+            <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3.5">
               <div>
-                <h2 className="text-base font-bold text-zinc-900">
+                <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
                   {editingStory ? "Ubah Cerita About" : "Tambah Cerita About Baru"}
                 </h2>
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="text-[13.5px] text-[#575049] mt-0.5">
                   Isi foto dan detail teks sesuai dengan bingkai visual di beranda.
                 </p>
               </div>
               <button
                 onClick={handleCloseModal}
                 type="button"
-                className="text-zinc-400 hover:text-zinc-600 p-1 rounded-md transition cursor-pointer"
+                className="text-[#6B635B] hover:text-[#1C1917] p-1 rounded-lg transition cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -604,19 +604,19 @@ export default function HomeHeroManagement() {
 
             <form onSubmit={handleSubmitStory} className="mt-4 space-y-4">
               {/* 1. Upload Foto & Info Stamp */}
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800">
-                  1. Foto Visual & Label Frame <span className="text-rose-500">*</span>
+              <div className="rounded-xl border border-[#E6DFD5] bg-[#FAF7F2] p-4 space-y-3">
+                <label className="block text-[13.5px] font-semibold text-[#1C1917]">
+                  1. Foto Visual &amp; Label Frame <span className="text-[#C8100A]">*</span>
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleStoryFileChange}
-                  className="w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-zinc-800 cursor-pointer"
+                  className="w-full text-[13.5px] text-[#6B635B] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1C1917] file:px-3 file:py-1.5 file:text-[13.5px] file:font-medium file:text-white hover:file:bg-[#292524] cursor-pointer"
                 />
 
                 {storyImagePreview && (
-                  <div className="relative h-44 w-full rounded-lg border border-zinc-200 overflow-hidden bg-zinc-100">
+                  <div className="relative h-44 w-full rounded-lg border border-[#E6DFD5] overflow-hidden bg-white">
                     <img
                       src={storyImagePreview}
                       alt="Preview"
@@ -627,7 +627,7 @@ export default function HomeHeroManagement() {
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase text-zinc-600 mb-1">
+                    <label className="block text-[13.5px] font-semibold text-[#575049] mb-1">
                       Label Foto Kiri (misal: BERANDA2)
                     </label>
                     <input
@@ -637,11 +637,11 @@ export default function HomeHeroManagement() {
                         setFormData({ ...formData, photo_label: e.target.value })
                       }
                       placeholder="BERANDA"
-                      className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-zinc-900 bg-white"
+                      className="w-full rounded-xl border border-[#E2D9CC] px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917] bg-white"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase text-zinc-600 mb-1">
+                    <label className="block text-[13.5px] font-semibold text-[#575049] mb-1">
                       Badge Kanan (misal: ARSIP SUASANA)
                     </label>
                     <input
@@ -649,7 +649,7 @@ export default function HomeHeroManagement() {
                       value={formData.badge}
                       onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                       placeholder="ARSIP SUASANA"
-                      className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-xs outline-none focus:border-zinc-900 bg-white"
+                      className="w-full rounded-xl border border-[#E2D9CC] px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917] bg-white"
                     />
                   </div>
                 </div>
@@ -658,7 +658,7 @@ export default function HomeHeroManagement() {
               {/* 2. Judul & Kicker */}
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                  <label className="block text-[13.5px] font-semibold text-[#292524] mb-1">
                     Label Kicker / Kategori
                   </label>
                   <input
@@ -666,13 +666,13 @@ export default function HomeHeroManagement() {
                     value={formData.kicker}
                     onChange={(e) => setFormData({ ...formData, kicker: e.target.value })}
                     placeholder="TENTANG SIDE LINE"
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs outline-none focus:border-zinc-900"
+                    className="w-full rounded-xl border border-[#E2D9CC] bg-white px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
-                    Judul Utama <span className="text-rose-500">*</span>
+                  <label className="block text-[13.5px] font-semibold text-[#292524] mb-1">
+                    Judul Utama <span className="text-[#C8100A]">*</span>
                   </label>
                   <input
                     type="text"
@@ -680,7 +680,7 @@ export default function HomeHeroManagement() {
                     value={formData.heading}
                     onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
                     placeholder="LEBIH DARI SEKADAR CAFE, SEBUAH RUANG JEDA BERMAKNA."
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:border-zinc-900 uppercase"
+                    className="w-full rounded-xl border border-[#E2D9CC] bg-white px-3 py-2 text-[13.5px] font-semibold outline-none focus:border-[#1C1917]"
                   />
                 </div>
               </div>
@@ -688,8 +688,8 @@ export default function HomeHeroManagement() {
               {/* 3. Paragraf Cerita */}
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
-                    Paragraf Pertama <span className="text-rose-500">*</span>
+                  <label className="block text-[13.5px] font-semibold text-[#292524] mb-1">
+                    Paragraf Pertama <span className="text-[#C8100A]">*</span>
                   </label>
                   <textarea
                     rows="3"
@@ -699,12 +699,12 @@ export default function HomeHeroManagement() {
                       setFormData({ ...formData, paragraph1: e.target.value })
                     }
                     placeholder="SIDE LINE bermula dari sebuah gagasan sederhana..."
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs outline-none focus:border-zinc-900"
+                    className="w-full rounded-xl border border-[#E2D9CC] bg-white px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                  <label className="block text-[13.5px] font-semibold text-[#292524] mb-1">
                     Paragraf Kedua (Opsional)
                   </label>
                   <textarea
@@ -714,20 +714,20 @@ export default function HomeHeroManagement() {
                       setFormData({ ...formData, paragraph2: e.target.value })
                     }
                     placeholder="Setiap sudut ditata dengan cermat agar Anda dapat menikmati waktu berkualitas..."
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs outline-none focus:border-zinc-900"
+                    className="w-full rounded-xl border border-[#E2D9CC] bg-white px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917]"
                   />
                 </div>
               </div>
 
               {/* 4. Highlight Cards (Opsional) */}
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800">
+              <div className="rounded-xl border border-[#E6DFD5] bg-[#FAF7F2] p-4 space-y-3">
+                <label className="block text-[13.5px] font-semibold text-[#1C1917]">
                   Highlight Poin Bawah (Opsional)
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-2 bg-white p-3 rounded-lg border border-zinc-200">
-                    <span className="text-[10px] font-bold text-zinc-600 font-mono">POIN 1</span>
+                  <div className="space-y-2 bg-white p-3 rounded-xl border border-[#E6DFD5]">
+                    <span className="text-[13.5px] font-semibold text-[#575049]">Poin 1</span>
                     <input
                       type="text"
                       value={formData.highlight1_title}
@@ -735,7 +735,7 @@ export default function HomeHeroManagement() {
                         setFormData({ ...formData, highlight1_title: e.target.value })
                       }
                       placeholder="SENI SANGRAI KOPI"
-                      className="w-full rounded border border-zinc-200 px-2.5 py-1 text-xs"
+                      className="w-full rounded-lg border border-[#E2D9CC] px-2.5 py-1.5 text-[13.5px]"
                     />
                     <textarea
                       rows="2"
@@ -744,12 +744,12 @@ export default function HomeHeroManagement() {
                         setFormData({ ...formData, highlight1_desc: e.target.value })
                       }
                       placeholder="Biji kopi terkurasi melalui kurasi..."
-                      className="w-full rounded border border-zinc-200 px-2.5 py-1 text-xs"
+                      className="w-full rounded-lg border border-[#E2D9CC] px-2.5 py-1.5 text-[13.5px]"
                     />
                   </div>
 
-                  <div className="space-y-2 bg-white p-3 rounded-lg border border-zinc-200">
-                    <span className="text-[10px] font-bold text-zinc-600 font-mono">POIN 2</span>
+                  <div className="space-y-2 bg-white p-3 rounded-xl border border-[#E6DFD5]">
+                    <span className="text-[13.5px] font-semibold text-[#575049]">Poin 2</span>
                     <input
                       type="text"
                       value={formData.highlight2_title}
@@ -757,7 +757,7 @@ export default function HomeHeroManagement() {
                         setFormData({ ...formData, highlight2_title: e.target.value })
                       }
                       placeholder="TATA RUANG ARSITEKTURAL"
-                      className="w-full rounded border border-zinc-200 px-2.5 py-1 text-xs"
+                      className="w-full rounded-lg border border-[#E2D9CC] px-2.5 py-1.5 text-[13.5px]"
                     />
                     <textarea
                       rows="2"
@@ -766,7 +766,7 @@ export default function HomeHeroManagement() {
                         setFormData({ ...formData, highlight2_desc: e.target.value })
                       }
                       placeholder="Tata ruang minimalis beraksen kayu..."
-                      className="w-full rounded border border-zinc-200 px-2.5 py-1 text-xs"
+                      className="w-full rounded-lg border border-[#E2D9CC] px-2.5 py-1.5 text-[13.5px]"
                     />
                   </div>
                 </div>
@@ -775,7 +775,7 @@ export default function HomeHeroManagement() {
               {/* 5. Urutan & Status */}
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1">
+                  <label className="block text-[13.5px] font-semibold text-[#292524] mb-1">
                     Urutan Tampil (#1, #2...)
                   </label>
                   <input
@@ -785,7 +785,7 @@ export default function HomeHeroManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, order_index: Number(e.target.value) })
                     }
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs outline-none focus:border-zinc-900 font-mono"
+                    className="w-full rounded-xl border border-[#E2D9CC] bg-white px-3 py-2 text-[13.5px] outline-none focus:border-[#1C1917]"
                   />
                 </div>
 
@@ -797,11 +797,11 @@ export default function HomeHeroManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, is_active: e.target.checked })
                     }
-                    className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900"
+                    className="h-4 w-4 rounded border-[#D6CEC2] text-[#C8100A] focus:ring-[#C8100A]"
                   />
                   <label
                     htmlFor="is_active_story"
-                    className="text-xs font-medium text-zinc-700 cursor-pointer"
+                    className="text-[13.5px] font-medium text-[#292524] cursor-pointer"
                   >
                     Tayangkan di Beranda
                   </label>
@@ -809,18 +809,18 @@ export default function HomeHeroManagement() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-2 pt-4 border-t border-zinc-100">
+              <div className="flex justify-end gap-2 pt-4 border-t border-[#EFE9E0]">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
+                  className="rounded-xl border border-[#E2D9CC] px-4 py-2 text-[13.5px] font-medium text-[#575049] hover:bg-[#FAF7F2] transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-lg bg-zinc-950 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-xs"
+                  className="rounded-xl bg-[#C8100A] px-4 py-2 text-[13.5px] font-semibold text-white hover:bg-[#A80D08] disabled:opacity-50 transition flex items-center gap-2 cursor-pointer shadow-2xs"
                 >
                   {isSubmitting ? (
                     <>
@@ -849,7 +849,7 @@ export default function HomeHeroManagement() {
               alt="Enlarged"
               className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />
-            <p className="mt-2 text-center text-xs text-white/70">Klik di mana saja untuk menutup</p>
+            <p className="mt-2 text-center text-[13.5px] text-white/70">Klik di mana saja untuk menutup</p>
           </div>
         </div>
       )}

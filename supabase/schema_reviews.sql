@@ -28,3 +28,16 @@ create policy "Allow public insert reviews" on public.reviews
 drop policy if exists "Allow admin all reviews" on public.reviews;
 create policy "Allow admin all reviews" on public.reviews
   for all to authenticated using (true) with check (true);
+
+grant usage on schema public to anon, authenticated;
+grant select, insert on table public.reviews to anon;
+grant all on table public.reviews to authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.reviews;
+exception
+  when duplicate_object then null;
+  when others then null;
+end $$;

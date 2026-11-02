@@ -4,8 +4,9 @@
   --font-heading: "Montserrat", sans-serif;
   --font-body: "Poppins", sans-serif;
   --font-sans: "Poppins", sans-serif;
-  --font-admin: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono-admin: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-admin: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-admin-serif: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono-admin: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-handwriting: "Caveat", cursive;
   --font-typewriter: "Special Elite", monospace;
   --font-serif-logo: "DM Serif Display", Georgia, serif;
@@ -60,6 +61,91 @@
 
 .font-serif-logo {
   font-family: "DM Serif Display", Georgia, serif;
+}
+
+.font-fraunces {
+  font-family: var(--font-admin);
+}
+
+/* ─── SIDE LINE Warm Coffee Shop Admin Design System (Outfit) ────────────── */
+.admin-shell,
+.admin-shell *,
+.admin-shell *::before,
+.admin-shell *::after,
+.admin-shell h1,
+.admin-shell h2,
+.admin-shell h3,
+.admin-shell h4,
+.admin-shell h5,
+.admin-shell h6,
+.admin-shell p,
+.admin-shell span,
+.admin-shell div,
+.admin-shell a,
+.admin-shell td,
+.admin-shell th,
+.admin-shell label,
+.admin-shell button,
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea,
+.admin-shell option,
+.admin-shell optgroup,
+.admin-shell input::file-selector-button,
+.admin-shell input::-webkit-file-upload-button,
+.admin-shell input::placeholder,
+.admin-shell textarea::placeholder,
+.admin-shell .font-mono,
+.admin-shell .font-sans,
+.admin-shell .font-fraunces,
+.admin-shell .font-serif-logo {
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+.admin-shell {
+  background-color: #FAF7F2;
+  color: #1C1917;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.admin-shell h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.admin-shell h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.admin-shell h3,
+.admin-shell h4,
+.admin-shell h5,
+.admin-shell h6 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.admin-shell th {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Sembunyikan scrollbar di Sidebar Admin namun tetap bisa di-scroll */
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Custom architectural hairline utility */
