@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Link } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
+import SeoManager from "../components/seo/SeoManager";
 
 import Home from "../pages/public/Home";
 import Facilities from "../pages/public/Facilities";
@@ -54,7 +55,9 @@ function NotFoundPage() {
 
 export default function AppRoutes() {
   return (
-    <Routes>
+    <>
+      <SeoManager />
+      <Routes>
       {/* PUBLIC ROUTES */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
@@ -99,6 +102,7 @@ export default function AppRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 }

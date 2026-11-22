@@ -120,7 +120,7 @@ export default function HeroFoliage3D() {
           <div className="w-full animate-leaf-wind-breeze">
             <img
               src={heroLeavesImg}
-              alt="SIDE LINE Foliage"
+              alt=""
               className="w-full h-auto object-contain drop-shadow-[0_12px_22px_rgba(20,20,20,0.32)]"
             />
           </div>

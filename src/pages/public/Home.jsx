@@ -276,7 +276,10 @@ export default function Home() {
       {/* =========================================================================
           1. HERO SECTION (UPGRADED EDITORIAL SCRAPBOOK + 3D LEAVES & SHADOWS)
       ========================================================================= */}
-      <section className="relative px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 md:pt-14 pb-6 md:pb-8 overflow-hidden">
+      <section
+        aria-label="Beranda SIDE LINE Coffee & Eatery"
+        className="relative px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 md:pt-14 pb-6 md:pb-8 overflow-hidden"
+      >
         {/* 3D Animated Botanical Foliage & Dappled Sunlight Shadows */}
         <HeroFoliage3D />
 
@@ -317,7 +320,7 @@ export default function Home() {
               <div className="grid grid-cols-1 xs:grid-cols-3 divide-y xs:divide-y-0 xs:divide-x divide-[#141414]/15 border-y border-[#141414]/15 py-2.5 xs:py-3.5 max-w-xl gap-2 xs:gap-0">
                 {/* Pillar 1: Coffee */}
                 <div className="flex items-center gap-2.5 pr-0 xs:pr-2 sm:pr-3 py-1 xs:py-0">
-                  <div className="text-[#E5251F] shrink-0">
+                  <div className="text-[#E5251F] shrink-0" aria-hidden="true">
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
                       <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
@@ -338,7 +341,7 @@ export default function Home() {
 
                 {/* Pillar 2: WiFi */}
                 <div className="flex items-center gap-2.5 px-0 xs:px-2 sm:px-3 py-1 xs:py-0">
-                  <div className="text-[#E5251F] shrink-0">
+                  <div className="text-[#E5251F] shrink-0" aria-hidden="true">
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12.55a11 11 0 0 1 14.08 0" />
                       <path d="M1.42 9a16 16 0 0 1 21.16 0" />
@@ -358,7 +361,7 @@ export default function Home() {
 
                 {/* Pillar 3: Warm Ambience */}
                 <div className="flex items-center gap-2.5 pl-0 xs:pl-2 sm:pl-3 py-1 xs:py-0">
-                  <div className="text-[#E5251F] shrink-0">
+                  <div className="text-[#E5251F] shrink-0" aria-hidden="true">
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
                       <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
@@ -411,7 +414,11 @@ export default function Home() {
                   <img
                     key={currentSlide.id}
                     src={currentSlide.image}
-                    alt={currentSlide.title}
+                    alt={
+                      currentSlide.type === "event"
+                        ? `Event ${currentSlide.title} di SIDE LINE Coffee & Eatery`
+                        : `${currentSlide.title} — Suasana SIDE LINE Coffee & Eatery`
+                    }
                     className={`w-full h-full object-cover transition-all duration-[420ms] ease-in-out group-hover:scale-[1.02]
                       ${isAnimating
                         ? slideDir === "right"
@@ -447,9 +454,9 @@ export default function Home() {
                     <p className="font-heading text-[10px] uppercase tracking-[0.22em] text-white/60 font-semibold">
                       {currentSlide.subtitle}
                     </p>
-                    <h3 className="font-heading font-black text-white uppercase leading-tight text-xl sm:text-2xl line-clamp-2 drop-shadow-lg">
+                    <h2 className="font-heading font-black text-white uppercase leading-tight text-xl sm:text-2xl line-clamp-2 drop-shadow-lg">
                       {currentSlide.title}
-                    </h3>
+                    </h2>
 
                     {/* Tanggal — khusus slide event */}
                     {currentSlide.type === "event" && (currentSlide.dateStart || currentSlide.dateEnd) && (
@@ -588,12 +595,16 @@ export default function Home() {
       {/* =========================================================================
           2. ABOUT SECTION (PEPET / CLOSE TO HERO CONTENT)
       ========================================================================= */}
-      <section id="about" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-4 md:pt-6 space-y-8 sm:space-y-10 md:space-y-14">
+      <section
+        id="about"
+        aria-label="Tentang SIDE LINE Coffee & Eatery"
+        className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-4 md:pt-6 space-y-8 sm:space-y-10 md:space-y-14"
+      >
         {displayStories.map((story, index) => {
           const isEven = index % 2 === 0;
 
           return (
-            <div
+            <article
               key={story.id || index}
               className="mx-auto max-w-7xl 2xl:max-w-[1600px] pt-4 pb-6 sm:pb-8 border-t border-[#141414]/15"
             >
@@ -608,7 +619,12 @@ export default function Home() {
                     <div className="aspect-[4/3] overflow-hidden">
                       <img
                         src={story.image_url}
-                        alt={cleanText(story.heading) || cleanText(story.photo_label) || "Side Line Story"}
+                        alt={
+                          cleanText(story.heading) ||
+                          cleanText(story.photo_label) ||
+                          "Suasana ruang SIDE LINE Coffee & Eatery"
+                        }
+                        loading="lazy"
                         className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
                       />
                     </div>
@@ -691,7 +707,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </article>
           );
         })}
       </section>
@@ -699,7 +715,7 @@ export default function Home() {
       {/* =========================================================================
           3. CUSTOMER REVIEWS (ULASAN PELANGGAN)
       ========================================================================= */}
-      <section className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-12 sm:pt-14 md:pt-20">
+      <section aria-label="Ulasan Pelanggan SIDE LINE" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-12 sm:pt-14 md:pt-20">
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px] border-t border-[#141414]/15 pt-10 sm:pt-12 md:pt-16">
           {/* Header Bar */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 sm:pb-8 border-b border-[#141414]/15">
@@ -752,7 +768,7 @@ export default function Home() {
               const initial = reviewerName.charAt(0).toUpperCase();
 
               return (
-                <div
+                <article
                   key={rev.id || index}
                   className="flex flex-col justify-between rounded-2xl border border-[#141414]/15 bg-white p-5 sm:p-6 md:p-7 shadow-xs hover:border-[#141414]/30 transition-all duration-200"
                 >
@@ -795,9 +811,9 @@ export default function Home() {
                       {initial}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-heading text-xs sm:text-sm font-bold text-[#141414] truncate">
+                      <h3 className="font-heading text-xs sm:text-sm font-bold text-[#141414] truncate">
                         {reviewerName}
-                      </h4>
+                      </h3>
                       <p className="text-[10px] sm:text-[11px] text-[#5C584E]">
                         {rev.created_at
                           ? new Date(rev.created_at).toLocaleDateString("id-ID", {
@@ -809,7 +825,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
@@ -969,7 +985,7 @@ export default function Home() {
       {/* =========================================================================
           4. VISIT & LOCATION BANNER
       ========================================================================= */}
-      <section className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-8 sm:pt-12">
+      <section aria-label="Lokasi dan Kunjungan SIDE LINE" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-8 sm:pt-12">
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px] rounded-2xl sm:rounded-3xl border border-[#141414]/15 p-6 sm:p-8 md:p-12 bg-[#141414] text-[#FFF5CF]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
             <div className="lg:col-span-8 space-y-2.5 sm:space-y-3">

@@ -107,16 +107,20 @@ export default function Navbar({ onOpenProfile }) {
       {/* Main Navigation Bar */}
       <div className="mx-auto flex max-w-7xl 2xl:max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-12 2xl:px-16 py-3 sm:py-3.5 md:py-4">
         {/* Brand / Logo */}
-        <Link to="/" className="flex items-center gap-2 sm:gap-3 group select-none shrink-0">
+        <Link
+          to="/"
+          aria-label="SIDE LINE Coffee & Eatery — Beranda"
+          className="flex items-center gap-2 sm:gap-3 group select-none shrink-0"
+        >
           <img
             src={currentLogoSrc}
-            alt="SIDELINE Coffee & Eatery"
+            alt="Logo SIDE LINE Coffee & Eatery"
             className="h-8 xs:h-9 md:h-10 w-auto max-w-[130px] xs:max-w-[160px] sm:max-w-[190px] 2xl:max-w-[220px] object-contain group-hover:opacity-90 transition duration-200"
           />
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-7 2xl:gap-9">
+        <nav aria-label="Navigasi utama" className="hidden lg:flex items-center gap-5 xl:gap-7 2xl:gap-9">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
@@ -197,7 +201,7 @@ export default function Navbar({ onOpenProfile }) {
               : "bg-[#FFF5CF] border-[#141414] text-[#141414]"
           }`}
         >
-          <nav className="flex flex-col space-y-3.5 sm:space-y-4">
+          <nav aria-label="Navigasi mobile" className="flex flex-col space-y-3.5 sm:space-y-4">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}

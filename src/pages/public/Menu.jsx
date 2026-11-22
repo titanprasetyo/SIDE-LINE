@@ -243,6 +243,7 @@ function MenuHeroCarousel({ slides = [] }) {
 
   return (
     <section
+      aria-label="Sorotan Menu Signature SIDE LINE"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       className="relative w-full overflow-hidden bg-[#e70404] h-[78vh] sm:h-[82vh] lg:h-[86vh] min-h-[520px] sm:min-h-[560px] max-h-[780px] flex flex-col justify-between"
@@ -251,7 +252,7 @@ function MenuHeroCarousel({ slides = [] }) {
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none flex items-center justify-center bg-[#f50b0b]">
         <img
           src={bgSideImg}
-          alt="SIDELINE Coffee & Eatery"
+          alt="Banner SIDE LINE Coffee & Eatery"
           className="w-full h-full object-contain max-h-[68vh] sm:max-h-[78vh] max-w-[95vw] lg:max-w-6xl mx-auto"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none" />
@@ -323,7 +324,11 @@ function MenuHeroCarousel({ slides = [] }) {
               >
                 <img
                   src={slide.image_url}
-                  alt={cleanText(slide.title)}
+                  alt={
+                    cleanText(slide.title)
+                      ? `${cleanText(slide.title)} — Minuman Signature SIDE LINE Coffee`
+                      : "Minuman signature SIDE LINE Coffee"
+                  }
                   className={`w-full h-full object-contain object-bottom transition-transform duration-200 ${
                     !isFront ? "group-hover:scale-[1.03]" : ""
                   }`}
@@ -502,11 +507,15 @@ export default function Menu() {
 
   return (
     <div className="w-full pb-20 md:pb-24">
+      <h1 className="sr-only">
+        Daftar Menu SIDE LINE Coffee &amp; Eatery — Kopi, Makanan, Pastry &amp; Promo
+      </h1>
+
       {/* ── 1. HERO SECTION WITH 3D ROLLING CUPS (TANPA BAR PREV/NEXT & SIDE LINE SPECIALTY) ── */}
       <MenuHeroCarousel slides={heroSlides} />
 
       {/* ── 2. CATEGORY TABS & SEARCH (COFFEE SHOP STYLE) ── */}
-      <section className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 md:pt-10" ref={menuListRef} id="menu-list">
+      <section aria-label="Filter dan Pencarian Menu" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 md:pt-10" ref={menuListRef} id="menu-list">
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px]">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#141414]/15 pb-6">
             {/* Category Filter Pills (Smooth scroll on mobile) */}
@@ -553,6 +562,7 @@ export default function Menu() {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
+                  aria-label="Cari menu SIDE LINE"
                   placeholder="Cari menu promo, kopi, makanan..."
                   className="w-full text-xs font-body text-[#141414] placeholder-[#858074] bg-transparent outline-none"
                 />
@@ -575,8 +585,9 @@ export default function Menu() {
       </section>
 
       {/* ── 3. UPGRADED COFFEE SHOP MENU LISTINGS ── */}
-      <section className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 pb-14">
+      <section aria-label="Daftar Menu SIDE LINE" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 pb-14">
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px]">
+          <h2 className="sr-only">Katalog Menu SIDE LINE Coffee &amp; Eatery</h2>
           {/* ── CHEF RECOMMENDATION POSTER HIGHLIGHT (Tampil di Tab "Semua Menu") ── */}
           {(selectedCategory === "all" || selectedCategory === "chef") &&
             !searchQuery.trim() &&
@@ -591,7 +602,10 @@ export default function Menu() {
                 >
                   <img
                     src={chefPoster?.image_url || bgSideImg}
-                    alt={cleanText(chefPoster?.title || "Poster Rekomendasi Chef")}
+                    alt={
+                      cleanText(chefPoster?.title) ||
+                      "Poster Rekomendasi Chef SIDE LINE Coffee & Eatery"
+                    }
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
@@ -732,10 +746,10 @@ export default function Menu() {
                       </svg>
 
                       {/* Small SIDE LINE logo in top-right corner */}
-                      <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 pointer-events-none">
+                      <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 pointer-events-none" aria-hidden="true">
                         <img
                           src={logoSidelineRed}
-                          alt="SIDE LINE"
+                          alt=""
                           className="h-3 sm:h-4 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity"
                           loading="lazy"
                         />
@@ -746,7 +760,7 @@ export default function Menu() {
                         <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:w-28 sm:h-28 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5E8BA] shadow-xs">
                           <img
                             src={item.image_url}
-                            alt={cleanText(item.name)}
+                            alt={`${cleanText(item.name)} — Menu ${cleanText(item.category_label || item.categories?.name || "Coffee")} SIDE LINE Coffee & Eatery`}
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
                             loading="lazy"
                           />
@@ -899,7 +913,8 @@ export default function Menu() {
                 <div className="flex items-center gap-1.5">
                   <img
                     src={logoSidelineRed}
-                    alt="SIDE LINE"
+                    alt=""
+                    aria-hidden="true"
                     className="h-4 w-auto object-contain"
                   />
                   <span className="text-[10px] font-heading font-black tracking-widest uppercase text-[#5C584E]">
@@ -923,7 +938,7 @@ export default function Menu() {
                   <div className="relative w-36 h-36 xs:w-40 xs:h-40 sm:w-44 sm:h-44 rounded-2xl overflow-hidden bg-[#F5E8BA] shadow-xs border border-[#141414]/10">
                     <img
                       src={selectedMenuModal.image_url}
-                      alt={cleanText(selectedMenuModal.name)}
+                      alt={`${cleanText(selectedMenuModal.name)} — SIDE LINE Coffee & Eatery`}
                       className="w-full h-full object-contain bg-[#F5E8BA]"
                     />
                     {!selectedMenuModal.is_available && (
@@ -1047,7 +1062,10 @@ export default function Menu() {
             <div className="overflow-y-auto p-3 sm:p-4 flex items-center justify-center bg-black/5">
               <img
                 src={chefPoster?.image_url || bgSideImg}
-                alt={cleanText(chefPoster?.title || "Poster Rekomendasi Chef")}
+                alt={
+                  cleanText(chefPoster?.title) ||
+                  "Poster Rekomendasi Chef SIDE LINE Coffee & Eatery"
+                }
                 className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-md"
               />
             </div>

@@ -83,9 +83,9 @@ export default function Contact() {
             {/* Detail */}
             <dl className="lg:col-span-7 border-b border-[#141414]/15">
               <InfoRow label="Alamat">
-                <span className="leading-relaxed">
+                <address className="not-italic leading-relaxed">
                   {cleanText(cafeInfo?.address) || "Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan"}
-                </span>
+                </address>
                 <a
                   href={safeUrl(cafeInfo?.google_maps_url, "https://maps.google.com/?q=Jl.+Kayu+Manis+Raya,+%26+Jl.+Lereng+Indah,+Pd.+Cabe+Udik,+Kec.+Pamulang,+Kota+Tangerang+Selatan")}
                   target="_blank"
@@ -159,7 +159,7 @@ export default function Contact() {
         )}
 
         {/* FAQ */}
-        <section className="mt-16 sm:mt-20 md:mt-28 grid gap-6 sm:gap-10 lg:grid-cols-12">
+        <section aria-label="Pertanyaan yang sering diajukan" className="mt-16 sm:mt-20 md:mt-28 grid gap-6 sm:gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-[#141414]">
               Sering ditanya

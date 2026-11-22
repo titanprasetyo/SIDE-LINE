@@ -98,7 +98,11 @@ export default function ProfileSidebar({ isOpen, onClose }) {
               {founderData?.photo_url ? (
                 <img
                   src={founderData.photo_url}
-                  alt={founderData.name || "Founder SIDE LINE"}
+                  alt={
+                    founderData.name
+                      ? `${founderData.name} — Pendiri SIDE LINE Coffee & Eatery`
+                      : "Pendiri SIDE LINE Coffee & Eatery"
+                  }
                   className="h-full w-full object-cover grayscale hover:grayscale-0 transition duration-500"
                 />
               ) : (

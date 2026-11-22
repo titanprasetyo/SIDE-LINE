@@ -56,7 +56,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-5">
             <Link to="/" className="inline-block" aria-label="Side Line, ke beranda">
-              <img src={logoWhiteImg} alt="SIDE LINE" className="h-9 sm:h-10 w-auto object-contain" />
+              <img src={logoWhiteImg} alt="Logo SIDE LINE Coffee & Eatery" className="h-9 sm:h-10 w-auto object-contain" />
             </Link>
             <p className="mt-6 sm:mt-8 max-w-sm font-heading text-2xl sm:text-3xl font-black uppercase leading-[1.05] tracking-tight">
               Kopi enak,
@@ -90,9 +90,9 @@ export default function Footer() {
           <div className="sm:col-span-1 lg:col-span-4 space-y-8 sm:space-y-10">
             <div>
               <FooterHeading>Kunjungi</FooterHeading>
-              <p className="mt-5 text-sm leading-relaxed text-[#FFF5CF]/80">
+              <address className="not-italic mt-5 text-sm leading-relaxed text-[#FFF5CF]/80">
                 {cleanText(cafeInfo?.address) || "Jl. Kayu Manis Raya, & Jl. Lereng Indah, Pd. Cabe Udik, Kec. Pamulang, Kota Tangerang Selatan"}
-              </p>
+              </address>
               <p className="mt-3 text-sm font-semibold">
                 {cleanText(cafeInfo?.opening_hours) || "Setiap hari, 09.00 – 22.00 WIB"}
               </p>

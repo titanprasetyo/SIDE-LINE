@@ -173,7 +173,11 @@ export default function Team() {
                       {hasValidPhoto ? (
                         <img
                           src={member.photo_url}
-                          alt={name}
+                          alt={
+                            role
+                              ? `${name}, ${role} di SIDE LINE Coffee & Eatery`
+                              : `${name} — Tim SIDE LINE Coffee & Eatery`
+                          }
                           loading="lazy"
                           className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.06]"
                           onError={() => markImageFailed(memberKey)}
@@ -318,7 +322,11 @@ export default function Team() {
                 ] ? (
                   <img
                     src={activeModalMember.photo_url}
-                    alt={cleanText(activeModalMember.name)}
+                    alt={
+                      activeModalMember.role
+                        ? `${cleanText(activeModalMember.name)}, ${cleanText(activeModalMember.role)} di SIDE LINE Coffee & Eatery`
+                        : `${cleanText(activeModalMember.name)} — Tim SIDE LINE Coffee & Eatery`
+                    }
                     className="h-full w-full object-cover object-top"
                     onError={() =>
                       markImageFailed(

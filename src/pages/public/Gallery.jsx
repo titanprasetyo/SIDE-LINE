@@ -53,7 +53,7 @@ export default function Gallery() {
         </div>
 
         {/* Headline */}
-        <div className="mt-8 sm:mt-10 md:mt-14 max-w-3xl space-y-2 sm:space-y-3">
+        <header className="mt-8 sm:mt-10 md:mt-14 max-w-3xl space-y-2 sm:space-y-3">
           <span className="text-xs font-heading font-bold uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#FF0000]">
             Suasana & Sudut Ruang
           </span>
@@ -63,10 +63,10 @@ export default function Gallery() {
           <p className="font-body text-xs sm:text-sm md:text-base text-[#5C584E] pt-1 sm:pt-2">
             Dokumentasi sudut kenyamanan, tata cahaya, ruang seduh, dan interaksi hangat yang tercipta di SIDE LINE Cafe.
           </p>
-        </div>
+        </header>
 
         {/* Asymmetric / Masonry-inspired Editorial Portfolio Grid */}
-        <div className="mt-10 sm:mt-14 md:mt-16">
+        <section aria-label="Arsip foto dan video SIDE LINE" className="mt-10 sm:mt-14 md:mt-16">
           {loading ? (
             <div className="py-20 sm:py-24 text-center">
               <span className="font-heading text-xs uppercase tracking-widest text-[#5C584E]">
@@ -75,9 +75,9 @@ export default function Gallery() {
             </div>
           ) : galleries.length === 0 ? (
             <div className="py-16 sm:py-24 text-center border border-dashed border-[#141414]/30 p-6 sm:p-12 rounded-2xl">
-              <h3 className="font-heading text-base sm:text-lg font-bold uppercase text-[#141414]">
+              <h2 className="font-heading text-base sm:text-lg font-bold uppercase text-[#141414]">
                 Belum Ada Media Terpublikasi
-              </h3>
+              </h2>
               <p className="font-body text-xs sm:text-sm text-[#5C584E] mt-2">
                 Foto dan video suasana cafe akan segera diperbarui. Kunjungi cafe kami secara langsung untuk menikmati suasananya.
               </p>
@@ -106,7 +106,7 @@ export default function Gallery() {
                   /\.(mp4|webm|mov)$/i.test(item.image_url);
 
                 return (
-                  <div
+                  <article
                     key={item.id}
                     onClick={() => setSelectedMedia(item)}
                     className={`${colSpanClass} border border-[#141414] p-2 bg-[#FFF5CF] cursor-pointer group transition-transform duration-300 hover:-translate-y-0.5 rounded-sm`}
@@ -118,6 +118,7 @@ export default function Gallery() {
                         <div className="relative h-full w-full">
                           <video
                             src={item.image_url}
+                            aria-label={photoTitle || "Video suasana SIDE LINE Coffee & Eatery"}
                             muted
                             loop
                             playsInline
@@ -138,7 +139,11 @@ export default function Gallery() {
                       ) : (
                         <img
                           src={item.image_url}
-                          alt={photoTitle || "Suasana SIDE LINE"}
+                          alt={
+                            photoTitle
+                              ? `${photoTitle} — Galeri SIDE LINE Coffee & Eatery`
+                              : "Suasana ruang SIDE LINE Coffee & Eatery"
+                          }
                           className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
                           loading="lazy"
                         />
@@ -163,12 +168,12 @@ export default function Gallery() {
                         {isVideo ? "PLAY ↗" : "VIEW ↗"}
                       </span>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>
           )}
-        </div>
+        </section>
 
         {/* Minimalist Lightbox Modal */}
         {selectedMedia && (
@@ -215,7 +220,11 @@ export default function Gallery() {
                 ) : (
                   <img
                     src={selectedMedia.image_url}
-                    alt={cleanText(selectedMedia.title) || "Foto"}
+                    alt={
+                      cleanText(selectedMedia.title)
+                        ? `${cleanText(selectedMedia.title)} — SIDE LINE Coffee & Eatery`
+                        : "Foto suasana SIDE LINE Coffee & Eatery"
+                    }
                     className="max-h-[68vh] sm:max-h-[75vh] w-auto max-w-full object-contain"
                   />
                 )}

@@ -264,7 +264,7 @@ export default function Event() {
                     {featuredEvent.image_url ? (
                       <img
                         src={featuredEvent.image_url}
-                        alt={featuredEvent.title}
+                        alt={`Poster acara ${cleanText(featuredEvent.title)} di SIDE LINE Coffee & Eatery`}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
@@ -420,7 +420,8 @@ export default function Event() {
                           {item.image_url ? (
                             <img
                               src={item.image_url}
-                              alt={title}
+                              alt={`Poster acara ${title} di SIDE LINE Coffee & Eatery`}
+                              loading="lazy"
                               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
@@ -529,7 +530,7 @@ export default function Event() {
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 lg:gap-8">
                 {liveMusics.map((item) => (
-                  <div
+                  <article
                     key={item.id}
                     className="group relative flex flex-col sm:flex-row overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-[#1c1d22] p-4 sm:p-6 gap-4 sm:gap-6 shadow-xl hover:border-[#FF0000]/50 transition-all duration-300"
                   >
@@ -538,7 +539,8 @@ export default function Event() {
                       {item.image_url ? (
                         <img
                           src={item.image_url}
-                          alt={cleanText(item.title)}
+                          alt={`Live Music ${cleanText(item.title)} di SIDE LINE Coffee & Eatery`}
+                          loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
@@ -600,7 +602,7 @@ export default function Event() {
                         </a>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             )}
@@ -655,7 +657,8 @@ export default function Event() {
                           <div className="aspect-[16/9] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-900 mb-5 sm:mb-6">
                             <img
                               src={space.image_url}
-                              alt={name}
+                              alt={`Ruang acara ${name} di SIDE LINE Coffee & Eatery`}
+                              loading="lazy"
                               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
@@ -743,9 +746,9 @@ export default function Event() {
             <span className="text-xs font-heading font-bold uppercase tracking-widest text-[#FF0000]">
               PANDUAN MUDAH
             </span>
-            <h3 className="font-heading text-xl sm:text-2xl md:text-3xl font-black uppercase text-[#141414] mt-1">
+            <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-black uppercase text-[#141414] mt-1">
               Cara Ikut Acara di Side Line
-            </h3>
+            </h2>
             <p className="text-xs sm:text-sm text-[#5C584E] mt-1 sm:mt-2">
               Proses registrasi dan reservasi yang praktis tanpa ribet.
             </p>
@@ -756,9 +759,9 @@ export default function Event() {
               <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-[#141414] font-heading font-black text-xs sm:text-sm text-[#FFF5CF] mb-3 sm:mb-4">
                 01
               </span>
-              <h4 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
+              <h3 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
                 Pilih Acara Favorit
-              </h4>
+              </h3>
               <p className="mt-2 text-xs sm:text-sm text-[#5C584E] leading-relaxed">
                 Pilih agenda kegiatan, jadwal live music, atau tipe ruangan yang sesuai dengan kebutuhan Anda.
               </p>
@@ -768,9 +771,9 @@ export default function Event() {
               <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-[#FF0000] font-heading font-black text-xs sm:text-sm text-white mb-3 sm:mb-4">
                 02
               </span>
-              <h4 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
+              <h3 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
                 Konfirmasi WhatsApp
-              </h4>
+              </h3>
               <p className="mt-2 text-xs sm:text-sm text-[#5C584E] leading-relaxed">
                 Klik tombol WhatsApp untuk pendaftaran atau reservasi meja/ruang dengan format pesan otomatis.
               </p>
@@ -780,9 +783,9 @@ export default function Event() {
               <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-[#141414] font-heading font-black text-xs sm:text-sm text-[#FFF5CF] mb-3 sm:mb-4">
                 03
               </span>
-              <h4 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
+              <h3 className="font-heading font-bold text-sm sm:text-base uppercase text-[#141414]">
                 Datang &amp; Nikmati
-              </h4>
+              </h3>
               <p className="mt-2 text-xs sm:text-sm text-[#5C584E] leading-relaxed">
                 Tiba di kafe Side Line sesuai jadwal, pesan minuman andalanmu, dan nikmati momen berharganya!
               </p>
@@ -817,7 +820,7 @@ export default function Event() {
               <div className="aspect-[16/9] w-full overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-900 mb-4 sm:mb-6">
                 <img
                   src={activeModalItem.image_url}
-                  alt={cleanText(activeModalItem.title)}
+                  alt={`Poster acara ${cleanText(activeModalItem.title)} di SIDE LINE Coffee & Eatery`}
                   className="h-full w-full object-cover"
                 />
               </div>

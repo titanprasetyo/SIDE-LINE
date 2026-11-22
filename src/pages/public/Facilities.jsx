@@ -66,7 +66,8 @@ export default function Facilities() {
                   <article key={fac.id} className="group">
                     <img
                       src={fac.image_url}
-                      alt={cleanText(fac.name)}
+                      alt={`Fasilitas ${cleanText(fac.name)} di SIDE LINE Coffee & Eatery`}
+                      loading="lazy"
                       className="aspect-[4/3] w-full rounded-2xl object-cover bg-[#F5E8BA] shadow-xs group-hover:shadow-md transition-shadow"
                     />
                     <h2 className="mt-4 sm:mt-5 flex items-center gap-2 font-heading text-base sm:text-lg font-black uppercase tracking-tight text-[#141414]">
@@ -116,7 +117,7 @@ export default function Facilities() {
         )}
 
         {/* Ajakan sewa ruang */}
-        <div className="mt-16 sm:mt-20 md:mt-28 grid gap-6 sm:gap-8 rounded-2xl sm:rounded-3xl bg-[#141414] p-6 sm:p-8 md:p-12 text-[#FFF5CF] lg:grid-cols-12 lg:items-center">
+        <section aria-label="Sewa ruang acara SIDE LINE" className="mt-16 sm:mt-20 md:mt-28 grid gap-6 sm:gap-8 rounded-2xl sm:rounded-3xl bg-[#141414] p-6 sm:p-8 md:p-12 text-[#FFF5CF] lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-8">
             <h2 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tight">
               Butuh ruang buat meeting atau acara?
@@ -139,7 +140,7 @@ export default function Facilities() {
               Hubungi kami
             </Link>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
