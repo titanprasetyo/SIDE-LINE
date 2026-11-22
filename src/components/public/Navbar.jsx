@@ -9,7 +9,6 @@ export default function Navbar({ onOpenProfile }) {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isMenuPage = location.pathname === "/menu";
-  const isTeamPage = location.pathname === "/team";
 
   const [logoUrl, setLogoUrl] = useState(() => {
     return (
@@ -77,47 +76,31 @@ export default function Navbar({ onOpenProfile }) {
     ? scrolled
       ? "fixed top-0 left-0 right-0 z-50 bg-[#C8100A]/95 backdrop-blur-md shadow-md border-b border-black/15 transition-all duration-300"
       : "absolute top-0 left-0 right-0 z-50 bg-transparent border-none transition-all duration-300"
-    : isTeamPage
-    ? "sticky top-0 z-40 w-full bg-[#000000]/95 backdrop-blur-md border-b border-white/10 shadow-sm"
     : "sticky top-0 z-40 w-full bg-[#FFF5CF] border-b border-[#141414]/15";
 
   const linkColor = isMenuPage
     ? "text-white/90 hover:text-white"
-    : isTeamPage
-    ? "text-white/80 hover:text-[#FF0000]"
     : "text-[#141414] hover:text-[#C8100A]";
 
   const activeLinkColor = isMenuPage
     ? "text-white font-extrabold"
-    : isTeamPage
-    ? "text-[#FF0000] font-black"
     : "text-[#C8100A]";
 
-  const activeUnderlineColor = isMenuPage
-    ? "bg-white"
-    : isTeamPage
-    ? "bg-[#FF0000]"
-    : "bg-[#C8100A]";
+  const activeUnderlineColor = isMenuPage ? "bg-white" : "bg-[#C8100A]";
 
   const ctaBtnClass = isMenuPage
     ? "border border-white/50 bg-transparent px-4 py-2 text-[11px] font-heading font-bold uppercase tracking-wider text-white hover:bg-white/15 transition cursor-pointer rounded-full"
-    : isTeamPage
-    ? "border border-white/20 bg-white/5 px-4 py-2 text-[11px] font-heading font-bold uppercase tracking-wider text-white hover:bg-white/15 transition cursor-pointer rounded-sm"
     : "border border-[#141414] bg-transparent px-4 py-2 text-[11px] font-heading font-bold uppercase tracking-wider text-[#141414] hover:bg-[#141414] hover:text-[#FFF5CF] transition cursor-pointer";
 
   const orderBtnClass = isMenuPage
     ? "bg-white text-[#C8100A] px-5 py-2 text-[11px] font-heading font-black uppercase tracking-widest hover:bg-white/90 active:scale-[0.98] transition cursor-pointer shadow-md rounded-full"
-    : isTeamPage
-    ? "bg-[#FF0000] px-5 py-2 text-[11px] font-heading font-black uppercase tracking-widest text-white hover:bg-[#D60000] active:scale-[0.98] transition cursor-pointer shadow-md rounded-sm"
     : "bg-[#C8100A] px-5 py-2 text-[11px] font-heading font-bold uppercase tracking-widest text-white hover:bg-[#9E0000] active:scale-[0.98] transition cursor-pointer shadow-sm";
 
   const hamburgerClass = isMenuPage
     ? "flex h-10 w-10 items-center justify-center border border-white/50 text-white hover:bg-white/15 transition cursor-pointer rounded-lg"
-    : isTeamPage
-    ? "flex h-10 w-10 items-center justify-center border border-white/20 text-white hover:bg-white/10 transition cursor-pointer rounded-sm"
     : "flex h-10 w-10 items-center justify-center border border-[#141414] text-[#141414] hover:bg-[#141414] hover:text-[#FFF5CF] transition cursor-pointer";
 
-  const currentLogoSrc = isMenuPage || isTeamPage ? logoWhiteImg : (logoUrl || logoImg);
+  const currentLogoSrc = isMenuPage ? logoWhiteImg : (logoUrl || logoImg);
 
   return (
     <header className={headerPosition}>
@@ -183,7 +166,7 @@ export default function Navbar({ onOpenProfile }) {
               onClick={onOpenProfile}
               type="button"
               className={`border px-2.5 py-1 text-[10px] sm:text-xs font-heading font-bold uppercase tracking-wider rounded-full transition cursor-pointer ${
-                isMenuPage || isTeamPage
+                isMenuPage
                   ? "border-white/50 text-white hover:bg-white/10"
                   : "border-[#141414] text-[#141414] hover:bg-[#141414] hover:text-[#FFF5CF]"
               }`}
@@ -211,8 +194,6 @@ export default function Navbar({ onOpenProfile }) {
           className={`lg:hidden border-t px-4 sm:px-6 py-5 sm:py-6 animate-in fade-in duration-200 shadow-xl ${
             isMenuPage
               ? "bg-[#C8100A] border-white/20 text-white"
-              : isTeamPage
-              ? "bg-[#0E1013] border-white/15 text-white"
               : "bg-[#FFF5CF] border-[#141414] text-[#141414]"
           }`}
         >
@@ -225,10 +206,10 @@ export default function Navbar({ onOpenProfile }) {
                 className={({ isActive }) =>
                   `font-heading text-base sm:text-lg font-bold tracking-widest transition-colors py-1 ${
                     isActive
-                      ? isMenuPage || isTeamPage
+                      ? isMenuPage
                         ? "text-white underline underline-offset-4"
                         : "text-[#C8100A]"
-                      : isMenuPage || isTeamPage
+                      : isMenuPage
                       ? "text-white/80 hover:text-white"
                       : "text-[#141414] hover:text-[#C8100A]"
                   }`
@@ -240,14 +221,14 @@ export default function Navbar({ onOpenProfile }) {
 
             <div
               className={`pt-4 border-t flex flex-col gap-2.5 sm:gap-3 ${
-                isMenuPage || isTeamPage ? "border-white/20" : "border-[#141414]/20"
+                isMenuPage ? "border-white/20" : "border-[#141414]/20"
               }`}
             >
               <Link
                 to="/menu"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`w-full text-center py-3 text-xs font-heading font-bold uppercase tracking-widest transition rounded-full ${
-                  isMenuPage || isTeamPage
+                  isMenuPage
                     ? "bg-[#FF0000] text-white hover:bg-[#D60000] shadow-md"
                     : "bg-[#C8100A] text-white hover:bg-[#9E0000]"
                 }`}
@@ -262,7 +243,7 @@ export default function Navbar({ onOpenProfile }) {
                   }}
                   type="button"
                   className={`w-full text-center border py-3 text-xs font-heading font-bold uppercase tracking-widest rounded-full cursor-pointer ${
-                    isMenuPage || isTeamPage
+                    isMenuPage
                       ? "border-white/50 text-white"
                       : "border-[#141414] text-[#141414]"
                   }`}

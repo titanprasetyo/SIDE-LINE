@@ -233,7 +233,7 @@ export default function TeamManagement() {
   const handleSeedDemo = async () => {
     if (
       !window.confirm(
-        "Muat 4 profil contoh (Aaron Loeb, Drew Feig, Sacha Dubois, Juliana Silva) dengan tampilan background miring?"
+        "Muat 4 profil contoh (Aaron Loeb, Drew Feig, Sacha Dubois, Juliana Silva)?"
       )
     ) {
       return;
@@ -432,42 +432,20 @@ export default function TeamManagement() {
                 className="group overflow-hidden rounded-xl border border-[#E6DFD5] bg-white shadow-xs hover:border-[#D6CEC2] hover:shadow-md transition flex flex-col justify-between"
               >
                 {/* Visual Preview Header */}
-                <div className="h-52 w-full overflow-hidden bg-[#1C1917] relative p-4 flex items-center justify-center">
-                  {/* Miniature Slanted Card Preview */}
-                  <div className="w-28 aspect-[4/5] relative" style={{ transform: "skewX(-10deg)" }}>
-                    <div className="w-full h-full overflow-hidden rounded-xs bg-[#1C1917] shadow-lg border-l-2 border-l-[#FF0000] border-t border-t-[#FF0000]">
-                      <div className="w-full h-full" style={{ transform: "skewX(10deg) scale(1.2)" }}>
-                        {item.photo_url ? (
-                          <img
-                            src={item.photo_url}
-                            alt={item.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-[#575049]">
-                            <User className="h-8 w-8 stroke-[1.5]" />
-                          </div>
-                        )}
-                      </div>
+                <div className="aspect-[4/3] w-full overflow-hidden bg-[#FFF5CF] relative border-b border-[#EFE9E0]">
+                  {item.photo_url ? (
+                    <img
+                      src={item.photo_url}
+                      alt={item.name}
+                      className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-[#F5E8BA] text-[#6B635B]">
+                      <User className="h-10 w-10 stroke-[1.5]" />
                     </div>
+                  )}
 
-                    {/* Miniature Badge */}
-                    <div className="mt-1.5 flex items-stretch">
-                      <div className="w-2 bg-[#FF0000]" />
-                      <div className="flex-1 bg-black px-2 py-0.5 border-t border-r border-b border-white/20 border-b-[#FF0000]">
-                        <div style={{ transform: "skewX(10deg)" }}>
-                          <p className="text-[13.5px] font-bold uppercase text-white truncate">
-                            {item.name}
-                          </p>
-                          <p className="text-[8px] italic text-[#FF0000] truncate">
-                            {item.role}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <span className="absolute top-2.5 right-2.5 rounded-full bg-black/75 px-2 py-0.5 text-[13.5px] text-[#BFB6AA] border border-white/10">
+                  <span className="absolute top-2.5 right-2.5 rounded-full bg-[#FFF5CF]/95 px-2.5 py-0.5 text-xs font-semibold text-[#1C1917] border border-[#141414]/15 shadow-2xs">
                     #{item.order_index ?? idx + 1}
                   </span>
                 </div>
@@ -539,7 +517,7 @@ export default function TeamManagement() {
             </div>
 
             <p className="text-[13.5px] text-[#575049] mb-4">
-              Profil anggota otomatis ditampilkan dengan bingkai kartu miring (slanted card) di halaman Tim Kami.
+              Profil anggota ditampilkan dalam kartu editorial selaras dengan tampilan halaman publik SIDE LINE.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -665,60 +643,44 @@ export default function TeamManagement() {
                   </div>
                 </div>
 
-                {/* ── Right Col: Live Preview of the Slanted Card ── */}
-                <div className="sm:col-span-1 flex flex-col items-center justify-center p-4 rounded-xl bg-[#1C1917] border border-zinc-800 text-white">
-                  <p className="text-[13.5px] font-semibold text-[#FF0000] mb-3">
+                {/* ── Right Col: Live Preview of the Editorial Team Card ── */}
+                <div className="sm:col-span-1 flex flex-col items-center justify-center p-4 rounded-xl bg-[#FFF5CF] border border-[#E8DDAE] text-[#141414]">
+                  <p className="text-[12px] font-bold uppercase tracking-wider text-[#E5251F] mb-3">
                     Live Preview Kartu
                   </p>
 
-                  <div className="w-full max-w-[150px]">
-                    {/* Slanted Photo Box */}
-                    <div
-                      className="relative aspect-[4/5] w-full overflow-hidden rounded-xs shadow-xl border border-white/10"
-                      style={{
-                        transform: "skewX(-12deg)",
-                        background: "linear-gradient(145deg, #18181b 0%, #000000 100%)",
-                      }}
-                    >
-                      {/* Top-Left Red Accent */}
-                      <div className="absolute top-0 left-0 w-8 h-[2px] bg-[#FF0000] z-20" />
-                      <div className="absolute top-0 left-0 w-[3px] h-16 bg-[#FF0000] z-20 shadow-[0_0_8px_#FF0000]" />
-
-                      {/* Unskewed Photo */}
-                      <div
-                        className="w-full h-full"
-                        style={{ transform: "skewX(12deg) scale(1.22)" }}
-                      >
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[#575049]">
-                            <User className="h-8 w-8 stroke-[1.5]" />
-                          </div>
-                        )}
+                  <div className="w-full max-w-[180px] overflow-hidden rounded-2xl border border-[#141414]/15 bg-[#FFFAE5] p-1.5 shadow-sm">
+                    {/* Full Portrait Photo Box */}
+                    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-[#141414]/10 bg-[#F5E8BA]">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover object-top"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#6B635B]">
+                          <User className="h-8 w-8 stroke-[1.5]" />
+                        </div>
+                      )}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#141414]/90 via-[#141414]/35 to-transparent" />
+                      <span className="absolute top-2 left-2 rounded-full bg-[#141414]/70 px-2 py-0.5 text-[9px] font-bold text-[#FFF5CF]">
+                        {String(orderIndex || 1).padStart(2, "0")}
+                      </span>
+                      <div className="absolute inset-x-2.5 bottom-2.5">
+                        <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-[#E5251F] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wider text-white">
+                          <span className="truncate">{role || "Jabatan"}</span>
+                        </span>
+                        <p className="mt-1 text-xs font-bold uppercase text-[#FFF5CF] leading-tight truncate">
+                          {name || "NAMA ANGGOTA"}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Slanted Badge */}
-                    <div
-                      className="mt-2 flex items-stretch shadow-md"
-                      style={{ transform: "skewX(-12deg)" }}
-                    >
-                      <div className="w-2 bg-[#FF0000] shrink-0" />
-                      <div className="flex-1 bg-black px-2 py-1 border-t border-r border-b border-white/20 border-b-[#FF0000]">
-                        <div style={{ transform: "skewX(12deg)" }}>
-                          <p className="font-heading font-semibold text-white text-[13.5px] leading-tight truncate">
-                            {name || "NAMA ANGGOTA"}
-                          </p>
-                          <p className="font-heading italic font-semibold text-[#FF0000] text-[8px] truncate">
-                            {role || "Jabatan"}
-                          </p>
-                        </div>
-                      </div>
+                    {/* Slim Caption Strip */}
+                    <div className="flex items-center justify-between px-1.5 pt-2 pb-0.5 text-[9px] text-[#5C584E]">
+                      <span className="truncate">{instagram || "Side Line Crew"}</span>
+                      <span className="font-bold uppercase text-[#141414]">Profil →</span>
                     </div>
                   </div>
                 </div>
