@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   menuService,
   calculatePromo,
@@ -6,8 +6,12 @@ import {
   getPromoBadgeLabel,
 } from "../../services/menuService";
 import { categoryService } from "../../services/categoryService";
-import { chefRecommendationService } from "../../services/chefRecommendationService";
+import {
+  chefRecommendationService,
+  DEFAULT_CHEF_CATALOG,
+} from "../../services/chefRecommendationService";
 import MenuHeroSlidesManager from "../../components/admin/MenuHeroSlidesManager";
+import ChefRecommendationManager from "../../components/admin/ChefRecommendationManager";
 import {
   Plus,
   MagnifyingGlass as Search,
@@ -18,11 +22,8 @@ import {
   Coffee,
   WarningCircle as AlertTriangle,
   CheckCircle as CheckCircle2,
-  X,
   ChefHat,
-  UploadSimple as Upload,
-  Eye,
-  EyeSlash as EyeOff,
+  X,
 } from "@phosphor-icons/react";
 
 export default function MenuManagement() {
@@ -64,49 +65,54 @@ export default function MenuManagement() {
   const [promoStartDate, setPromoStartDate] = useState("");
   const [promoEndDate, setPromoEndDate] = useState("");
 
-  // Chef Recommendation Poster State
-  const [chefPoster, setChefPoster] = useState(null);
-  const [isChefPosterModalOpen, setIsChefPosterModalOpen] = useState(false);
-  const [chefTitle, setChefTitle] = useState("");
-  const [chefSubtitle, setChefSubtitle] = useState("");
-  const [chefBadge, setChefBadge] = useState("PILIHAN CHEF");
-  const [chefImageFile, setChefImageFile] = useState(null);
-  const [chefImagePreview, setChefImagePreview] = useState("");
-  const [chefIsActive, setChefIsActive] = useState(true);
-  const [isSavingChefPoster, setIsSavingChefPoster] = useState(false);
+  // Katalog Rekomendasi Chef State (teks katalog + daftar ID menu pilihan)
+  const [chefCatalog, setChefCatalog] = useState(
+    () => chefRecommendationService.getCachedCatalog() || DEFAULT_CHEF_CATALOG
+  );
+  const [togglingChefMenuId, setTogglingChefMenuId] = useState(null);
 
-  // Refetch helper
+  const chefMenuIdSet = useMemo(
+    () => new Set((chefCatalog?.menu_ids || []).map((id) => String(id))),
+    [chefCatalog]
+  );
+
+  const chefMenuCount = useMemo(
+    () => menus.filter((m) => chefMenuIdSet.has(String(m.id))).length,
+    [menus, chefMenuIdSet]
+  );
+
+  // Refetch helper (ambil semua menu sekali agar filter & picker Rekomendasi Chef selalu lengkap)
   const reloadData = useCallback(async () => {
     try {
       setErrorMsg("");
-      const [menusData, categoriesData, posterData] = await Promise.all([
-        menuService.getAll(filterCategory),
+      const [menusData, categoriesData, catalogData] = await Promise.all([
+        menuService.getAll("all"),
         categoryService.getAll(),
-        chefRecommendationService.getPoster(false).catch(() => null),
+        chefRecommendationService.getCatalog().catch(() => DEFAULT_CHEF_CATALOG),
       ]);
       setMenus(menusData);
       setCategories(categoriesData);
-      if (posterData) setChefPoster(posterData);
+      if (catalogData) setChefCatalog(catalogData);
     } catch (err) {
       setErrorMsg("Gagal memuat data menu: " + (err.message || ""));
     } finally {
       setLoading(false);
     }
-  }, [filterCategory]);
+  }, []);
 
   useEffect(() => {
     let ignore = false;
     const init = async () => {
       try {
-        const [menusData, categoriesData, posterData] = await Promise.all([
-          menuService.getAll(filterCategory),
+        const [menusData, categoriesData, catalogData] = await Promise.all([
+          menuService.getAll("all"),
           categoryService.getAll(),
-          chefRecommendationService.getPoster(false).catch(() => null),
+          chefRecommendationService.getCatalog().catch(() => DEFAULT_CHEF_CATALOG),
         ]);
         if (!ignore) {
           setMenus(menusData);
           setCategories(categoriesData);
-          if (posterData) setChefPoster(posterData);
+          if (catalogData) setChefCatalog(catalogData);
           setLoading(false);
         }
       } catch (err) {
@@ -120,104 +126,29 @@ export default function MenuManagement() {
     return () => {
       ignore = true;
     };
-  }, [filterCategory]);
+  }, []);
 
-  // Chef Poster Handlers
-  const handleOpenChefPosterModal = () => {
-    if (chefPoster) {
-      setChefTitle(chefPoster.title || "Rekomendasi Spesial Chef Bulan Ini");
-      setChefSubtitle(chefPoster.subtitle || "");
-      setChefBadge(chefPoster.badge || "PILIHAN CHEF");
-      setChefImagePreview(chefPoster.image_url || "");
-      setChefIsActive(chefPoster.is_active !== false);
-    } else {
-      setChefTitle("Rekomendasi Spesial Chef Bulan Ini");
-      setChefSubtitle(
-        "Kombinasi autentik cold brew espresso segar berpadu sentuhan buah delima dan pastry croissant butter hangat dari oven pilihan chef SIDE LINE."
-      );
-      setChefBadge("PILIHAN CHEF");
-      setChefImagePreview("");
-      setChefIsActive(true);
-    }
-    setChefImageFile(null);
-    setIsChefPosterModalOpen(true);
-  };
-
-  const handleCloseChefPosterModal = () => {
-    setIsChefPosterModalOpen(false);
-    setChefImageFile(null);
-    setChefImagePreview("");
-  };
-
-  const handleChefImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Ukuran poster maksimal 5 MB!");
-        return;
-      }
-      setChefImageFile(file);
-      setChefImagePreview(URL.createObjectURL(file));
-      setChefIsActive(true);
-    }
-  };
-
-  const handleSaveChefPoster = async (e) => {
-    e.preventDefault();
+  // Toggle Rekomendasi Chef langsung dari baris tabel menu
+  const handleToggleChefRow = async (menu) => {
     try {
-      setIsSavingChefPoster(true);
+      setTogglingChefMenuId(menu.id);
       setErrorMsg("");
-      const saved = await chefRecommendationService.savePoster({
-        id: chefPoster?.id,
-        title: chefTitle,
-        subtitle: chefSubtitle,
-        badge: chefBadge,
-        imageFile: chefImageFile,
-        currentImageUrl: chefPoster?.image_url || "",
-        isActive: chefIsActive,
-      });
-      setChefPoster(saved);
-      setSuccessMsg("Poster rekomendasi chef berhasil disimpan dan diperbarui!");
-      setIsChefPosterModalOpen(false);
-      setTimeout(() => setSuccessMsg(""), 3500);
-    } catch (err) {
-      setErrorMsg("Gagal menyimpan poster chef: " + (err.message || ""));
-    } finally {
-      setIsSavingChefPoster(false);
-    }
-  };
-
-  const handleToggleChefPosterActive = async () => {
-    try {
-      const currentStatus = chefPoster?.is_active !== false;
-      const updated = await chefRecommendationService.toggleActive(chefPoster?.id, currentStatus);
-      setChefPoster(updated);
-      setSuccessMsg(
-        updated.is_active
-          ? "Status Berhasil Diubah: Poster rekomendasi chef kini AKTIF dan DITAMPILKAN di halaman menu publik."
-          : "Status Berhasil Diubah: Poster rekomendasi chef kini DISEMBUNYIKAN dari halaman menu publik."
+      const wasSelected = chefMenuIdSet.has(String(menu.id));
+      const updated = await chefRecommendationService.toggleMenuSelection(
+        chefCatalog,
+        menu.id
       );
-      setTimeout(() => setSuccessMsg(""), 3500);
+      setChefCatalog(updated);
+      setSuccessMsg(
+        wasSelected
+          ? `Menu "${menu.name}" dihapus dari daftar Rekomendasi Chef.`
+          : `Menu "${menu.name}" ditambahkan ke daftar Rekomendasi Chef!`
+      );
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
-      setErrorMsg("Gagal mengubah status poster chef: " + (err.message || ""));
-    }
-  };
-
-  const handleDeleteChefPoster = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus poster rekomendasi chef ini?")) {
-      return;
-    }
-    try {
-      setIsSavingChefPoster(true);
-      await chefRecommendationService.deletePoster(chefPoster?.id, chefPoster?.image_url);
-      setChefPoster(null);
-      setSuccessMsg("Poster rekomendasi chef berhasil dihapus.");
-      setIsChefPosterModalOpen(false);
-      setTimeout(() => setSuccessMsg(""), 3500);
-    } catch (err) {
-      setErrorMsg("Gagal menghapus poster chef: " + (err.message || ""));
+      setErrorMsg("Gagal mengubah rekomendasi chef: " + (err.message || ""));
     } finally {
-      setIsSavingChefPoster(false);
+      setTogglingChefMenuId(null);
     }
   };
 
@@ -460,12 +391,24 @@ export default function MenuManagement() {
   };
 
   // Tutup Modal
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
+    if (isSubmitting) return;
     setIsModalOpen(false);
     setEditingMenu(null);
     setImageFile(null);
     setImagePreview("");
-  };
+  }, [isSubmitting]);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCloseModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen, handleCloseModal]);
 
   // Simpan Menu (Create / Update)
   const handleSubmit = async (e) => {
@@ -537,7 +480,10 @@ export default function MenuManagement() {
         setSuccessMsg(`Menu "${name}" berhasil ditambahkan!`);
       }
 
-      handleCloseModal();
+      setIsModalOpen(false);
+      setEditingMenu(null);
+      setImageFile(null);
+      setImagePreview("");
       await reloadData();
       setTimeout(() => setSuccessMsg(""), 3500);
     } catch (err) {
@@ -584,6 +530,12 @@ export default function MenuManagement() {
     try {
       setErrorMsg("");
       await menuService.delete(menu.id, menu.image_url);
+      if (chefMenuIdSet.has(String(menu.id))) {
+        const cleanedCatalog = await chefRecommendationService
+          .removeMenuFromCatalog(chefCatalog, menu.id)
+          .catch(() => chefCatalog);
+        setChefCatalog(cleanedCatalog);
+      }
       setSuccessMsg(`Menu "${menu.name}" berhasil dihapus.`);
       await reloadData();
       setTimeout(() => setSuccessMsg(""), 3500);
@@ -592,10 +544,25 @@ export default function MenuManagement() {
     }
   };
 
-  // Filter Search
-  const filteredMenus = menus.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter Kategori & Search
+  const filteredMenus = menus.filter((m) => {
+    let matchCategory = true;
+    if (filterCategory === "chef") {
+      matchCategory = chefMenuIdSet.has(String(m.id));
+    } else if (filterCategory === "promo") {
+      matchCategory = Boolean(m.is_promo && !m.is_expired);
+    } else if (filterCategory !== "all") {
+      matchCategory = String(m.category_id) === String(filterCategory);
+    }
+
+    const q = searchQuery.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      m.name.toLowerCase().includes(q) ||
+      (m.description && m.description.toLowerCase().includes(q));
+
+    return matchCategory && matchSearch;
+  });
 
   // Pagination Slice
   const totalPages = Math.ceil(filteredMenus.length / itemsPerPage) || 1;
@@ -617,20 +584,12 @@ export default function MenuManagement() {
               Katalog &amp; Sajian Menu
             </h1>
             <p className="mt-1 text-[13.5px] sm:text-sm text-[#575049]">
-              Kelola katalog sajian kopi, makanan, promo potongan harga, serta foto menu
+              Kelola katalog sajian kopi, makanan, promo potongan harga, rekomendasi chef, serta foto menu
             </p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
-          <button
-            onClick={handleOpenChefPosterModal}
-            className="justify-center inline-flex items-center gap-2 rounded-xl bg-[#F5EFE6] hover:bg-[#EBE2D5] border border-[#E2D9CC] px-4 py-2.5 text-[13.5px] sm:text-sm font-medium text-[#292524] transition cursor-pointer"
-          >
-            <ChefHat className="h-4 w-4 text-[#7C4D34]" weight="duotone" />
-            <span>Poster Rekomendasi Chef</span>
-          </button>
-
           <button
             onClick={handleOpenAdd}
             className="justify-center inline-flex items-center gap-2 rounded-xl bg-[#C8100A] px-4 py-2.5 text-[13.5px] sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#A80D08] transition cursor-pointer"
@@ -641,93 +600,14 @@ export default function MenuManagement() {
         </div>
       </div>
 
-      {/* Banner Status Poster Rekomendasi Chef */}
-      <div
-        className={`rounded-2xl border p-5 shadow-2xs transition-all bg-white ${
-          chefPoster?.is_active !== false
-            ? "border-[#E6DFD5]"
-            : "border-[#E6DFD5] opacity-85"
-        }`}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${
-                chefPoster?.is_active !== false
-                  ? "bg-[#F5EFE6] text-[#7C4D34] border-[#E8DFD2]"
-                  : "bg-[#FAF7F2] text-[#6B635B] border-[#E6DFD5]"
-              }`}
-            >
-              <ChefHat className="h-5 w-5" weight="duotone" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-base sm:text-[17px] font-bold text-[#1C1917]">
-                  Rekomendasi Menu oleh Chef
-                </h2>
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[13.5px] font-medium ${
-                    chefPoster?.is_active !== false
-                      ? "bg-[#EBF5EE] text-emerald-800 border border-emerald-200"
-                      : "bg-[#FAF7F2] text-[#575049] border border-[#E6DFD5]"
-                  }`}
-                >
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      chefPoster?.is_active !== false ? "bg-emerald-600" : "bg-[#9A9086]"
-                    }`}
-                  />
-                  {chefPoster?.is_active !== false
-                    ? "Aktif di Halaman Menu"
-                    : "Disembunyikan"}
-                </span>
-              </div>
-              <p className="mt-1 text-[13.5px] font-medium text-[#292524] line-clamp-1">
-                {chefPoster?.title || "Belum ada poster kustom — menggunakan rekomendasi bawaan Side Line"}
-              </p>
-              <p className="mt-0.5 text-[13.5px] text-[#575049] line-clamp-1">
-                {chefPoster?.is_active !== false
-                  ? "Poster sedang ditampilkan kepada pelanggan di bagian atas tab Semua Menu."
-                  : "Poster sedang disembunyikan. Klik 'Tampilkan ke Menu' untuk mengaktifkannya."}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
-            {chefPoster && (
-              <button
-                type="button"
-                onClick={handleToggleChefPosterActive}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[13.5px] font-medium transition cursor-pointer ${
-                  chefPoster?.is_active !== false
-                    ? "border-[#E2D9CC] bg-[#FAF7F2] text-[#292524] hover:bg-[#EFE9E0]"
-                    : "border-emerald-600 bg-emerald-700 text-white hover:bg-emerald-800"
-                }`}
-              >
-                {chefPoster?.is_active !== false ? (
-                  <>
-                    <EyeOff className="h-4 w-4 text-[#575049]" weight="duotone" />
-                    <span>Sembunyikan</span>
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 text-white" weight="duotone" />
-                    <span>Tampilkan ke Menu</span>
-                  </>
-                )}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleOpenChefPosterModal}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#292524] hover:bg-[#1C1917] text-[#FAF7F2] px-3.5 py-2 text-[13.5px] font-medium transition cursor-pointer"
-            >
-              <Upload className="h-4 w-4" weight="duotone" />
-              <span>{chefPoster?.image_url ? "Kelola Poster" : "Unggah Poster Chef"}</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Katalog Rekomendasi Chef (Tulisan Katalog + Multi-Select Menu) */}
+      <ChefRecommendationManager
+        catalog={chefCatalog}
+        menus={menus}
+        categories={categories}
+        loading={loading}
+        onCatalogUpdated={(updated) => setChefCatalog(updated)}
+      />
 
       {/* Slide Hero Halaman Menu (Carousel Gelas 3D, maks 5 foto) */}
       <MenuHeroSlidesManager />
@@ -745,13 +625,15 @@ export default function MenuManagement() {
           />
         </div>
 
-        <div className="w-full sm:w-56">
+        <div className="w-full sm:w-60">
           <select
             value={filterCategory}
             onChange={(e) => handleFilterCategoryChange(e.target.value)}
             className="w-full rounded-xl border border-[#E6DFD5] bg-white px-3.5 py-2.5 text-[13.5px] font-medium text-[#44403C] outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 transition shadow-2xs cursor-pointer"
           >
             <option value="all">Semua Kategori</option>
+            <option value="chef">Rekomendasi Chef ({chefMenuCount})</option>
+            <option value="promo">Sedang Promo</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -821,6 +703,7 @@ export default function MenuManagement() {
                   const hasPromo = Boolean(
                     menu.is_promo || Number(menu.discount_percent) > 0
                   );
+                  const isChefRecommended = chefMenuIdSet.has(String(menu.id));
                   const promoPrice =
                     menu.discounted_price ||
                     Math.max(
@@ -846,6 +729,12 @@ export default function MenuManagement() {
                       <td className="px-5 py-3.5">
                         <div className="font-semibold text-[#1C1917] flex items-center flex-wrap gap-2">
                           <span className="text-[13.5px]">{menu.name}</span>
+                          {isChefRecommended && (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 text-[12px] font-semibold">
+                              <ChefHat className="h-3 w-3" weight="duotone" />
+                              <span>Rekomendasi Chef</span>
+                            </span>
+                          )}
                           {hasPromo && (
                             <span className="inline-flex items-center gap-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 text-[13.5px] font-bold">
                               <Flame className="h-3 w-3" />
@@ -930,6 +819,24 @@ export default function MenuManagement() {
                             <Flame className="h-3 w-3" />
                             <span>{hasPromo ? "Nonaktifkan Promo" : "Jadikan Promo"}</span>
                           </button>
+
+                          <button
+                            type="button"
+                            disabled={togglingChefMenuId === menu.id}
+                            onClick={() => handleToggleChefRow(menu)}
+                            className={`inline-flex items-center gap-1 text-[12.5px] font-medium transition hover:underline cursor-pointer disabled:opacity-50 ${
+                              isChefRecommended
+                                ? "text-amber-700 font-semibold"
+                                : "text-[#6B635B] hover:text-[#44403C]"
+                            }`}
+                          >
+                            <ChefHat className="h-3 w-3" weight={isChefRecommended ? "fill" : "duotone"} />
+                            <span>
+                              {isChefRecommended
+                                ? "Hapus Rekomendasi Chef"
+                                : "Jadikan Rekomendasi Chef"}
+                            </span>
+                          </button>
                         </div>
                       </td>
                       <td className="px-5 py-3.5 text-right">
@@ -1001,32 +908,61 @@ export default function MenuManagement() {
 
       {/* Modal Dialog Form (Tambah / Edit) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold text-[#1C1917]">
-              {editingMenu ? "Edit Menu & Promo" : "Tambah Menu & Promo Baru"}
-            </h2>
-            <p className="mt-1 text-[13.5px] text-[#575049]">
-              Isi data detail menu, kategori, harga normal, promo potongan harga, dan foto
-            </p>
-
-            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Nama Menu *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Misal: Americano / Caramel Macchiato"
-                  className="w-full rounded-lg border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCloseModal();
+          }}
+        >
+          <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-[#E6DFD5] my-6 max-h-[92vh] flex flex-col overflow-hidden">
+            {/* Modal Header dengan Tombol X di Pojok Kanan */}
+            <div className="flex items-start justify-between gap-4 px-5 sm:px-6 py-4 border-b border-[#EFE9E0] bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FCECEB] text-[#C8100A] border border-[#F6D5D2]">
+                  <Coffee className="h-5 w-5" weight="duotone" />
+                </div>
                 <div>
+                  <h2 className="text-base sm:text-lg font-bold text-[#1C1917]">
+                    {editingMenu ? "Edit Menu & Promo" : "Tambah Menu & Promo Baru"}
+                  </h2>
+                  <p className="mt-0.5 text-[12.5px] sm:text-[13px] text-[#575049]">
+                    Isi data detail menu, kategori, harga normal, promo potongan harga, dan foto
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                disabled={isSubmitting}
+                aria-label="Tutup modal menu"
+                className="rounded-lg p-1.5 text-[#6B635B] hover:bg-[#FAF7F2] hover:text-[#1C1917] disabled:opacity-40 transition cursor-pointer shrink-0"
+              >
+                <X className="h-5 w-5" weight="bold" />
+              </button>
+            </div>
+
+            <form
+              id="menu-editor-form"
+              onSubmit={handleSubmit}
+              className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-5"
+            >
+              {/* Row 1: Nama Menu, Kategori, Harga Normal (Lebar di Desktop) */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-5">
+                  <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
+                    Nama Menu *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Misal: Americano / Caramel Macchiato"
+                    className="w-full rounded-xl border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                  />
+                </div>
+
+                <div className="md:col-span-4">
                   <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                     Kategori *
                   </label>
@@ -1034,7 +970,7 @@ export default function MenuManagement() {
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                    className="w-full rounded-xl border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition bg-white"
                   >
                     <option value="">-- Pilih Kategori --</option>
                     {categories.map((c) => (
@@ -1045,7 +981,7 @@ export default function MenuManagement() {
                   </select>
                 </div>
 
-                <div>
+                <div className="md:col-span-3">
                   <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
                     Harga Normal (Rp) *
                   </label>
@@ -1057,7 +993,7 @@ export default function MenuManagement() {
                     value={price}
                     onChange={(e) => handlePriceChange(e.target.value)}
                     placeholder="40000"
-                    className="w-full rounded-lg border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                    className="w-full rounded-xl border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
                   />
                 </div>
               </div>
@@ -1421,262 +1357,87 @@ export default function MenuManagement() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Deskripsi Menu
-                </label>
-                <textarea
-                  rows="2"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Deskripsi bahan, cita rasa, atau porsi..."
-                  className="w-full rounded-lg border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
-                />
-              </div>
+              {/* Row Deskripsi & Upload Foto (2 Kolom di Desktop) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
+                    Deskripsi Menu
+                  </label>
+                  <textarea
+                    rows="4"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Deskripsi bahan, cita rasa, atau porsi..."
+                    className="w-full rounded-xl border border-[#E2D9CC] px-3.5 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                  />
+                </div>
 
-              {/* Upload Foto */}
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Foto Menu (JPG/PNG, max 2MB)
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full text-[13.5px] text-[#575049] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[13.5px] file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer"
-                />
-                {imagePreview && (
-                  <div className="mt-3 flex items-center gap-3">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="h-16 w-16 rounded-lg object-cover border border-[#E6DFD5]"
-                    />
-                    <span className="text-[13.5px] text-[#575049]">
-                      {imageFile ? "Foto baru siap diupload" : "Foto saat ini"}
-                    </span>
-                  </div>
-                )}
+                {/* Upload Foto */}
+                <div>
+                  <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
+                    Foto Menu (JPG/PNG, max 2MB)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full text-[13.5px] text-[#575049] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[13.5px] file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer"
+                  />
+                  {imagePreview && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-16 w-16 rounded-lg object-cover border border-[#E6DFD5]"
+                      />
+                      <span className="text-[13.5px] text-[#575049]">
+                        {imageFile ? "Foto baru siap diupload" : "Foto saat ini"}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Status Toggles */}
-              <div className="flex items-center gap-6 pt-2">
+              <div className="flex items-center gap-6 pt-1">
                 <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-[#44403C]">
                   <input
                     type="checkbox"
                     checked={isAvailable}
                     onChange={(e) => setIsAvailable(e.target.checked)}
-                    className="h-4 w-4 rounded text-amber-600 focus:ring-amber-500"
+                    className="h-4 w-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
                   />
                   <span>Tersedia untuk Dipesan</span>
                 </label>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  disabled={isSubmitting}
-                  className="rounded-lg border border-[#E6DFD5] px-4 py-2 text-[13.5px] font-medium text-[#575049] hover:bg-[#F5EFE6] transition cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="rounded-lg bg-amber-600 px-5 py-2 text-[13.5px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50 transition flex items-center gap-2 cursor-pointer"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Menyimpan...</span>
-                    </>
-                  ) : (
-                    <span>{editingMenu ? "Simpan Perubahan" : "Tambah Menu"}</span>
-                  )}
-                </button>
-              </div>
             </form>
-          </div>
-        </div>
-      )}
 
-      {/* ── MODAL UPLOAD & KELOLA POSTER REKOMENDASI CHEF ── */}
-      {isChefPosterModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs overflow-y-auto">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl my-8 max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#EFE9E0] pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                  <ChefHat className="h-5 w-5" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-[#1C1917]">
-                    Poster Rekomendasi Menu oleh Chef
-                  </h2>
-                  <p className="text-[12.5px] text-[#575049]">
-                    Dipublikasikan pada bagian atas tab &quot;Semua Menu&quot; di halaman menu publik
-                  </p>
-                </div>
-              </div>
+            {/* Sticky Footer Action Buttons */}
+            <div className="flex items-center justify-end gap-3 px-5 sm:px-6 py-4 border-t border-[#EFE9E0] bg-[#FAF7F2] shrink-0">
               <button
                 type="button"
-                onClick={handleCloseChefPosterModal}
-                className="rounded-lg p-1 text-[#6B635B] hover:bg-[#F5EFE6] hover:text-[#575049] transition cursor-pointer"
+                onClick={handleCloseModal}
+                disabled={isSubmitting}
+                className="rounded-xl border border-[#E2D9CC] bg-white px-4 py-2 text-[13.5px] font-semibold text-[#575049] hover:bg-[#F5EFE6] transition cursor-pointer"
               >
-                <X className="h-5 w-5" />
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="menu-editor-form"
+                disabled={isSubmitting}
+                className="rounded-xl bg-[#C8100A] hover:bg-[#A80D08] px-5 py-2 text-[13.5px] font-semibold text-white disabled:opacity-50 transition flex items-center gap-2 shadow-2xs cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <span>{editingMenu ? "Simpan Perubahan" : "Tambah Menu"}</span>
+                )}
               </button>
             </div>
-
-            <form onSubmit={handleSaveChefPoster} className="mt-4 space-y-4">
-              {/* Upload Foto Poster */}
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1.5">
-                  Foto / Desain Poster Grafis * (JPG, PNG, WebP — Max 5MB)
-                </label>
-                <div className="relative rounded-2xl border-2 border-dashed border-[#D6CEC2] hover:border-amber-500 bg-amber-50/20 p-4 transition text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleChefImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  {chefImagePreview ? (
-                    <div className="flex flex-col items-center">
-                      <div className="relative aspect-[16/10] w-full max-w-md overflow-hidden rounded-xl border border-[#E6DFD5] bg-[#F5EFE6] shadow-xs mb-2">
-                        <img
-                          src={chefImagePreview}
-                          alt="Preview Poster"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <p className="text-[12.5px] text-amber-800 font-semibold">
-                        Klik atau drag gambar baru untuk mengganti poster
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="py-6 flex flex-col items-center justify-center text-[#6B635B]">
-                      <Upload className="h-10 w-10 text-amber-500 mb-2" />
-                      <p className="text-[13.5px] font-semibold text-[#44403C]">
-                        Klik untuk memilih file poster atau tarik gambar ke sini
-                      </p>
-                      <p className="text-[12.5px] text-[#6B635B] mt-1">
-                        Format horizontal atau banner rekomendasi menu (16:9 / 4:3)
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Judul Poster */}
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Judul Rekomendasi Menu *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={chefTitle}
-                  onChange={(e) => setChefTitle(e.target.value)}
-                  placeholder="Misal: Rekomendasi Spesial Chef Bulan Ini"
-                  className="w-full rounded-xl border border-[#E6DFD5] px-3.5 py-2 text-[13.5px] font-semibold text-[#292524] placeholder-zinc-400 outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/10 transition"
-                />
-              </div>
-
-              {/* Badge Label */}
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Badge Label
-                </label>
-                <input
-                  type="text"
-                  value={chefBadge}
-                  onChange={(e) => setChefBadge(e.target.value)}
-                  placeholder="PILIHAN CHEF"
-                  className="w-full rounded-xl border border-[#E6DFD5] px-3.5 py-2 text-[13.5px] text-[#292524] placeholder-zinc-400 outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/10 transition"
-                />
-              </div>
-
-              {/* Catatan / Cerita Chef */}
-              <div>
-                <label className="block text-[13.5px] font-semibold text-[#44403C] mb-1">
-                  Catatan / Cerita Chef untuk Pelanggan
-                </label>
-                <textarea
-                  rows="3"
-                  value={chefSubtitle}
-                  onChange={(e) => setChefSubtitle(e.target.value)}
-                  placeholder="Jelaskan keistimewaan rasa, perpaduan bahan, atau cerita dibalik sajian rekomendasi ini..."
-                  className="w-full rounded-xl border border-[#E6DFD5] px-3.5 py-2 text-[13.5px] text-[#292524] placeholder-zinc-400 outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/10 transition"
-                />
-              </div>
-
-              {/* Toggle Aktif */}
-              <div
-                className={`rounded-xl border p-3 transition ${
-                  chefIsActive
-                    ? "border-emerald-300 bg-emerald-50/50"
-                    : "border-[#E6DFD5] bg-[#FAF7F2]"
-                }`}
-              >
-                <label className="flex items-center gap-2.5 cursor-pointer text-[13.5px] font-bold text-[#292524]">
-                  <input
-                    type="checkbox"
-                    checked={chefIsActive}
-                    onChange={(e) => setChefIsActive(e.target.checked)}
-                    className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <span>
-                    {chefIsActive
-                      ? "✓ Tampilkan poster ini di halaman menu publik (Status: Aktif)"
-                      : "✕ Sembunyikan poster ini dari menu publik (Status: Nonaktif)"}
-                  </span>
-                </label>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#EFE9E0]">
-                {chefPoster?.id && chefPoster.id !== "default-chef-poster" ? (
-                  <button
-                    type="button"
-                    onClick={handleDeleteChefPoster}
-                    disabled={isSavingChefPoster}
-                    className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-red-600 hover:text-red-700 disabled:opacity-50 transition cursor-pointer"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    <span>Hapus Poster</span>
-                  </button>
-                ) : (
-                  <div />
-                )}
-
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={handleCloseChefPosterModal}
-                    disabled={isSavingChefPoster}
-                    className="rounded-xl border border-[#E6DFD5] px-4 py-2 text-[13.5px] font-semibold text-[#575049] hover:bg-[#F5EFE6] transition cursor-pointer"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSavingChefPoster}
-                    className="rounded-xl bg-amber-600 hover:bg-amber-700 px-5 py-2 text-[13.5px] font-semibold text-white disabled:opacity-50 transition flex items-center gap-2 shadow-sm cursor-pointer"
-                  >
-                    {isSavingChefPoster ? (
-                      <>
-                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        <span>Menyimpan Poster...</span>
-                      </>
-                    ) : (
-                      <span>Simpan Poster Chef</span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </form>
           </div>
         </div>
       )}

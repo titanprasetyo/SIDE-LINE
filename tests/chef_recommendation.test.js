@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 // Mock localStorage for node environment
 const store = {};
 globalThis.localStorage = {
-  getItem: (key) => store[key] || null,
+  getItem: (key) => (key in store ? store[key] : null),
   setItem: (key, val) => {
     store[key] = String(val);
   },
@@ -24,12 +24,18 @@ vi.mock("../src/services/supabase", () => {
       from: (table) => {
         if (table !== "home_banners") {
           return {
-            select: () => ({ eq: () => ({ order: () => ({ limit: () => Promise.resolve({ data: [], error: null }) }) }) }),
+            select: () => ({
+              eq: () => ({
+                order: () => ({
+                  limit: () => Promise.resolve({ data: [], error: null }),
+                }),
+              }),
+            }),
           };
         }
         return {
           select: () => {
-            let filters = [];
+            const filters = [];
             const builder = {
               eq: (col, val) => {
                 filters.push({ col, val });
@@ -80,88 +86,117 @@ vi.mock("../src/services/supabase", () => {
           }),
         };
       },
-      storage: {
-        from: () => ({
-          upload: () => Promise.resolve({ error: null }),
-          getPublicUrl: () => ({ data: { publicUrl: "https://example.com/mock.jpg" } }),
-          remove: () => Promise.resolve({ error: null }),
-        }),
-      },
     },
   };
 });
 
 import {
   chefRecommendationService,
-  DEFAULT_CHEF_POSTER,
+  DEFAULT_CHEF_CATALOG,
+  parseChefCatalogRow,
 } from "../src/services/chefRecommendationService";
 
-describe("Chef Recommendation Poster Service", () => {
+describe("Chef Recommendation Catalog Service (Tulisan Katalog & Multi-Select Menu)", () => {
   beforeEach(() => {
     globalThis.localStorage.clear();
     mockBanners = [];
     vi.clearAllMocks();
   });
 
-  it("should return default chef poster when no poster has been saved", async () => {
-    const poster = await chefRecommendationService.getPoster(false);
-    expect(poster).toBeDefined();
-    expect(poster.title).toBe(DEFAULT_CHEF_POSTER.title);
-    expect(poster.badge).toBe(DEFAULT_CHEF_POSTER.badge);
-    expect(poster.placement).toBe("chef_recommendation");
+  it("mengembalikan katalog default kosong ketika admin belum mengatur rekomendasi chef", async () => {
+    const catalog = await chefRecommendationService.getCatalog();
+    expect(catalog).toBeDefined();
+    expect(catalog.title).toBe(DEFAULT_CHEF_CATALOG.title);
+    expect(catalog.period_label).toBe(DEFAULT_CHEF_CATALOG.period_label);
+    expect(catalog.menu_ids).toEqual([]);
+    expect(catalog.is_configured).toBe(false);
   });
 
-  it("should save and update chef recommendation poster", async () => {
-    const saved = await chefRecommendationService.savePoster({
-      title: "Signature Cold Brew Delight",
-      subtitle: "Racikan rahasia chef dengan biji kopi pilihan nusantara.",
-      badge: "SPECIAL CHEF SELECTION",
-      isActive: true,
-      currentImageUrl: "https://example.com/poster.jpg",
+  it("mengabaikan baris poster lama ('PILIHAN CHEF') dan menimpanya bersih saat admin menyimpan katalog baru", async () => {
+    mockBanners.push({
+      id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      placement: "chef_recommendation",
+      title: "Poster GTV Lama",
+      badge: "PILIHAN CHEF",
+      subtitle: "Kombinasi autentik cold brew poster lama",
+      image_url: "https://example.com/old-poster.jpg",
+      is_active: true,
     });
 
-    expect(saved).toBeDefined();
-    expect(saved.title).toBe("Signature Cold Brew Delight");
-    expect(saved.badge).toBe("SPECIAL CHEF SELECTION");
-    expect(saved.is_active).toBe(true);
+    const parsedLegacy = await chefRecommendationService.getCatalog();
+    expect(parsedLegacy.is_configured).toBe(false);
+    expect(parsedLegacy.title).toBe(DEFAULT_CHEF_CATALOG.title);
+    expect(parsedLegacy.menu_ids).toEqual([]);
+    expect(parsedLegacy.id).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-    const fetched = await chefRecommendationService.getPoster(false);
-    expect(fetched.title).toBe("Signature Cold Brew Delight");
+    // Saat admin menyimpan katalog baru, baris lama ditimpa & image_url dibersihkan
+    const saved = await chefRecommendationService.saveCatalog({
+      id: parsedLegacy.id,
+      period_label: "Spesial Musim Hujan",
+      title: "Sajian Hangat Pilihan Chef",
+      description: "Cocok dinikmati saat hujan sore hari di SIDE LINE.",
+      menu_ids: ["menu-1", "menu-2", "menu-1"],
+    });
+
+    expect(saved.is_configured).toBe(true);
+    expect(saved.period_label).toBe("Spesial Musim Hujan");
+    expect(saved.title).toBe("Sajian Hangat Pilihan Chef");
+    expect(saved.description).toBe("Cocok dinikmati saat hujan sore hari di SIDE LINE.");
+    expect(saved.menu_ids).toEqual(["menu-1", "menu-2"]);
+    expect(mockBanners).toHaveLength(1);
+    expect(mockBanners[0].image_url).toBe("");
   });
 
-  it("should toggle active state of poster", async () => {
-    const saved = await chefRecommendationService.savePoster({
-      title: "Menu Spesial",
-      isActive: true,
+  it("menyimpan, memperbarui, dan membaca cache sinkron untuk katalog & menu terpilih", async () => {
+    localStorage.setItem("side_line_chef_recommendation_poster", '{"old":true}');
+    expect(chefRecommendationService.getCachedCatalog()).toBeNull();
+    // Cache poster lama otomatis dibersihkan
+    expect(localStorage.getItem("side_line_chef_recommendation_poster")).toBeNull();
+
+    const saved = await chefRecommendationService.saveCatalog({
+      period_label: "Bulan Ini • November",
+      title: "Rekomendasi Chef Bulan Ini",
+      description: "Pilihan kopi & pastry paling pas untuk bulan ini.",
+      menu_ids: ["menu-a", "menu-b", "menu-c"],
     });
 
-    const toggled = await chefRecommendationService.toggleActive(saved.id, true);
-    expect(toggled.is_active).toBe(false);
+    expect(saved.id).toBe("11111111-2222-3333-4444-555555555555");
+    expect(saved.menu_ids).toEqual(["menu-a", "menu-b", "menu-c"]);
 
-    // When activeOnly is true and poster is inactive, should return null
-    const activePoster = await chefRecommendationService.getPoster(true);
-    expect(activePoster).toBeNull();
-  });
-
-  it("should delete poster and revert to default", async () => {
-    const saved = await chefRecommendationService.savePoster({
-      title: "Poster to be deleted",
-      isActive: true,
-    });
-
-    await chefRecommendationService.deletePoster(saved.id);
-    const result = await chefRecommendationService.getPoster(false);
-    expect(result.title).toBe(DEFAULT_CHEF_POSTER.title);
-  });
-
-  it("should return cached poster synchronously", async () => {
-    expect(chefRecommendationService.getCachedPoster()).toBeNull();
-    await chefRecommendationService.savePoster({
-      title: "Cached Poster",
-      isActive: true,
-    });
-    const cached = chefRecommendationService.getCachedPoster();
+    const cached = chefRecommendationService.getCachedCatalog();
     expect(cached).toBeDefined();
-    expect(cached.title).toBe("Cached Poster");
+    expect(cached.title).toBe("Rekomendasi Chef Bulan Ini");
+    expect(cached.period_label).toBe("Bulan Ini • November");
+    expect(cached.menu_ids).toEqual(["menu-a", "menu-b", "menu-c"]);
+
+    const fetched = await chefRecommendationService.getCatalog();
+    expect(fetched.title).toBe("Rekomendasi Chef Bulan Ini");
+    expect(fetched.menu_ids).toEqual(["menu-a", "menu-b", "menu-c"]);
+  });
+
+  it("mendukung toggle satu menu masuk/keluar serta pembersihan saat menu dihapus", async () => {
+    const initial = await chefRecommendationService.saveCatalog({
+      period_label: "Pilihan Saat Ini",
+      title: "Rekomendasi Chef Hari Ini",
+      description: "Racikan terbaik hari ini.",
+      menu_ids: ["m-1"],
+    });
+
+    const added = await chefRecommendationService.toggleMenuSelection(initial, "m-2");
+    expect(added.menu_ids).toEqual(["m-1", "m-2"]);
+
+    const removedByToggle = await chefRecommendationService.toggleMenuSelection(added, "m-1");
+    expect(removedByToggle.menu_ids).toEqual(["m-2"]);
+
+    const cleanedAfterDelete = await chefRecommendationService.removeMenuFromCatalog(
+      removedByToggle,
+      "m-2"
+    );
+    expect(cleanedAfterDelete.menu_ids).toEqual([]);
+  });
+
+  it("parseChefCatalogRow menangani input null dan JSON tidak valid secara aman", () => {
+    expect(parseChefCatalogRow(null).is_configured).toBe(false);
+    expect(parseChefCatalogRow({ id: "bad", subtitle: "{broken" }).is_configured).toBe(false);
   });
 });

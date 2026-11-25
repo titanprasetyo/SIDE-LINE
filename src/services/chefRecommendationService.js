@@ -1,253 +1,287 @@
 import { supabase } from "./supabase";
-import { storageService } from "./storageService";
 
-const LOCAL_STORAGE_KEY = "side_line_chef_recommendation_poster";
+export const CHEF_RECOMMENDATION_PLACEMENT = "chef_recommendation";
+const CATALOG_STORAGE_KEY = "side_line_chef_recommendation_catalog";
+const LEGACY_POSTER_STORAGE_KEY = "side_line_chef_recommendation_poster";
 
-export const DEFAULT_CHEF_POSTER = {
-  id: "default-chef-poster",
-  title: "Rekomendasi Spesial Chef Bulan Ini",
-  subtitle:
-    "Kombinasi autentik cold brew espresso segar berpadu sentuhan buah delima dan pastry croissant butter hangat dari oven pilihan chef SIDE LINE.",
-  badge: "PILIHAN CHEF",
-  image_url: "",
-  is_active: true,
-  placement: "chef_recommendation",
-  created_at: new Date().toISOString(),
+export const DEFAULT_CHEF_CATALOG = {
+  id: null,
+  period_label: "Rekomendasi Bulan Ini",
+  title: "Rekomendasi Chef Bulan Ini",
+  description:
+    "Kurasi sajian kopi, minuman, dan makanan pilihan chef SIDE LINE yang paling cocok dinikmati saat ini.",
+  menu_ids: [],
+  updated_at: null,
+  is_configured: false,
 };
 
 const isValidUuid = (val) =>
   typeof val === "string" &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
 
-function getLocalPoster() {
+function clearLegacyPosterCache() {
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(LEGACY_POSTER_STORAGE_KEY);
+    }
+  } catch {
+    // abaikan jika storage tidak tersedia
+  }
+}
+
+function normalizeMenuIds(menuIds) {
+  if (!Array.isArray(menuIds)) return [];
+  const seen = new Set();
+  const result = [];
+  for (const raw of menuIds) {
+    if (raw === null || raw === undefined) continue;
+    const id = String(raw).trim();
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      result.push(id);
+    }
+  }
+  return result;
+}
+
+/**
+ * Mem-parse baris `home_banners` (placement = 'chef_recommendation') menjadi objek Katalog Rekomendasi Chef.
+ * Baris poster lama (non-JSON / bukan type 'chef_catalog') diabaikan agar konten poster lama tidak muncul lagi,
+ * namun `id` tetap dipertahankan agar penyimpanan baru menimpa baris tersebut secara bersih.
+ */
+export function parseChefCatalogRow(row) {
+  if (!row) {
+    return { ...DEFAULT_CHEF_CATALOG, menu_ids: [] };
+  }
+
+  let parsed = null;
+  if (typeof row.subtitle === "string" && row.subtitle.trim().startsWith("{")) {
+    try {
+      const obj = JSON.parse(row.subtitle);
+      if (obj && typeof obj === "object" && obj.type === "chef_catalog") {
+        parsed = obj;
+      }
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (!parsed) {
+    // Baris poster lama ("Pilihan Chef" dengan foto poster) -> abaikan data poster lama
+    return {
+      ...DEFAULT_CHEF_CATALOG,
+      id: isValidUuid(row.id) ? row.id : null,
+      menu_ids: [],
+      is_configured: false,
+    };
+  }
+
+  return {
+    id: isValidUuid(row.id) ? row.id : null,
+    period_label: String(row.badge || "").trim(),
+    title: String(row.title || "").trim() || DEFAULT_CHEF_CATALOG.title,
+    description: String(parsed.description || "").trim(),
+    menu_ids: normalizeMenuIds(parsed.menu_ids),
+    updated_at: parsed.updated_at || row.created_at || null,
+    is_configured: true,
+  };
+}
+
+function getLocalCatalog() {
+  clearLegacyPosterCache();
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(CATALOG_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return {
+      id: isValidUuid(parsed.id) ? parsed.id : null,
+      period_label: String(parsed.period_label ?? "").trim(),
+      title: String(parsed.title || "").trim() || DEFAULT_CHEF_CATALOG.title,
+      description: String(parsed.description ?? "").trim(),
+      menu_ids: normalizeMenuIds(parsed.menu_ids),
+      updated_at: parsed.updated_at || null,
+      is_configured: Boolean(parsed.is_configured),
+    };
   } catch {
     return null;
   }
 }
 
-function saveLocalPoster(poster) {
+function saveLocalCatalog(catalog) {
+  clearLegacyPosterCache();
   try {
-    if (poster) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(poster));
+    if (typeof localStorage === "undefined") return;
+    if (catalog && catalog.is_configured) {
+      localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(catalog));
     } else {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(CATALOG_STORAGE_KEY);
     }
   } catch (err) {
-    console.warn("Gagal simpan poster chef ke local storage:", err);
+    console.warn("Gagal simpan katalog rekomendasi chef ke local storage:", err);
   }
 }
 
 export const chefRecommendationService = {
-  // Ambil poster secara instan dari cache lokal (sinkron tanpa delay loading)
-  getCachedPoster() {
-    return getLocalPoster();
+  /** Ambil katalog rekomendasi chef dari cache lokal secara sinkron. */
+  getCachedCatalog() {
+    return getLocalCatalog();
   },
 
-  // Ambil poster rekomendasi chef aktif untuk publik / admin
-  async getPoster(activeOnly = false) {
+  /** Ambil katalog tulisan & daftar menu rekomendasi chef dari Supabase. */
+  async getCatalog() {
+    clearLegacyPosterCache();
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from("home_banners")
         .select("*")
-        .eq("placement", "chef_recommendation");
+        .eq("placement", CHEF_RECOMMENDATION_PLACEMENT)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      if (activeOnly) {
-        query = query.eq("is_active", true);
-      }
-
-      query = query.order("created_at", { ascending: false }).limit(1);
-
-      const { data, error } = await query;
       if (error) {
-        console.warn("Gagal mengambil poster chef dari Supabase:", error.message);
-        const local = getLocalPoster();
-        if (local) {
-          if (activeOnly && !local.is_active) return null;
-          return local;
-        }
-        return DEFAULT_CHEF_POSTER;
+        console.warn("Gagal mengambil katalog rekomendasi chef dari Supabase:", error.message);
+        return getLocalCatalog() || { ...DEFAULT_CHEF_CATALOG, menu_ids: [] };
       }
 
       if (data && data.length > 0) {
-        saveLocalPoster(data[0]);
-        return data[0];
+        const parsed = parseChefCatalogRow(data[0]);
+        saveLocalCatalog(parsed);
+        return parsed;
       }
 
-      const local = getLocalPoster();
-      if (local) {
-        if (activeOnly && !local.is_active) return null;
-        return local;
-      }
-
-      return DEFAULT_CHEF_POSTER;
+      saveLocalCatalog(null);
+      return { ...DEFAULT_CHEF_CATALOG, menu_ids: [] };
     } catch (err) {
-      console.warn("Error saat memuat poster chef:", err);
-      const local = getLocalPoster();
-      if (local) {
-        if (activeOnly && !local.is_active) return null;
-        return local;
-      }
-      return DEFAULT_CHEF_POSTER;
+      console.warn("Error saat memuat katalog rekomendasi chef:", err);
+      return getLocalCatalog() || { ...DEFAULT_CHEF_CATALOG, menu_ids: [] };
     }
   },
 
-  // Simpan / update poster rekomendasi chef (khusus Admin)
-  async savePoster({
+  /** Simpan / perbarui katalog tulisan & menu pilihan rekomendasi chef (Admin). */
+  async saveCatalog({
     id = null,
+    period_label = "",
     title = "",
-    subtitle = "",
-    badge = "PILIHAN CHEF",
-    imageFile = null,
-    currentImageUrl = "",
-    isActive = true,
-  }) {
-    let finalImageUrl = currentImageUrl || "";
+    description = "",
+    menu_ids = [],
+  } = {}) {
+    clearLegacyPosterCache();
 
-    if (imageFile) {
-      try {
-        finalImageUrl = await storageService.uploadImage("menu-images", imageFile);
-      } catch (uploadErr) {
-        console.warn("Upload poster ke storage gagal, fallback base64:", uploadErr);
-        finalImageUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => resolve(currentImageUrl || "");
-          reader.readAsDataURL(imageFile);
-        });
-      }
-    }
+    const cleanPeriod = String(period_label ?? "").trim();
+    const cleanTitle = String(title || "").trim() || DEFAULT_CHEF_CATALOG.title;
+    const cleanDescription = String(description ?? "").trim();
+    const uniqueMenuIds = normalizeMenuIds(menu_ids);
+    const nowIso = new Date().toISOString();
 
-    const payload = {
-      title: (title || "Rekomendasi Spesial Chef").trim(),
-      subtitle: (subtitle || "").trim(),
-      badge: (badge || "PILIHAN CHEF").trim(),
-      placement: "chef_recommendation",
-      image_url: finalImageUrl,
-      is_active: Boolean(isActive),
+    const subtitleJson = JSON.stringify({
+      type: "chef_catalog",
+      description: cleanDescription,
+      menu_ids: uniqueMenuIds,
+      updated_at: nowIso,
+    });
+
+    const dbPayload = {
+      title: cleanTitle,
+      badge: cleanPeriod,
+      subtitle: subtitleJson,
+      placement: CHEF_RECOMMENDATION_PLACEMENT,
+      image_url: "",
+      is_active: true,
       order_index: 1,
     };
 
-    try {
-      // Cek apakah data sudah ada sebelumnya di Supabase
-      const existing = await this.getPoster(false);
-      const targetId = isValidUuid(id)
-        ? id
-        : existing && isValidUuid(existing.id)
-        ? existing.id
-        : null;
-
-      if (targetId) {
-        const { data, error } = await supabase
-          .from("home_banners")
-          .update(payload)
-          .eq("id", targetId)
-          .select()
-          .single();
-
-        if (error) {
-          console.error("Gagal update poster chef di Supabase:", error.message);
-          const localRecord = { ...payload, id: targetId, updated_at: new Date().toISOString() };
-          saveLocalPoster(localRecord);
-          if (error.message && error.message.toLowerCase().includes("check constraint")) {
-            throw new Error(
-              "Database Supabase menolak 'chef_recommendation'. Silakan jalankan script SQL 'supabase/migration_chef_recommendation_poster.sql' di Supabase SQL Editor agar poster tersimpan online."
-            );
-          }
-          throw new Error(`Gagal memperbarui poster di database Supabase: ${error.message}`);
-        }
-
-        saveLocalPoster(data);
-        return data;
-      } else {
-        const newRecord = {
-          ...payload,
-          created_at: new Date().toISOString(),
-        };
-
-        const { data, error } = await supabase
-          .from("home_banners")
-          .insert([newRecord])
-          .select()
-          .single();
-
-        if (error) {
-          console.error("Gagal insert poster chef di Supabase:", error.message);
-          const localRecord = { ...newRecord, id: `local-chef-${Date.now()}` };
-          saveLocalPoster(localRecord);
-          if (error.message && error.message.toLowerCase().includes("check constraint")) {
-            throw new Error(
-              "Database Supabase menolak 'chef_recommendation'. Silakan jalankan script SQL 'supabase/migration_chef_recommendation_poster.sql' di Supabase SQL Editor agar poster tersimpan online."
-            );
-          }
-          throw new Error(`Gagal menyimpan poster baru ke database Supabase: ${error.message}`);
-        }
-
-        saveLocalPoster(data);
-        return data;
+    let targetId = isValidUuid(id) ? id : null;
+    if (!targetId) {
+      const { data: existingRows } = await supabase
+        .from("home_banners")
+        .select("id")
+        .eq("placement", CHEF_RECOMMENDATION_PLACEMENT)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (existingRows && existingRows.length > 0 && isValidUuid(existingRows[0].id)) {
+        targetId = existingRows[0].id;
       }
-    } catch (err) {
-      console.error("Error saat menyimpan poster chef:", err);
-      if (err.message && (err.message.includes("Supabase") || err.message.includes("database"))) {
-        throw err;
-      }
-      const localRecord = {
-        ...payload,
-        id: isValidUuid(id) ? id : `local-chef-${Date.now()}`,
-        updated_at: new Date().toISOString(),
-      };
-      saveLocalPoster(localRecord);
-      throw err;
     }
+
+    let savedRow = null;
+    if (targetId) {
+      const { data, error } = await supabase
+        .from("home_banners")
+        .update(dbPayload)
+        .eq("id", targetId)
+        .select()
+        .single();
+
+      if (error) {
+        if (error.message && error.message.toLowerCase().includes("check constraint")) {
+          throw new Error(
+            "Database Supabase belum mengizinkan 'chef_recommendation'. Jalankan script SQL 'supabase/migration_chef_recommendation_poster.sql' di Supabase SQL Editor."
+          );
+        }
+        throw new Error(`Gagal memperbarui katalog rekomendasi chef: ${error.message}`);
+      }
+      savedRow = data;
+    } else {
+      const { data, error } = await supabase
+        .from("home_banners")
+        .insert([{ ...dbPayload, created_at: nowIso }])
+        .select()
+        .single();
+
+      if (error) {
+        if (error.message && error.message.toLowerCase().includes("check constraint")) {
+          throw new Error(
+            "Database Supabase belum mengizinkan 'chef_recommendation'. Jalankan script SQL 'supabase/migration_chef_recommendation_poster.sql' di Supabase SQL Editor."
+          );
+        }
+        throw new Error(`Gagal menyimpan katalog rekomendasi chef: ${error.message}`);
+      }
+      savedRow = data;
+    }
+
+    const parsed = parseChefCatalogRow(savedRow);
+    saveLocalCatalog(parsed);
+    return parsed;
   },
 
-  // Toggle status aktif poster
-  async toggleActive(id, currentStatus) {
-    const newStatus = !currentStatus;
-    try {
-      if (isValidUuid(id)) {
-        const { data, error } = await supabase
-          .from("home_banners")
-          .update({ is_active: newStatus })
-          .eq("id", id)
-          .select()
-          .single();
+  /** Toggle satu menu ke dalam / keluar dari daftar Rekomendasi Chef. */
+  async toggleMenuSelection(currentCatalog, menuId) {
+    const base = currentCatalog || DEFAULT_CHEF_CATALOG;
+    const strId = String(menuId).trim();
+    if (!strId) return base;
 
-        if (error) throw error;
-        saveLocalPoster(data);
-        return data;
-      }
-    } catch (err) {
-      console.warn("Gagal toggle status poster di Supabase:", err);
-    }
+    const currentIds = normalizeMenuIds(base.menu_ids);
+    const exists = currentIds.includes(strId);
+    const nextIds = exists
+      ? currentIds.filter((id) => id !== strId)
+      : [...currentIds, strId];
 
-    const local = getLocalPoster() || DEFAULT_CHEF_POSTER;
-    const updated = { ...local, is_active: newStatus };
-    saveLocalPoster(updated);
-    return updated;
+    return this.saveCatalog({
+      id: base.id,
+      period_label: base.is_configured ? base.period_label : DEFAULT_CHEF_CATALOG.period_label,
+      title: base.is_configured ? base.title : DEFAULT_CHEF_CATALOG.title,
+      description: base.is_configured ? base.description : DEFAULT_CHEF_CATALOG.description,
+      menu_ids: nextIds,
+    });
   },
 
-  // Hapus poster
-  async deletePoster(id, imageUrl = null) {
-    if (imageUrl) {
-      try {
-        await storageService.deleteImage("menu-images", imageUrl);
-      } catch {
-        // ignore
-      }
+  /** Hapus ID menu tertentu dari katalog (mis. ketika menu dihapus oleh admin). */
+  async removeMenuFromCatalog(currentCatalog, menuId) {
+    const base = currentCatalog || DEFAULT_CHEF_CATALOG;
+    const strId = String(menuId).trim();
+    const currentIds = normalizeMenuIds(base.menu_ids);
+    if (!strId || !currentIds.includes(strId)) {
+      return base;
     }
 
-    try {
-      if (isValidUuid(id)) {
-        await supabase.from("home_banners").delete().eq("id", id);
-      }
-    } catch (err) {
-      console.warn("Gagal delete poster di Supabase:", err);
-    }
-
-    saveLocalPoster(null);
-    return true;
+    return this.saveCatalog({
+      id: base.id,
+      period_label: base.period_label,
+      title: base.title,
+      description: base.description,
+      menu_ids: currentIds.filter((id) => id !== strId),
+    });
   },
 };

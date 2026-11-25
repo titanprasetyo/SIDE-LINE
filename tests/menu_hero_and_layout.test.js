@@ -85,16 +85,44 @@ describe("Menu Hero Slides, Chef Banner Buttons & Homepage Event Priority", () =
     expect(menuHeroService.getCachedSlides(true)[0].title).toBe("Wild Coffee");
   });
 
-  it("Menu.jsx memiliki 2 tombol 'Lihat Menu Kami' dan 'Detail Promo' dengan URL sesuai judul", () => {
+  it("Poster 'Pilihan Chef' lama dihapus dari customer & admin, diganti tab 'Rekomendasi Chef' dengan katalog tulisan & pilihan menu admin", () => {
     const menuPagePath = path.resolve(__dirname, "../src/pages/public/Menu.jsx");
     const menuContent = fs.readFileSync(menuPagePath, "utf-8");
+    const adminMenuPath = path.resolve(__dirname, "../src/pages/admin/MenuManagement.jsx");
+    const adminMenuContent = fs.readFileSync(adminMenuPath, "utf-8");
+    const chefManagerPath = path.resolve(
+      __dirname,
+      "../src/components/admin/ChefRecommendationManager.jsx"
+    );
+    const chefManagerContent = fs.readFileSync(chefManagerPath, "utf-8");
 
-    expect(menuContent).toContain('to="/menu?kategori=all#daftar-menu"');
-    expect(menuContent).toContain("Lihat Menu Kami");
-    expect(menuContent).toContain('to="/menu?kategori=promo#daftar-menu"');
-    expect(menuContent).toContain("Detail Promo");
+    // Poster Pilihan Chef lama sudah dihapus dari publik & admin
+    expect(menuContent).not.toContain("PILIHAN CHEF");
+    expect(menuContent).not.toContain("isPosterZoomOpen");
+    expect(menuContent).not.toContain("Klik untuk melihat poster ukuran penuh");
     expect(menuContent).not.toContain("Pesan Menu Chef via WA");
-    expect(menuContent).not.toContain("Perbesar Poster");
+    expect(adminMenuContent).not.toContain("Poster Rekomendasi Chef");
+    expect(adminMenuContent).not.toContain("Unggah Poster Chef");
+    expect(adminMenuContent).not.toContain("isChefPosterModalOpen");
+
+    // Tab Semua Menu dihapus, tab Rekomendasi Chef berada di urutan pertama & menjadi default
+    expect(menuContent).not.toContain('name: "Semua Menu"');
+    const chefTabIdx = menuContent.indexOf('{ id: "chef", name: "Rekomendasi Chef"');
+    const promoTabIdx = menuContent.indexOf('{ id: "promo", name: "Promo Diskon');
+    expect(chefTabIdx).toBeGreaterThan(-1);
+    expect(promoTabIdx).toBeGreaterThan(chefTabIdx);
+    expect(menuContent).toContain('VALID_CATEGORY_IDS.includes(kategori) ? kategori : "chef"');
+    expect(menuContent).toContain('selectedCategory === "chef"');
+    expect(menuContent).toContain("chefMenuIdSet.has(String(item.id))");
+
+    // Admin memiliki komponen Katalog Rekomendasi Chef & modal Edit Menu yang lebih lebar + tombol X (tanpa duplikasi checkbox rekomendasi chef)
+    expect(adminMenuContent).toContain("ChefRecommendationManager");
+    expect(adminMenuContent).not.toContain("Jadikan Rekomendasi Menu Chef");
+    expect(adminMenuContent).toContain('aria-label="Tutup modal menu"');
+    expect(adminMenuContent).toContain("max-w-3xl");
+    expect(chefManagerContent).toContain("@phosphor-icons/react");
+    expect(chefManagerContent).not.toContain("lucide-react");
+    expect(chefManagerContent).not.toContain("font-mono");
   });
 
   it("Home.jsx menempatkan slide Event di urutan pertama dan kartu Event di atas slogan pada tampilan mobile", () => {

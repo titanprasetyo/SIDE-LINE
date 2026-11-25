@@ -1,11 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { X, Sparkles, ChefHat } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { X, ChefHat, ThumbsUp } from "lucide-react";
 import { supabase } from "../../services/supabase";
 import { parseMenuPromoData, getPromoBadgeLabel } from "../../services/menuService";
-import { chefRecommendationService } from "../../services/chefRecommendationService";
+import {
+  chefRecommendationService,
+  DEFAULT_CHEF_CATALOG,
+} from "../../services/chefRecommendationService";
 import { menuHeroService } from "../../services/menuHeroService";
 import { cleanText } from "../../utils/text";
+
+const formatMultilineCleanText = (value) =>
+  String(value || "")
+    .split("\n")
+    .map((line) => cleanText(line))
+    .join("\n")
+    .trim();
 
 // Bundled high-resolution assets
 import bgSideImg from "../../assets/bgside.png";
@@ -21,7 +31,7 @@ import cafeLatteImg from "../../assets/menu-cafe-latte.jpg";
 import croissantImg from "../../assets/menu-croissant.jpg";
 
 const DEMO_PROMO_END_DATE = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-const VALID_CATEGORY_IDS = ["all", "promo", "chef", "coffee", "food", "non-coffee"];
+const VALID_CATEGORY_IDS = ["chef", "promo", "coffee", "food", "non-coffee"];
 
 /* ─── Hero Carousel Slides ─────────────────────────────────────────────────── */
 // Slide hero kini dikelola admin (Menu Management → Slide Hero Halaman Menu, maks 5 foto)
@@ -351,23 +361,22 @@ export default function Menu() {
   const [allMenus, setAllMenus] = useState(CURATED_DEFAULT_MENUS);
   const [selectedCategory, setSelectedCategory] = useState(() => {
     const kategori = new URLSearchParams(location.search).get("kategori");
-    return VALID_CATEGORY_IDS.includes(kategori) ? kategori : "all";
+    return VALID_CATEGORY_IDS.includes(kategori) ? kategori : "chef";
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedMenuModal, setSelectedMenuModal] = useState(null);
-  const [chefPoster, setChefPoster] = useState(() => chefRecommendationService.getCachedPoster());
+  const [chefCatalog, setChefCatalog] = useState(
+    () => chefRecommendationService.getCachedCatalog() || DEFAULT_CHEF_CATALOG
+  );
   const [heroSlides, setHeroSlides] = useState(() => menuHeroService.getCachedSlides(true));
-  const [isPosterZoomOpen, setIsPosterZoomOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const menuListRef = useRef(null);
   const menuGridRef = useRef(null);
 
-  // Sinkronkan URL → filter. Contoh: /menu?kategori=promo#daftar-menu
-  // (dipakai tombol "Lihat Menu Kami" & "Detail Promo"). location.key berubah di
-  // setiap klik link, jadi klik ulang ke URL yang sama tetap memicu scroll.
+  // Sinkronkan URL → filter. Contoh: /menu?kategori=chef#daftar-menu atau /menu?kategori=promo#daftar-menu
   useEffect(() => {
     const kategori = new URLSearchParams(location.search).get("kategori");
     if (kategori && VALID_CATEGORY_IDS.includes(kategori)) {
@@ -385,11 +394,10 @@ export default function Menu() {
 
   // Close modal on Escape key and prevent background scroll when open
   useEffect(() => {
-    if (!selectedMenuModal && !isPosterZoomOpen) return;
+    if (!selectedMenuModal) return;
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setSelectedMenuModal(null);
-        setIsPosterZoomOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -399,24 +407,24 @@ export default function Menu() {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = originalOverflow;
     };
-  }, [selectedMenuModal, isPosterZoomOpen]);
+  }, [selectedMenuModal]);
 
   useEffect(() => {
     let ignore = false;
     const fetchMenuData = async () => {
       try {
-        const [{ data: menusData }, poster, slides] = await Promise.all([
+        const [{ data: menusData }, catalog, slides] = await Promise.all([
           supabase
             .from("menus")
             .select("*, categories(name)")
             .order("is_featured", { ascending: false })
             .order("name", { ascending: true }),
-          chefRecommendationService.getPoster(false).catch(() => null),
+          chefRecommendationService.getCatalog().catch(() => null),
           menuHeroService.getSlides(true).catch(() => null),
         ]);
 
         if (!ignore) {
-          if (poster) setChefPoster(poster);
+          if (catalog) setChefCatalog(catalog);
           if (Array.isArray(slides)) setHeroSlides(slides);
 
           if (menusData && menusData.length > 0) {
@@ -447,52 +455,90 @@ export default function Menu() {
   }, []);
 
   const categoryTabs = [
-    { id: "all", name: "Semua Menu" },
+    { id: "chef", name: "Rekomendasi Chef", icon: ChefHat },
     { id: "promo", name: "Promo Diskon 🔥" },
     { id: "coffee", name: "Coffee" },
     { id: "food", name: "Food & Pastry" },
     { id: "non-coffee", name: "Non-Coffee" },
   ];
 
-  const filteredMenus = allMenus.filter((item) => {
-    const cat = (item.category_label || item.categories?.name || "").toLowerCase();
-    let matchCat = true;
-    if (selectedCategory === "promo") {
-      const normalPrice = Number(item.price) || 0;
-      const finalPrice =
-        item.discounted_price ||
-        Math.max(0, normalPrice - (Number(item.discount_amount) || 0));
-      matchCat = Boolean(
-        item.is_promo &&
-          !item.is_expired &&
-          (finalPrice < normalPrice ||
-            Number(item.discount_percent) > 0 ||
-            Number(item.discount_amount) > 0)
-      );
-    } else if (selectedCategory === "chef") {
-      // Rekomendasi Chef: sajian featured atau sajian signature pilihan
-      matchCat = Boolean(
-        item.is_featured ||
-          item.is_promo ||
-          Number(item.price) >= 30000 ||
-          cat.includes("coffee")
-      );
-    } else if (selectedCategory === "coffee") {
-      matchCat = cat.includes("coffee") && !cat.includes("non");
-    } else if (selectedCategory === "food") {
-      matchCat = cat.includes("food") || cat.includes("snack") || cat.includes("dessert") || cat.includes("pastry");
-    } else if (selectedCategory === "non-coffee") {
-      matchCat = cat.includes("non") || cat.includes("tea") || cat.includes("matcha") || cat.includes("juice") || cat.includes("jus");
-    }
+  const chefMenuIds = useMemo(
+    () =>
+      Array.isArray(chefCatalog?.menu_ids)
+        ? chefCatalog.menu_ids.map((id) => String(id))
+        : [],
+    [chefCatalog]
+  );
 
-    const cleanQuery = searchQuery.trim().toLowerCase();
-    const matchSearch =
-      !cleanQuery ||
-      item.name.toLowerCase().includes(cleanQuery) ||
-      (item.description && item.description.toLowerCase().includes(cleanQuery));
+  const chefMenuIdSet = useMemo(() => new Set(chefMenuIds), [chefMenuIds]);
 
-    return matchCat && matchSearch;
-  });
+  const chefOrderMap = useMemo(() => {
+    const map = new Map();
+    chefMenuIds.forEach((id, idx) => map.set(id, idx));
+    return map;
+  }, [chefMenuIds]);
+
+  const totalChefRecommendedCount = useMemo(
+    () => allMenus.filter((item) => chefMenuIdSet.has(String(item.id))).length,
+    [allMenus, chefMenuIdSet]
+  );
+
+  const filteredMenus = allMenus
+    .filter((item) => {
+      const cleanQuery = searchQuery.trim().toLowerCase();
+      const matchSearch =
+        !cleanQuery ||
+        item.name.toLowerCase().includes(cleanQuery) ||
+        (item.description && item.description.toLowerCase().includes(cleanQuery));
+
+      if (cleanQuery) {
+        return matchSearch;
+      }
+
+      const cat = (item.category_label || item.categories?.name || "").toLowerCase();
+      let matchCat = true;
+      if (selectedCategory === "promo") {
+        const normalPrice = Number(item.price) || 0;
+        const finalPrice =
+          item.discounted_price ||
+          Math.max(0, normalPrice - (Number(item.discount_amount) || 0));
+        matchCat = Boolean(
+          item.is_promo &&
+            !item.is_expired &&
+            (finalPrice < normalPrice ||
+              Number(item.discount_percent) > 0 ||
+              Number(item.discount_amount) > 0)
+        );
+      } else if (selectedCategory === "chef") {
+        // Rekomendasi Chef: hanya menu yang dipilih langsung oleh admin
+        matchCat = chefMenuIdSet.has(String(item.id));
+      } else if (selectedCategory === "coffee") {
+        matchCat = cat.includes("coffee") && !cat.includes("non");
+      } else if (selectedCategory === "food") {
+        matchCat =
+          cat.includes("food") ||
+          cat.includes("snack") ||
+          cat.includes("dessert") ||
+          cat.includes("pastry");
+      } else if (selectedCategory === "non-coffee") {
+        matchCat =
+          cat.includes("non") ||
+          cat.includes("tea") ||
+          cat.includes("matcha") ||
+          cat.includes("juice") ||
+          cat.includes("jus");
+      }
+
+      return matchCat;
+    })
+    .sort((a, b) => {
+      if (!searchQuery.trim() && selectedCategory === "chef") {
+        const idxA = chefOrderMap.get(String(a.id)) ?? Number.MAX_SAFE_INTEGER;
+        const idxB = chefOrderMap.get(String(b.id)) ?? Number.MAX_SAFE_INTEGER;
+        return idxA - idxB;
+      }
+      return 0;
+    });
 
   const totalPages = Math.ceil(filteredMenus.length / itemsPerPage) || 1;
   const paginatedMenus = filteredMenus.slice(
@@ -519,24 +565,27 @@ export default function Menu() {
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px]">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#141414]/15 pb-6">
             {/* Category Filter Pills (Smooth scroll on mobile) */}
-            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
+            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 min-w-0 flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
               {categoryTabs.map((tab) => {
-                const isActive = selectedCategory === tab.id;
+                const isActive = !searchQuery.trim() && selectedCategory === tab.id;
+                const TabIcon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => {
                       setSelectedCategory(tab.id);
+                      setSearchQuery("");
                       setCurrentPage(1);
                     }}
-                    className={`rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-heading font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                    className={`inline-flex items-center gap-1.5 rounded-full px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-heading font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                       isActive
                         ? "bg-[#C8100A] text-white shadow-sm"
                         : "bg-[#FFF5CF] border border-[#141414]/20 text-[#141414] hover:border-[#141414] hover:bg-[#F5E8BA]"
                     }`}
                   >
-                    {tab.name}
+                    {TabIcon && <TabIcon className="w-3.5 h-3.5 shrink-0" />}
+                    <span>{tab.name}</span>
                   </button>
                 );
               })}
@@ -588,67 +637,47 @@ export default function Menu() {
       <section aria-label="Daftar Menu SIDE LINE" className="px-4 sm:px-6 lg:px-12 2xl:px-16 pt-6 sm:pt-8 pb-14">
         <div className="mx-auto max-w-7xl 2xl:max-w-[1600px]">
           <h2 className="sr-only">Katalog Menu SIDE LINE Coffee &amp; Eatery</h2>
-          {/* ── CHEF RECOMMENDATION POSTER HIGHLIGHT (Tampil di Tab "Semua Menu") ── */}
-          {(selectedCategory === "all" || selectedCategory === "chef") &&
-            !searchQuery.trim() &&
-            currentPage === 1 &&
-            Boolean(chefPoster?.is_active) && (
-            <div className="mb-8 sm:mb-10 overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/15 bg-[#FAF4E6] p-4 sm:p-6 md:p-8 shadow-sm">
-              <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8">
-                {/* Poster Image with Lightbox Zoom Trigger */}
-                <div
-                  className="relative w-full lg:w-1/2 aspect-[4/3] xs:aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] max-h-[380px] overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5E8BA] shadow-xs border border-[#141414]/10 group cursor-pointer"
-                  onClick={() => setIsPosterZoomOpen(true)}
-                >
-                  <img
-                    src={chefPoster?.image_url || bgSideImg}
-                    alt={
-                      cleanText(chefPoster?.title) ||
-                      "Poster Rekomendasi Chef SIDE LINE Coffee & Eatery"
-                    }
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 text-zinc-900 px-3.5 py-1.5 text-xs font-bold font-heading shadow-md">
-                      <Sparkles className="w-3.5 h-3.5 text-[#C8100A]" /> Klik untuk melihat poster ukuran penuh
-                    </span>
-                  </div>
-                </div>
 
-                {/* Poster Details & Chef Note */}
-                <div className="w-full lg:w-1/2 flex flex-col justify-between">
-                  <div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#C8100A] text-white px-3 py-1 text-[10px] font-heading font-black tracking-widest uppercase mb-3 shadow-2xs">
-                      <ChefHat className="w-3.5 h-3.5" />
-                      <span>{chefPoster?.badge || "PILIHAN CHEF"}</span>
-                    </div>
-                    <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#141414] leading-tight">
-                      {cleanText(chefPoster?.title || "Rekomendasi Spesial Chef Bulan Ini")}
-                    </h2>
-                    <p className="mt-3 text-xs sm:text-sm md:text-base text-[#474238] font-body leading-relaxed whitespace-pre-line">
-                      {cleanText(
-                        chefPoster?.subtitle ||
-                          "Racikan artisan kopi segar berpadu kreasi menu istimewa pilihan chef SIDE LINE. Diciptakan dengan kehangatan dan dedikasi rasa terbaik untuk pengalaman santai Anda."
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
-                    <Link
-                      to="/menu?kategori=all#daftar-menu"
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#141414] hover:bg-[#C8100A] text-[#FAF4E6] px-5 py-3 text-xs sm:text-sm font-heading font-bold uppercase tracking-wider transition shadow-md cursor-pointer"
-                    >
-                      <span>Lihat Menu Kami</span>
-                    </Link>
-                    <Link
-                      to="/menu?kategori=promo#daftar-menu"
-                      className="inline-flex items-center gap-2 rounded-xl border border-[#141414]/20 hover:border-[#141414] bg-white px-4 py-3 text-xs sm:text-sm font-heading font-bold uppercase tracking-wider text-[#141414] transition cursor-pointer"
-                    >
-                      <span>Detail Promo</span>
-                    </Link>
-                  </div>
+          {/* ── KATALOG TULISAN REKOMENDASI CHEF (Tampil khusus di tab "Rekomendasi Chef") ── */}
+          {selectedCategory === "chef" && !searchQuery.trim() && currentPage === 1 && (
+            <div className="mb-7 sm:mb-8 relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/15 border-l-4 border-l-[#C8100A] bg-[#FAF4E6] p-5 sm:p-7 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#C8100A] text-white px-3.5 py-1 text-[10px] sm:text-[11px] font-heading font-black tracking-widest uppercase shadow-2xs w-fit">
+                  <ChefHat className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {cleanText(
+                      chefCatalog?.is_configured
+                        ? chefCatalog.period_label || DEFAULT_CHEF_CATALOG.period_label
+                        : DEFAULT_CHEF_CATALOG.period_label
+                    )}
+                  </span>
                 </div>
+                {totalChefRecommendedCount > 0 && (
+                  <span className="inline-flex items-center rounded-full border border-[#141414]/15 bg-[#FFF5CF] px-3 py-1 text-[10px] sm:text-[11px] font-heading font-bold uppercase tracking-wider text-[#5C584E] w-fit">
+                    {totalChefRecommendedCount} Sajian Terkurasi
+                  </span>
+                )}
               </div>
+
+              <h2 className="font-heading font-black text-xl sm:text-2xl md:text-3xl text-[#141414] leading-tight">
+                {cleanText(
+                  chefCatalog?.is_configured
+                    ? chefCatalog.title || DEFAULT_CHEF_CATALOG.title
+                    : DEFAULT_CHEF_CATALOG.title
+                )}
+              </h2>
+
+              {(chefCatalog?.is_configured
+                ? Boolean(chefCatalog.description)
+                : Boolean(DEFAULT_CHEF_CATALOG.description)) && (
+                <p className="mt-2.5 text-xs sm:text-sm md:text-[15px] text-[#474238] font-body leading-relaxed whitespace-pre-line max-w-4xl">
+                  {formatMultilineCleanText(
+                    chefCatalog?.is_configured
+                      ? chefCatalog.description
+                      : DEFAULT_CHEF_CATALOG.description
+                  )}
+                </p>
+              )}
             </div>
           )}
 
@@ -661,40 +690,93 @@ export default function Menu() {
               </p>
             </div>
           ) : filteredMenus.length === 0 ? (
-            <div className="py-20 text-center rounded-2xl bg-[#F5E8BA]/60 p-8 sm:p-10">
-              <h3 className="font-heading text-base font-bold uppercase text-[#141414]">
-                Menu Tidak Ditemukan
-              </h3>
-              <p className="font-body text-xs text-[#5C584E] mt-1.5">
-                Tidak ada sajian yang sesuai pencarian atau filter ini.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setSearchQuery("");
-                }}
-                className="mt-4 inline-block font-heading text-xs uppercase tracking-wider text-[#C8100A] font-bold underline cursor-pointer"
-              >
-                Reset Filter
-              </button>
+            <div className="py-16 sm:py-20 text-center rounded-2xl bg-[#F5E8BA]/60 p-8 sm:p-10">
+              {selectedCategory === "chef" && !searchQuery.trim() ? (
+                <>
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FAF4E6] border border-[#141414]/15 text-[#C8100A]">
+                    <ChefHat className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-heading text-base font-bold uppercase text-[#141414]">
+                    Belum Ada Menu Rekomendasi Chef
+                  </h3>
+                  <p className="font-body text-xs sm:text-sm text-[#5C584E] mt-1.5 max-w-md mx-auto">
+                    Pilihan menu rekomendasi chef sedang disiapkan. Jelajahi seluruh sajian terbaik kami lainnya.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory("coffee");
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                    className="mt-4 inline-block font-heading text-xs uppercase tracking-wider text-[#C8100A] font-bold underline cursor-pointer"
+                  >
+                    Lihat Menu Coffee
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-heading text-base font-bold uppercase text-[#141414]">
+                    Menu Tidak Ditemukan
+                  </h3>
+                  <p className="font-body text-xs text-[#5C584E] mt-1.5">
+                    Tidak ada sajian yang sesuai pencarian atau filter ini.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (searchQuery.trim()) {
+                        setSearchQuery("");
+                      } else {
+                        setSelectedCategory("chef");
+                      }
+                      setCurrentPage(1);
+                    }}
+                    className="mt-4 inline-block font-heading text-xs uppercase tracking-wider text-[#C8100A] font-bold underline cursor-pointer"
+                  >
+                    {searchQuery.trim() ? "Hapus Pencarian" : "Lihat Rekomendasi Chef"}
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <>
               {/* Menu Counter Bar */}
               <div className="mb-5 sm:mb-6 flex items-center justify-between text-xs text-[#5C584E] font-heading">
                 <span>
-                  Menampilkan <strong className="text-[#141414]">{filteredMenus.length}</strong> sajian terpilih
+                  {searchQuery.trim() ? (
+                    <>
+                      Ditemukan <strong className="text-[#141414]">{filteredMenus.length}</strong> sajian untuk &quot;{searchQuery.trim()}&quot;
+                    </>
+                  ) : (
+                    <>
+                      Menampilkan <strong className="text-[#141414]">{filteredMenus.length}</strong> sajian terpilih
+                    </>
+                  )}
                 </span>
-                {selectedCategory !== "all" && (
+                {searchQuery.trim() ? (
                   <button
                     type="button"
-                    onClick={() => setSelectedCategory("all")}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
                     className="text-[#C8100A] font-bold hover:underline cursor-pointer"
                   >
-                    Lihat Semua Menu
+                    Hapus Pencarian
                   </button>
-                )}
+                ) : selectedCategory !== "chef" ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory("chef");
+                      setCurrentPage(1);
+                    }}
+                    className="text-[#C8100A] font-bold hover:underline cursor-pointer"
+                  >
+                    Lihat Rekomendasi Chef
+                  </button>
+                ) : null}
               </div>
 
               {/* Upgraded Coffee Shop Cards Grid: 2-col on mobile (HP), 2-col on md/lg/xl, 3-col on 2xl */}
@@ -707,6 +789,7 @@ export default function Menu() {
                   const hasPromo = Boolean(
                     item.is_promo && finalPrice < normalPrice
                   );
+                  const isChefRecommended = chefMenuIdSet.has(String(item.id));
 
                   return (
                     <article
@@ -720,7 +803,7 @@ export default function Menu() {
                           setSelectedMenuModal(item);
                         }
                       }}
-                      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/12 bg-[#FAF4E6] p-2.5 xs:p-3 sm:p-5 flex flex-col justify-between shadow-xs hover:border-[#141414]/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
+                      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/12 bg-[#FAF4E6] p-2.5 xs:p-3 sm:p-5 h-full min-h-[250px] xs:min-h-[268px] sm:min-h-[192px] flex flex-col justify-between shadow-xs hover:border-[#141414]/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
                         !item.is_available ? "opacity-75" : ""
                       }`}
                     >
@@ -764,6 +847,12 @@ export default function Menu() {
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
                             loading="lazy"
                           />
+                          {/* Compact Promo Pill on Photo for Mobile/Tablet (< lg) agar tinggi kartu selalu seragam */}
+                          {hasPromo && (
+                            <span className="lg:hidden absolute top-1.5 left-1.5 z-10 max-w-[calc(100%-12px)] truncate rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[7px] xs:text-[7.5px] font-black tracking-wide uppercase shadow-sm">
+                              {getPromoBadgeLabel(item)}
+                            </span>
+                          )}
                           {!item.is_available && (
                             <div className="absolute inset-0 bg-[#141414]/70 flex items-center justify-center p-1 text-center">
                               <span className="text-[9px] sm:text-[10px] font-heading font-bold text-white uppercase tracking-wider">
@@ -773,54 +862,64 @@ export default function Menu() {
                           )}
                         </div>
 
-                        {/* Item Details */}
-                        <div className="w-full sm:flex-1 min-w-0 sm:pr-6">
-                          {/* Title */}
+                        {/* Item Details (Fixed Vertical Rhythm agar layout setiap kartu identik) */}
+                        <div className="w-full sm:flex-1 min-w-0 sm:pr-6 flex flex-col">
+                          {/* 1. Title (Fixed 1 line) */}
                           <h3 className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#141414] leading-snug group-hover:text-[#C8100A] transition-colors line-clamp-1">
                             {cleanText(item.name)}
                           </h3>
 
-                          {/* Category and Availability right below name */}
-                          <div className="mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-1.5 text-[8px] xs:text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E] flex-wrap">
-                            <span>{cleanText(item.category_label || item.categories?.name || "COFFEE")}</span>
-                            <span>•</span>
-                            <span className={item.is_available ? "text-[#141414]" : "text-[#C8100A]"}>
+                          {/* 2. Category and Availability (Fixed 1 line) */}
+                          <div className="mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-1.5 text-[8px] xs:text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E] whitespace-nowrap overflow-hidden">
+                            <span className="truncate">{cleanText(item.category_label || item.categories?.name || "COFFEE")}</span>
+                            <span className="shrink-0">•</span>
+                            <span className={`shrink-0 ${item.is_available ? "text-[#141414]" : "text-[#C8100A]"}`}>
                               {item.is_available ? "TERSEDIA" : "HABIS"}
                             </span>
                           </div>
 
-                          {/* Promo Discount Pill Badge */}
-                          {hasPromo && (
-                            <div className="mt-1 sm:mt-1.5">
-                              <span className="rounded-full bg-[#C8100A] text-white px-2 py-0.5 sm:px-2.5 text-[7px] xs:text-[8px] sm:text-[9px] font-black tracking-wider uppercase shadow-2xs inline-flex items-center">
-                                {getPromoBadgeLabel(item)}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Price */}
-                          <div className="mt-1 sm:mt-1.5">
+                          {/* 3. Price + Inline Promo Badge (Single Uniform Row) */}
+                          <div className="mt-1.5 sm:mt-2 min-h-[20px] sm:min-h-[26px] flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-hidden">
                             {hasPromo ? (
-                              <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-                                <span className="font-heading text-[10px] sm:text-xs text-[#5C584E] line-through font-semibold">
+                              <>
+                                <span className="font-heading text-[10px] sm:text-xs text-[#5C584E] line-through font-semibold whitespace-nowrap shrink-0">
                                   Rp {normalPrice.toLocaleString("id-ID")}
                                 </span>
-                                <span className="font-heading font-black text-xs xs:text-sm sm:text-lg md:text-xl text-[#C8100A] leading-none">
+                                <span className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#C8100A] leading-none whitespace-nowrap shrink-0">
                                   Rp {Number(finalPrice).toLocaleString("id-ID")}
                                 </span>
-                              </div>
+                                <span className="hidden lg:inline-flex items-center rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[8.5px] font-black tracking-wider uppercase shadow-2xs whitespace-nowrap truncate">
+                                  {getPromoBadgeLabel(item)}
+                                </span>
+                              </>
                             ) : (
-                              <span className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#141414] leading-none">
+                              <span className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#141414] leading-none whitespace-nowrap">
                                 Rp {normalPrice.toLocaleString("id-ID")}
                               </span>
                             )}
                           </div>
 
-                          {/* Tasting Notes / Short Description */}
-                          <p className="mt-1 sm:mt-2 text-[10px] xs:text-xs sm:text-[13px] text-[#5C584E] font-body leading-relaxed line-clamp-2">
+                          {/* 4. Tasting Notes / Short Description (Fixed 2-line box height) */}
+                          <p className="mt-1.5 sm:mt-2 text-[10px] xs:text-xs sm:text-[13px] text-[#5C584E] font-body leading-relaxed line-clamp-2 min-h-[2.8em] sm:min-h-[3.25em]">
                             {cleanText(item.description) || "Racikan istimewa pilihan barista Side Line."}
                           </p>
                         </div>
+                      </div>
+
+                      {/* 5. Footer Slot Seragam (Rekomendasi Chef Badge di Kanan) */}
+                      <div className="mt-auto pt-2 sm:pt-2.5 min-h-[26px] sm:min-h-[30px] flex items-center justify-end z-10 w-full">
+                        {isChefRecommended && (
+                          <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-[#FFFDF6] via-[#FBF0D2] to-[#F6DFA8] border border-[#C9963A]/45 pl-2.5 pr-1 py-0.5 sm:pl-3 sm:pr-1 sm:py-1 text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-heading font-extrabold tracking-[0.08em] uppercase text-[#3A2210] shadow-[0_2px_10px_rgba(145,92,24,0.14)] group-hover:border-[#C8100A]/45 group-hover:shadow-[0_3px_12px_rgba(200,16,10,0.16)] transition-all">
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-[#C8100A]/85 shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span>Rekomendasi Chef</span>
+                            <span className="flex h-3.5 w-3.5 sm:h-[18px] sm:w-[18px] items-center justify-center rounded-full bg-gradient-to-br from-[#D61913] to-[#990B07] text-[#FFF6DC] shadow-2xs shrink-0">
+                              <ThumbsUp className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" strokeWidth={2.2} />
+                            </span>
+                          </span>
+                        )}
                       </div>
                     </article>
                   );
@@ -894,6 +993,7 @@ export default function Menu() {
         const modalHasPromo = Boolean(
           selectedMenuModal.is_promo && modalFinalPrice < modalNormalPrice
         );
+        const modalIsChefRecommended = chefMenuIdSet.has(String(selectedMenuModal.id));
 
         return (
           <div
@@ -955,20 +1055,35 @@ export default function Menu() {
                 <div className="p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
                   {/* Category, Availability & Promo Badge */}
                   <div>
-                    <div className="flex items-center flex-wrap gap-1.5 mb-0.5">
-                      <span className="text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E]">
-                        {cleanText(selectedMenuModal.category_label || selectedMenuModal.categories?.name || "COFFEE")}
-                      </span>
-                      <span className="text-[#5C584E]">•</span>
-                      <span className={`text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider ${
-                        selectedMenuModal.is_available ? "text-emerald-700 font-extrabold" : "text-[#C8100A]"
-                      }`}>
-                        {selectedMenuModal.is_available ? "TERSEDIA" : "HABIS"}
-                      </span>
+                    <div className="flex items-center justify-between flex-wrap gap-1.5 mb-1">
+                      <div className="flex items-center flex-wrap gap-1.5">
+                        <span className="text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E]">
+                          {cleanText(selectedMenuModal.category_label || selectedMenuModal.categories?.name || "COFFEE")}
+                        </span>
+                        <span className="text-[#5C584E]">•</span>
+                        <span className={`text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider ${
+                          selectedMenuModal.is_available ? "text-emerald-700 font-extrabold" : "text-[#C8100A]"
+                        }`}>
+                          {selectedMenuModal.is_available ? "TERSEDIA" : "HABIS"}
+                        </span>
 
-                      {modalHasPromo && (
-                        <span className="rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs">
-                          {getPromoBadgeLabel(selectedMenuModal)}
+                        {modalHasPromo && (
+                          <span className="rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs">
+                            {getPromoBadgeLabel(selectedMenuModal)}
+                          </span>
+                        )}
+                      </div>
+
+                      {modalIsChefRecommended && (
+                        <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FFFDF6] via-[#FBF0D2] to-[#F6DFA8] border border-[#C9963A]/45 pl-2.5 pr-1 py-0.5 text-[8px] sm:text-[9px] font-heading font-extrabold uppercase tracking-[0.08em] text-[#3A2210] shadow-[0_2px_8px_rgba(145,92,24,0.12)]">
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-[#C8100A]/85 shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span>Rekomendasi Chef</span>
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-br from-[#D61913] to-[#990B07] text-[#FFF6DC] shadow-2xs shrink-0">
+                            <ThumbsUp className="w-2.5 h-2.5 fill-current" strokeWidth={2.2} />
+                          </span>
                         </span>
                       )}
                     </div>
@@ -1027,51 +1142,6 @@ export default function Menu() {
           </div>
         );
       })()}
-
-      {/* ── 5. CHEF POSTER LIGHTBOX FULLSCREEN ZOOM MODAL ── */}
-      {isPosterZoomOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#141414]/85 backdrop-blur-sm transition-opacity duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsPosterZoomOpen(false);
-            }
-          }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="relative max-w-2xl w-full bg-[#FAF4E6] rounded-3xl overflow-hidden border border-white/20 shadow-2xl flex flex-col max-h-[92vh]">
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[#141414]/10 bg-[#FAF4E6] shrink-0">
-              <div className="flex items-center gap-2">
-                <ChefHat className="w-4 h-4 text-[#C8100A]" />
-                <span className="text-xs font-heading font-black tracking-widest uppercase text-[#141414]">
-                  {chefPoster?.title || "Poster Rekomendasi Chef"}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPosterZoomOpen(false)}
-                aria-label="Tutup poster"
-                className="rounded-full p-1.5 text-[#5C584E] hover:text-[#141414] hover:bg-[#141414]/10 transition cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {/* Image */}
-            <div className="overflow-y-auto p-3 sm:p-4 flex items-center justify-center bg-black/5">
-              <img
-                src={chefPoster?.image_url || bgSideImg}
-                alt={
-                  cleanText(chefPoster?.title) ||
-                  "Poster Rekomendasi Chef SIDE LINE Coffee & Eatery"
-                }
-                className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-md"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
