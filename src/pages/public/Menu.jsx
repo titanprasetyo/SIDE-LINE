@@ -803,13 +803,13 @@ export default function Menu() {
                           setSelectedMenuModal(item);
                         }
                       }}
-                      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/12 bg-[#FAF4E6] p-2.5 xs:p-3 sm:p-5 h-full min-h-[250px] xs:min-h-[268px] sm:min-h-[192px] flex flex-col justify-between shadow-xs hover:border-[#141414]/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
+                      className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#141414]/12 bg-[#FAF4E6] p-2.5 xs:p-3 sm:p-4 h-full flex flex-col shadow-xs hover:border-[#141414]/35 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${
                         !item.is_available ? "opacity-75" : ""
                       }`}
                     >
                       {/* Red decorative curve accent in bottom-left corner (matches design reference) */}
                       <svg
-                        className="absolute bottom-0 left-0 w-16 xs:w-20 sm:w-28 h-10 xs:h-12 sm:h-16 pointer-events-none z-0"
+                        className="absolute bottom-0 left-0 w-16 xs:w-20 sm:w-24 h-10 xs:h-12 sm:h-14 pointer-events-none z-0"
                         viewBox="0 0 100 56"
                         fill="none"
                         preserveAspectRatio="none"
@@ -829,7 +829,7 @@ export default function Menu() {
                       </svg>
 
                       {/* Small SIDE LINE logo in top-right corner */}
-                      <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-10 pointer-events-none" aria-hidden="true">
+                      <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-4 z-10 pointer-events-none" aria-hidden="true">
                         <img
                           src={logoSidelineRed}
                           alt=""
@@ -838,9 +838,9 @@ export default function Menu() {
                         />
                       </div>
 
-                      <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 md:gap-5 items-start z-10 w-full">
+                      <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 items-stretch z-10 w-full flex-1">
                         {/* Photo Thumbnail */}
-                        <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:w-28 sm:h-28 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5E8BA] shadow-xs">
+                        <div className="relative w-full aspect-[4/3] xs:aspect-square sm:aspect-auto sm:w-[132px] sm:h-[132px] shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5E8BA] shadow-xs">
                           <img
                             src={item.image_url}
                             alt={`${cleanText(item.name)} — Menu ${cleanText(item.category_label || item.categories?.name || "Coffee")} SIDE LINE Coffee & Eatery`}
@@ -862,64 +862,66 @@ export default function Menu() {
                           )}
                         </div>
 
-                        {/* Item Details (Fixed Vertical Rhythm agar layout setiap kartu identik) */}
-                        <div className="w-full sm:flex-1 min-w-0 sm:pr-6 flex flex-col">
-                          {/* 1. Title (Fixed 1 line) */}
-                          <h3 className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#141414] leading-snug group-hover:text-[#C8100A] transition-colors line-clamp-1">
-                            {cleanText(item.name)}
-                          </h3>
+                        {/* Item Details — tinggi sejajar batas foto menu (132px di desktop) */}
+                        <div className="w-full sm:flex-1 min-w-0 flex flex-col justify-between sm:min-h-[132px] flex-1">
+                          <div>
+                            {/* 1. Title (Fixed 1 line, beri jarak kanan untuk logo kecil) */}
+                            <h3 className="font-heading font-black text-xs xs:text-sm sm:text-[17px] text-[#141414] leading-tight group-hover:text-[#C8100A] transition-colors line-clamp-1 sm:pr-8">
+                              {cleanText(item.name)}
+                            </h3>
 
-                          {/* 2. Category and Availability (Fixed 1 line) */}
-                          <div className="mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-1.5 text-[8px] xs:text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E] whitespace-nowrap overflow-hidden">
-                            <span className="truncate">{cleanText(item.category_label || item.categories?.name || "COFFEE")}</span>
-                            <span className="shrink-0">•</span>
-                            <span className={`shrink-0 ${item.is_available ? "text-[#141414]" : "text-[#C8100A]"}`}>
-                              {item.is_available ? "TERSEDIA" : "HABIS"}
-                            </span>
-                          </div>
+                            {/* 2. Category and Availability (Fixed 1 line) */}
+                            <div className="mt-0.5 flex items-center gap-1 sm:gap-1.5 text-[8px] xs:text-[9px] sm:text-[10px] font-heading font-bold uppercase tracking-wider text-[#5C584E] whitespace-nowrap overflow-hidden leading-tight">
+                              <span className="truncate">{cleanText(item.category_label || item.categories?.name || "COFFEE")}</span>
+                              <span className="shrink-0">•</span>
+                              <span className={`shrink-0 ${item.is_available ? "text-[#141414]" : "text-[#C8100A]"}`}>
+                                {item.is_available ? "TERSEDIA" : "HABIS"}
+                              </span>
+                            </div>
 
-                          {/* 3. Price + Inline Promo Badge (Single Uniform Row) */}
-                          <div className="mt-1.5 sm:mt-2 min-h-[20px] sm:min-h-[26px] flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-hidden">
-                            {hasPromo ? (
-                              <>
-                                <span className="font-heading text-[10px] sm:text-xs text-[#5C584E] line-through font-semibold whitespace-nowrap shrink-0">
+                            {/* 3. Price + Inline Promo Badge (Single Uniform Row, rapi & tidak terpotong) */}
+                            <div className="mt-1 sm:mt-1.5 min-h-[18px] sm:min-h-[22px] flex items-center gap-1.5 flex-nowrap">
+                              {hasPromo ? (
+                                <>
+                                  <span className="font-heading text-[10px] sm:text-[11px] text-[#5C584E] line-through font-semibold whitespace-nowrap shrink-0">
+                                    Rp {normalPrice.toLocaleString("id-ID")}
+                                  </span>
+                                  <span className="font-heading font-black text-xs xs:text-sm sm:text-[15px] xl:text-base text-[#C8100A] leading-none whitespace-nowrap shrink-0">
+                                    Rp {Number(finalPrice).toLocaleString("id-ID")}
+                                  </span>
+                                  <span className="hidden lg:inline-flex items-center min-w-0 rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[7.5px] xl:text-[8px] font-black tracking-[0.02em] uppercase shadow-2xs leading-tight">
+                                    <span className="truncate">{getPromoBadgeLabel(item)}</span>
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-heading font-black text-xs xs:text-sm sm:text-[15px] xl:text-base text-[#141414] leading-none whitespace-nowrap">
                                   Rp {normalPrice.toLocaleString("id-ID")}
                                 </span>
-                                <span className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#C8100A] leading-none whitespace-nowrap shrink-0">
-                                  Rp {Number(finalPrice).toLocaleString("id-ID")}
-                                </span>
-                                <span className="hidden lg:inline-flex items-center rounded-full bg-[#C8100A] text-white px-2 py-0.5 text-[8.5px] font-black tracking-wider uppercase shadow-2xs whitespace-nowrap truncate">
-                                  {getPromoBadgeLabel(item)}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="font-heading font-black text-xs xs:text-sm sm:text-lg text-[#141414] leading-none whitespace-nowrap">
-                                Rp {normalPrice.toLocaleString("id-ID")}
-                              </span>
-                            )}
+                              )}
+                            </div>
+
+                            {/* 4. Tasting Notes / Short Description (Fixed 2-line box height) */}
+                            <p className="mt-1 text-[10px] xs:text-xs sm:text-[12.5px] text-[#5C584E] font-body leading-[1.35] line-clamp-2 min-h-[2.7em]">
+                              {cleanText(item.description) || "Racikan istimewa pilihan barista Side Line."}
+                            </p>
                           </div>
 
-                          {/* 4. Tasting Notes / Short Description (Fixed 2-line box height) */}
-                          <p className="mt-1.5 sm:mt-2 text-[10px] xs:text-xs sm:text-[13px] text-[#5C584E] font-body leading-relaxed line-clamp-2 min-h-[2.8em] sm:min-h-[3.25em]">
-                            {cleanText(item.description) || "Racikan istimewa pilihan barista Side Line."}
-                          </p>
+                          {/* 5. Badge Rekomendasi Chef sejajar tepat di batas bawah foto menu */}
+                          {isChefRecommended && (
+                            <div className="mt-auto pt-1.5 sm:pt-1 flex items-center justify-end w-full">
+                              <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-[#FFFDF6] via-[#FBF0D2] to-[#F6DFA8] border border-[#C9963A]/45 pl-2.5 pr-1 py-0.5 sm:pl-3 sm:pr-1 sm:py-0.5 text-[7.5px] xs:text-[8.5px] sm:text-[9px] font-heading font-extrabold tracking-[0.08em] uppercase text-[#3A2210] shadow-[0_2px_10px_rgba(145,92,24,0.14)] group-hover:border-[#C8100A]/45 group-hover:shadow-[0_3px_12px_rgba(200,16,10,0.16)] transition-all">
+                                <span
+                                  className="h-1.5 w-1.5 rounded-full bg-[#C8100A]/85 shrink-0"
+                                  aria-hidden="true"
+                                />
+                                <span>Rekomendasi Chef</span>
+                                <span className="flex h-3.5 w-3.5 sm:h-[17px] sm:w-[17px] items-center justify-center rounded-full bg-gradient-to-br from-[#D61913] to-[#990B07] text-[#FFF6DC] shadow-2xs shrink-0">
+                                  <ThumbsUp className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" strokeWidth={2.2} />
+                                </span>
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-
-                      {/* 5. Footer Slot Seragam (Rekomendasi Chef Badge di Kanan) */}
-                      <div className="mt-auto pt-2 sm:pt-2.5 min-h-[26px] sm:min-h-[30px] flex items-center justify-end z-10 w-full">
-                        {isChefRecommended && (
-                          <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-[#FFFDF6] via-[#FBF0D2] to-[#F6DFA8] border border-[#C9963A]/45 pl-2.5 pr-1 py-0.5 sm:pl-3 sm:pr-1 sm:py-1 text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-heading font-extrabold tracking-[0.08em] uppercase text-[#3A2210] shadow-[0_2px_10px_rgba(145,92,24,0.14)] group-hover:border-[#C8100A]/45 group-hover:shadow-[0_3px_12px_rgba(200,16,10,0.16)] transition-all">
-                            <span
-                              className="h-1.5 w-1.5 rounded-full bg-[#C8100A]/85 shrink-0"
-                              aria-hidden="true"
-                            />
-                            <span>Rekomendasi Chef</span>
-                            <span className="flex h-3.5 w-3.5 sm:h-[18px] sm:w-[18px] items-center justify-center rounded-full bg-gradient-to-br from-[#D61913] to-[#990B07] text-[#FFF6DC] shadow-2xs shrink-0">
-                              <ThumbsUp className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" strokeWidth={2.2} />
-                            </span>
-                          </span>
-                        )}
                       </div>
                     </article>
                   );
